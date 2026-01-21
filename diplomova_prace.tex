@@ -1,0 +1,482 @@
+\documentclass[FM,DP,fonts]{tulthesis}
+% tento dokument používá balíky specifické pro XeLaTeX a lze jej přeložit
+% jen XeLaTeXem, nemáte-li instalována použitá (komerční) písma, změňte
+% nebo vymažte příkazy \set...font na následujících řádcích
+
+\newcommand{\verze}{2.3}
+
+\usepackage{polyglossia}
+\setdefaultlanguage{czech}
+
+\usepackage[ 
+    backend=biber
+    % ,style=iso-authoryear % styl vyžaduje FZS TUL , místo příkazu \cite{} je potřeba využít \parencite{} (sazba kulatých závorek) / style required by FZS TUL use \parencite{} instead of \cite{}
+    ,style=iso-authoryear 
+    %,style=numeric
+    %,sortlocale=cs_CZ
+    ,sorting=nyt %seřazeno jméno, rok, titul
+    ,autolang=other
+    ,bibencoding=UTF8
+    %,urldate=edtf
+    ,maxcitenames=2 %maximum v textu citovaných jmen
+    ,maxbibnames=3 %maximum v seznamu vyjmenovaných autorů
+]{biblatex}
+\bibliography{diplomova_prace}
+
+\usepackage{makeidx}
+\makeindex
+
+\usepackage{xunicode}
+\usepackage[none]{hyphenat}
+\usepackage{xltxtra}
+\usepackage{float}
+\usepackage{appendix}
+\renewcommand{\appendixname}{Příloha}
+% potřebuji neproporcionální kurzívu, kterou Noto Sans Mono zatím nemá
+% ˇ\setmonofont{Roboto Mono}
+
+% příkazy specifické pro tento dokument
+\newcommand{\argument}[1]{{\ttfamily\color{\tulcolor}#1}}
+\newcommand{\argumentprom}[1]{\argument{\{\emph{#1}\}}}
+\newcommand{\argumentindex}[1]{\argument{#1}\index{#1}}
+\newcommand{\prostredi}[1]{\argumentindex{#1}}
+\newcommand{\prikazneindex}[1]{\argument{\textbackslash #1}}
+\newcommand{\prikaz}[1]{\prikazneindex{#1}\index{#1@\textbackslash #1}}
+\newenvironment{myquote}{\begin{list}{}{\setlength\leftmargin\parindent}\item[]}{\end{list}}
+\newenvironment{listing}{\begin{myquote}\color{\tulcolor}}{\end{myquote}}
+\newcommand{\polozka}[1]{\item[#1]\mbox{}\\}
+
+\clubpenalty=10000
+\widowpenalty=10000
+\sloppy
+
+% deklarace pro titulní stránku
+\TULtitle{Architektura systému pohledové inspekce kvality}{}
+\TULauthor{Bc. Kevin Daněk}
+
+% pro bakalářské, diplomové a disertační práce
+\TULprogramme{N0613A140028}{Informační technologie}{Information Technology}
+\TULbranch{N0613A140028AI}{Aplikovaná informatika}{Applied Informatics}
+%\TULbranch{1802T008}{Nějaký jiný obor}{Some other branch}
+\TULsupervisor{Ing. Igor Kopetschke}
+%\TULconsultant{doc. RNDr. Pavel Satrapa, Ph.D.}
+%\TULconsultant{doc. RNDr. Druhý Konzultant, Ph.D.}
+%\TULconsultant{doc. RNDr. Třetí Konzultant, Ph.D.}
+\TULyear{2025}
+
+% pro habilitační práce
+%\TULbranch{}{Technická kybernetika}{Technical cybernetics}
+%\TULyear{2021}
+
+\begin{document}
+
+\ThesisStart{male}
+%\ThesisStart{zadani-a-prohlaseni.pdf}
+
+\begin{abstractCZ}
+Tato zpráva popisuje třídu \texttt{tulthesis} pro sazbu absolventských prací
+Technické univerzity v~Liberci pomocí typografického systému \LaTeX.
+\end{abstractCZ}
+
+\begin{keywordsCZ}
+\LaTeX, třída, TUL
+\end{keywordsCZ}
+
+\vspace{2cm}
+
+\begin{abstractEN}
+This report describes the \texttt{tulthesis} package for Technical university of
+Liberec thesis typesetting using the \LaTeX\ typographic system.
+\end{abstractEN}
+
+\begin{keywordsEN}
+\LaTeX, class, TUL
+\end{keywordsEN}
+
+\clearpage
+
+\begin{acknowledgement}
+
+Dál bych chtěl poděkovat i zbytku akademické obce, se kterou jsem měl co dočinění. I když se s některými jejími členy, ozvláště pak z nadřízených pozic, neshodnu ani na počasí, tak díky každému jsem získal novou zkušenost. Někdy byla pozitivní, a někdy zase i negativní - to ale k životu patří.
+
+A na závěr musím poděkovat svojí drahé polovičce, Simče Daňkové, která mě podporovala po celou dobu psaní této práce. Na začátku této práce byla mou přítelkyní, a nyní, na jejím konci, je již mojí manželkou. Díky ní si budu tuto práci pamatovat nejenom jako svůj \textit{magnum opus}, ale jako životní milník, kterým se změnil skoro každý aspekt mého života. Pokud Vás zajímají regionální dějiny a příběhy z časů minulých, doporučuji si přečíst její bakalářskou práci, kterou tvořila souběžně s tou mojí, a zabývá se tématem sebevražd po druhé světové válce na Liberecku a obzvláště v Jablonci nad Nisou a jeho blízkém okolí. 
+
+\end{acknowledgement}
+
+\phantomsection\addcontentsline{toc}{section}{Obsah}
+\tableofcontents
+
+\clearpage
+
+\begin{abbrList}
+\textbf{CD} & Continuous Deployment (Postupné nasazení)\\
+\textbf{CI} & Continuous Integration (Postupná integrace)\\
+\textbf{DevOps} & Development Operations \\
+\textbf{GPG} & GNU Privacy Guard \\
+\textbf{JSON} & Javascript Object Notation \\
+\textbf{JWT} & JSON Web Tokens \\
+\textbf{SecOps} & Security Operations \\
+\textbf{SSH} & Secure Shell \\
+\textbf{TPM} & Trusted Platform Module \\ 
+\end{abbrList}
+
+\chapter{Úvod}
+Cílem této práce není vytvářet nové softwarové funkce, ale podívat se na systém jako celek z pohledu softwarového inženýrství. Je totiž nezbytné věnovat se technickému dluhu, metodám pro nasazení softwaru a kvalitě kódu, vysvětlit na konkrétních příkladech, proč jsou 
+
+\chapter{Osvědčené techniky softwarového inženýrství}
+Softwarové inženýrství je disciplína, která formalizuje programovací postupy do sady rad, vzorů a doporučení, které chybováním ostatních inženýrů vykrystalizovali jako nejvhodnější. Programátor vybavený klávesnicí dokáže vytvořit téměr cokoliv, co ho napadne. Stejně jako malíř se štětcem dokáže nakreslit téměř cokoliv si představí. Je ovšem pozoruhodné, že, narozdíl od programátorů, malíři často úmyslně omezí své možnosti. Dodržením určitých pravidel totiž docílí toho, že obraz nebude pouze nic neříkající kaluž čar a barev. Z obrazu se stane myšlenka, kterou další člověk dokáže rozpoznat pomocí svých instinktů.
+
+Programování nemá od této myšlenky zas tak daleko. Pokud se ve vývoji zavážeme dodržovat určitá pravidla, umožníme tím ostatním programátorům snáze pochopit, čeho se kód snaží docílit. Ze snáze pochopitelného a předvídatelného kódu benefituje i samotný autor, který může s odstupem času přijít ke kódu zpět a netrávit čas nad jeho luštěním.
+
+Problematickým rozdílem mezi programováním a malováním je účel výsledku. Obrazy jsou převážně na ozdobu, zatímco program má sloužit svému účelu, čímž jsou na něj kladeny úplně jiné nároky. Programátor dokáže vytvořit program, ovšem softwarový inženýr chápe smysl úmyslného omezení, které plyne z dodržování pravidel společně s \textit{best-practices}. Také ví, kdy pravidla a \textit{best-practices} obejít a co za následky z toho plyne.
+
+Softwarové inženýrství je oborem obsáhlým, a proto jsou v této kapitole pouze vybraná témata, která jsou relevantní pro pozdější části práce.
+
+\section{Technický dluh a jeho řešení}
+Technický dluh vzniká v situaci, kdy došlo k nedodržení doporučených postupů či špatnému návrhu za účelem rychlejšího dokončení vývoje. Krátkodobě ušetřený čas se totiž vždy projeví jako dlouhodobé zdržení, obzvláště když je potřeba s kódem  dále pracovat. Ušetření času nemusí být nutně negativní věc, je ovšem potřeba se vzniklým technickým dluhem nakládat opatrně.
+
+Martin Fowler ve svém blogu z roku 2009 rozděluje technický dluh do čtyř kategorií, přičemž dluh klasifikuje podle toho, zda-li byl úmyslný či neúmyslný, a jestli byl vývojář v daný okamžit obezřetný či nedbalý. Dluh je úmyslný nebo neúmyslný podle toho, jestli si je programátor vědom toho, že dělá něco špatně. Na druhou stranu dluh je nedbalý nebo obezřetný, pokud programátor nemá, respektive má, vůli a prostředky technický dluh řešit \parencite{fowler-technical-debt}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{obrazky/diplomka/tech_debt_matrix.png}
+	\centering
+	\caption{Kvadranty technického dluhu \parencite{asana-technical-debt}}
+\end{figure}
+
+Tento model nám pomáhá pochopit vznik a druhy technického dluhu, avšak je technický dluh opravdu takový problém?  
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{obrazky/diplomka/tech_debt_matrix_solution.png}
+	\centering
+	\caption{Kvadranty řešení technického dluhu \parencite{forest-technical-debt}}
+\end{figure}
+
+churn
+
+\section{Návrhové vzory}
+
+\section{Clean Code}
+\textbf{Clean Code} je souhrnný název pro sadu pravidel a doporučení, které mají za cíl snížit kongitivní zátěž při čtení a údržbě kódu. Na clean code je spíše pohlíženo jako na princip a myšlenkový pochod, který má za cíl usnadnit práci nejenom ostatním vývojářům v týmu, ale i autorovi v budoucnu, pokud se ke kódu vrátí s odstupem času. Jak píše i samotný Robert Martin ve své knize \textit{Clean Code: A Handbook of Agile Software Craftsmanship}, každý může s jednotlivými zásadami pro \textit{Clean Code} souhlasit či nesouhlasit, nejedná se o absolutní pravdu.
+
+Je ovšem důležité si uvědomit, že cílem \textit{Clean Code} není fanatické dodržování arbitrárních pravidel, která jsou vytesána do kamenných desek jako desatero Božích příkázání. Cílem je zmírnit dopad neudržitelného kódu, často psaného ve spěchu na koleni, na budoucí produktivitu celého týmu. Žádoucím výsledkem je minimální pokles produktivity v čase a vyhnout se velkým přepisům a refaktorům celého projektu.
+
+Clean Code a technický dluh jdou ruku v ruce. Jedna z příčin technického dluhu je právě zanedbání čitelnosti a udržitelnosti za cenu momentálního zrychlení vývoje. Dodržení, či alespoň snaha o Clean Code, nese sebou cenu dočasného zpomalení vývoje. Vývojář dočasně investuje více kongitivní aktivity do práce s kódem, aby ji mohl v budoucnu ušetřit.
+
+V této kapitole si dovolím vyzdvihnout několik zásad, která mají dle mého názoru největší dopad na čitelnost a udržitelnost kódu.
+
+\subsection{Identifikátory}
+V programech pojmenováváme mnohé konstrukce. Od proměnných, funkcí, návětší, tříd a různých struktur a jazykových specifik. Je důležité mít za názvem nějaký smysl, a právě o tom je tato kapitola. Jak tedy identifikátor smysluplně pojmenovat?
+
+Název identifikátoru by měl zodpovídat otázky jako: "Proč to existuje?", "Co to dělá?" a "Co se s tím dělá?". Samotný název by neměl záviset na explicitním kontextu, ale implicitně by nám měl prozradit odpovědi na tyto otázky. Například proměnné - jednopísmenný název nám nic nenapoví o funkci a důvodu existence této proměnné, ovšem pokud řešíme úlohu nalezení délky přepony pravoúhlého trojúhelníku, tak název \texttt{delkaPreponyCm} nám již prozradí, co se schovává za její hodnou.
+
+Ke smysluplnosti názvu identifikátoru patří i zdánlivě jasné, ač z anekdotické zkušenosti často nedodržované, pravidlo - název nesmí lhát. Nenazývejme věc seznamem, pokud to skutečně není seznam. Od seznamu očekáváme možnost indexovat pomocí přirozených čísel, ovšem pokud se za názvem schovává slovník, je tento předpoklad rozbitý a kód nám \textit{defacto} lže. S tím souvisí i zdánlivě podobné názvy. V dnešní době, kdy vývojová prostředí nabízejí možnosti v našeptávači, nebo agenti dokončují implementace, je malý rozdíl v jinak podobných názvech katastrofa čekající na dokončení našeptávačem.
+
+Jednotlivé názvy by se měly od sebe lišit nejenom pro vyvarování se nahodilé záměny, ale také pro to, aby bylo možné v kódu sledovat, jakou roli vlastně daný identifikátor plní. Pokud argumenty funkce pojmenujeme stejným slovem a přidáme sufix v podobě číslovky, rozhodně nám to nepoví tolik, jako když každý argument důsledně pojmenujeme podle jeho role v implementaci. Kromě číslovek se lze často setkat s přístupem přidání afixů jako \texttt{manager} nebo \texttt{data}. Pokud názvy od sebe odlišíme akorát těmito afixy, ztrácí se smysl daných proměnných. Mnohdy totiž vývojář použije název s afixem jenom proto, že identifikátor již v kontextu existuje a nenapadá ho lepší název. Když názvy nesou různé významy, musí být taky různě pojmenovány.
+
+Identifikátory by měli být hledatelné a vyslovitelné. Není žádným překvapením, že pokud chceme se zbytkem týmu diskutovat o kódu, budeme používat slova. \textit{Clean Code} doporučuje mít identifikátory pojmenované tak, aby je bylo možné používat v diskuzi jako běžná slova. Vyhneme se tím dlouhému přemýšlení nad tím, co daná zkratka znamená, a můžeme se místo toho soustředit na podstatu věci. Navíc, pokud budeme chtít daný identifikátor v kódu vyhledat, musí být v názvu dostatečně odlišitelný od odstatních a zároveň nesmí být moc obecný. Je vhodné se vyvarovat magickým konstantám v řídících strukturách, a dát jim smysluplný název na vrcholu kontextu.
+
+S odlišováním musí být člověk opatrný, protože to může svádět k porušení dalšího doporučení, které radí nekódovat informaci o typu nebo kontextu do názvu proměnné. V době našeptávačů a statických analyzérů již není potřeba zakódovat typ proměnné do jejího identifikátoru. Stejně jako není potřeba do názvu rozhraní zakódovat, že se jedná o rozhraní. Pokud nastane případ, kdy máme kolizi názvu rozhraní a třídy, je to pro nás indikátor, že je třeba se nad názvy lépe zamyslet. Ač bychom mohli mít třídu \texttt{Camera} a k tomu rozhraní \texttt{ICamera}, je lepší třídu pojmenovat \texttt{CameraImplementation} a nebo podle návrhového vzoru \texttt{CameraFactory}. V tomto případě totiž dáváme do názvu informaci o způsobu, jakým třída funguje a co dělá, a nekódujeme akorát typ do identifikátoru.
+
+\subsection{Funkce}
+
+\subsection{title}
+
+
+\section{Zásady distribuovaného programování}
+
+\section{Zásady resilientní komunikace}
+
+\section{Testování}
+
+\section{Verzování}
+
+\section{Postupná integrace a postupné nasazení}
+
+\section{Monitorování nasazeného systému}
+Kritickou součástí vývoje softwaru je jeho testování a ladění (debugging). Testy, například jednotkové nebo integrační, simulují chování systému za různých podmínek a následné ladění pomocí debuggerů odhaluje jeho vnitřní stav instrukce po instrukci. V praxi ovšem není možné odhalit všechny chyby a dojde na situace, kdy se v nasazeném řešení chyba objeví. Při lokálním vývoji by se program odkrokoval debuggerem a zjistili se okolnosti, které chybu způsobily.
+
+V produkčním nasazení ovšem luxus odkrokování programu zpravidla nemáme, ať už kvůli chybějícím pomocným strukturám (například \textit{symbol table}) a nebo kvůli optimalizacím kompilátoru, který program převede do jazyka symbolických adres či byte kódu. Když tedy nelze pozorovat stav programu zevnitř, nezbývá nám nic jiného, než ho pozorovat zvenčí - a konkrétně přes jeho výstupy. Schopnost pozorovat chování systému na základě jeho výstupů nazýváme \textbf{observabilitou}.
+
+Mnoho autorů a spolků, kteří se observabilitou zabývají, jí rozdělují na pilíře. Cílem těchto pilířů je zodpovědět na otázky: \textit{Co se to děje?}, \textit{Proč se to děje?} a \textit{Kde se to děje?}. Každý pilíř tak doplňuje informace k těm dalším, a dohromady tvoří kompletní vhled do chování systému. \parencite{elastic-observability} Tato práce ovšem bude na observabilitu nahlížet trochu jinak. Paradigma pilířů indikuje, že každý pilíř je disjunktním článkem, které, když se spojí dohromady, tvoří observabilitu. 
+
+%% TODO: Obrázek, že v nasazeném řešení můžeme pozorovat pouze výstupy,
+
+\subsection{Logy}
+Jedním z nejčastějších výstupů programu, který se používá pro ladění nasazeného řešení, jsou logy. Jedná se o textové záznamy, které nesou informaci o událostech v programu. Logování má své zásady a doporučení, jejichž dodržení či nedodržení ovlivňuje míru, kterou nám logy pomohou s diagnostikou problému. Ačkoliv je logování velmi užitečné, nedává nám komplexní obraz o chování systému, protože se jedná jenom o jeden z možných výstupů programu. Program může vytvářet další telemetrická data, která mohou být následně dále zpracována.
+
+\subsection{Metriky}
+Metriky jsou kvantitativní veličiny, které měří konkrétní vlastnosti běžícího programu. Můžeme tak měřit například počet požadavků na konkrétní instanci či počet I/O operací. Metriky máme přímo měřené a odvozené, přičemž odvozené metriky můžeme zjišťovat z logů (například počet chyb v čase)
+
+Je nutné podotknout, že metriky má smysl zaznamenávat dlouhodobě jakožto časové řady, abychom určili chování systému v čase. Je nutné tak metriky zaznamenávat na základě události, nebo pravidelného měření. Naopak zaznamenávat metriky vycházející ze statické analýzy smysl nedává, protože pokud bychom chtěli například analyzovat složitost programu pomocí Halsteadových vzorců, tak se tato metrika nemůže měnit v čase běhu programu. Naopak zatížení konkrétní instance programu nebo využití hardwarových prostředků proměnlivé čase běhu programu je.
+
+\chapter{Architektura nasazeného řešení}
+
+\section{Analýza stávajícího řešení}
+Cílem této kapitoly je provést podrobnou analýzu stávajícího řešení a identifikovat jeho případné nedostatky či zásadní chyby v návrhu, které mohou negativně ovlivnit běh, stabilitu a celkovou spolehlivost systému. K tomuto účelu byly využity tzv. C4 diagramy, což je metodika vizualizace softwarové architektury, která umožňuje nahlížet na systém z několika úrovní abstrakce – od celkového kontextu systému až po detailní zobrazení jednotlivých komponent. Tato strukturovaná forma modelování pomáhá nejen pochopit architekturu z pohledu různých cílových skupin (např. vývojáři, architekti, zadavatelé), ale také usnadňuje identifikaci slabých míst návrhu a jejich následnou optimalizaci.
+
+\subsection{Diagram systémového kontextu}
+\label{chapter:system_context}
+Prvním diagramem je diagram systémového kontextu. Ten nám dovoluje modelovat systém jako střed diagramu, který je obklopen uživateli a dalšími systémy, se kterými interaguje. Cílem není tedy modelovat samotný systém, ale prostředí, ve kterém je nasazen. V kontextu CLOUCODE AITechDetect umožňuje modelovat, jací uživatelé se systémem interagují a jaké další systémy nasazené řešení potřebuje. V diagramu [doplň odkaz] je znázorněn diagram systémového kontextu pro AITechDetect. První věcí, kterou můžeme z diagramu zjistit, je fakt, že celé řešení není nadstavbou nad dalším řešením spravované jinou společností. 
+
+\subsection{Diagram kontejnerů}
+
+\subsection{Diagram komponent}
+
+\subsection{Komunikace mezi kontejnery}
+
+\subsection{Absence návrhových vzorů}
+
+\subsection{Absence architektury}
+
+\subsection{Absence zotavení z výjimky}
+
+\subsection{Absence procesu sestavení a nasazení}
+
+\subsection{Absence použitelné uživatelské dokumentace}
+
+\chapter{Mitigace chyb v archiktuře}
+Po analýze celého systému je možné začít jednotlivé neduhy napravovat. Tato kapitola dokumentuje jednotlivé snahy o napravení nalezených problémů a slabin, pričemž zvláštní důraz je kladen na empirický přístup k implementaci nejlepšího řešení. Je tedy možné, že potenciální náprava problému se po měření ukáže jako ta, která působí více škody než užitku. Nelze takto ale měřit všechny problémové aspekty, a u takových případů je kladen důraz na \textit{best-practices} vyjmenované v konkrétních CWE.  
+
+\section{Definice softwarových požadavků}
+Před samotným vývojem softwaru je velmi užitečné sepsat dokument, který jasně vymezí, co se od výsledného řešení očekává. Norma ISO 29148 takový dokument nazývá specifikace softwarových požadavků. Tato norma popisuje požadavky a související aspekty do velkého detailu, takže kompletní využití celé osnovy se v praxi obvykle nepoužívá. To ale neznamená, že by se měl tento přístup úplně zavrhnout – i stručná a základní verze specifikace pomáhá předejít chybným interpretacím zadání a následným nedorozuměním mezi vývojáři a zákazníky.
+
+Specifikace by však neměla být jen seznamem funkcí. Důležitý je také kontext výsledného produktu. Dokument proto neslouží jen programátorům, ale i dalším zúčastněným stranám, jako jsou testeři nebo designeři. Ti potřebují znát prostředí, ve kterém bude software používán, a úkony, které má plnit. Typická specifikace softwarových požadavků se skládá ze tří hlavních částí:
+\begin{itemize}
+	\item \textbf{Přehled produktu}, ve které se popíše produkt, jeho kontext, uživatelé a možná omezení.
+	\item \textbf{Přehled požadavků}, která definuje požadavky na funkce, systémy, rozhraní, návrh či kvalitu.
+	\item \textbf{Přehled ověřovacích metod}, která definuje způsoby ověření skutečnosti, že byl software vytvořen v souladu se zadáním.
+\end{itemize}
+\clearpage
+
+\subsection{Přehled produktu}
+Přehled o produktu, který je předmětem této práce, již částečně poskytla kapitola \ref{chapter:system_context} s diagramem systémového kontextu. Tyto diagramy dobře zobrazují vztahy mezi produktem, jeho uživateli a externími systémy. Na druhou stranu se však příliš nevěnují samotnému produktu – chybí jim pohled dovnitř, tedy zaměření na jeho funkce a omezení.
+
+Jádrem systému AITechDetect je proces inspekce. Ten probíhá ve třech krocích: pořízení fotografie, její vyhodnocení a následné uložení. Na tento základní proces navazují rozšiřující funkce, například vícepohledová inspekce, anotace snímků, archivace kontrol nebo správa specifikací a projektů.
+
+% Tady musím napsat obecný popis toho, co má AITechDetect za core funkci - vyfotit, vyhodnotit, uložit.
+
+\subsection{Přehled produktu}
+
+\subsection{Přehled ověřovacích metod}
+
+
+
+\section{Mitigace chyb v archiktuře}
+
+\subsection{Rozbití monolitu}
+Monolitický návrh řešení je pro začátek vývojového cyklu velmi výhodnou cestou. Umožňuje totiž velmi snadno komunikovat mezi částmi aplikace a přidávat nové funkcionality, které staví na těch předchozích. Výhodou je také to, že řešení se chová a pouští jako celek, který nepotřebuje k jeho běhu další závislosti.
+
+Každý větší projekt se ovšem jednou dostane do fáze, kdy je třeba zvážit, jestli monolitický návrh projektu spíše neškodí. Neošetřená chyba v jedné části programu sebou stáhne celý program a části, které nijak s chybovým kódem nesouvisí, jsou kvůli pádu programu nedostupné. Pokud je monolit dostatečně velký, nese sebou i jistou míru komplexity, která stěžuje hledání chyb a jejich reprodukci. Navíc pokud je monolit orientovaný kolem určité technologie, např. kombinace Flask a Python, jsou do této technologie vývojáři uzamčeny, i když zrovna nemusí být ta nejideálnější, a v horším případě i aktivně nedoporučovaná.
+
+Důvodů pro zachování monolitu i pro jeho rozbití je v případě CLOUDCODE AITechDetect mnoho, k jeho rozbití bylo nakonec přistoupeno s ohledem na budoucí implementaci CI/CD, monitoringu a způsobu nasazení pomocí kontejnerů, enginu Docker a Docker Compose pro orchestraci kontejnerů. Do kontejnerového diagramu tudíž přibudou nové kontejnery, které se převážně odštěpí od Flask Serveru.
+\begin{itemize}
+    \item CCM-ML
+    \item CCM-INSPEKCE
+    \item CCM-FRONTEND
+    \item CCM-BACKEND
+    \item CCM-BROKER
+\end{itemize}
+
+Jedna věc je monolit rozbít, ale druhou je jednotlivé části opět spojit zpátky. K tomu má sloužit primárně kontejner CCM-BROKER, se kterým lze komunikovat pomocí HTTP nebo pomocí Websockets.
+
+\subsection{Přidání definic funkcí a životních cyklů v řešení}
+
+
+\subsection{Přidání brokeru pro systémové zprávy a události}
+https://kafka.apache.org/documentation/
+
+\subsection{Normalizování schématu relační databáze}
+AITechDetect využívá relační databází SQLite pro uchovávání některých dat systému. V této kapitole je cílem podívat se na schéma této relační databáze a normalizovat ho na úroveň, kdy nebude docházet k aktualizačním anomáliím. Databáze obsahuje celkově 8 tabulek, které jsou ovšem svými atributy natolik rozsáhlé, že nebudou zakresleny do ER diagramu, ale podrobně popsány v následujícím textu.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/er_diagram_before.png}
+	\centering
+	\caption{Zkrácený ER Diagram původního schématu databáze}
+\end{figure}
+
+\section{Mitigace chyb v návrhu databáze}
+
+\subsubsection{Normální formy}
+% povídání o BCNF
+
+
+\subsubsection{Návrh schématu}
+Při návrhu schématu relační databáze je třeba dbát na fakt, že databáze má modelovat vztahy mezi entitami z reálného světa. Je proto důležité mít výčet těchto entit a jaké mají mezi sebou závislosti. Mezi podstatné entity modelu AITechDetect patří:
+\begin{itemize}
+	\item \textbf{Projekty}, neboli logická jednotka pro konkrétní druh výrobku a jeho souvisejících kontrol,
+	\item \textbf{Vady}, které je možné nalézt na výrobku,
+	\item \textbf{Kamery}, které jsou rozmístěné na kontrolní stanici,
+	\item \textbf{Specifikace}, která určuje zásady pro vyhodnocení kontroly (kolik vad je ještě v pořádku),
+	\item a \textbf{Kontroly}, které zaznamenávají výsledek jednotlivých kontrol inspekce.
+\end{itemize}
+
+Každá inspekce se odvíjí od projektů, které reprezentují jednotlivé druhy výrobků, které systém kontroluje.
+
+\subsubsection{Druhy vad}
+Tabulka \texttt{druh\_vady} je minimálně v BCNF, a to čistě z toho důvodu, že obsahuje tři atributy - identifikační číslo vady, název a přepínač, jestli je vada považována na smazanou. 
+
+\subsubsection{Vytvoření vlastního systému migrací}
+
+
+\begin{itemize}
+	\item \texttt{druh\_vady}, která reprezentuje vadu na výrobku
+	\item \texttt{uzivatel}, která reprezentuje přihlášeného uživatele v systému
+	\item \texttt{neural\_network}, která reprezentuje natrénovanou neuronovou síť
+	\item \texttt{specifikace}, která definuje kolik vad a jakého druhu může být na jednom výrokbu.
+\end{itemize}
+
+\subsection{Přepsání API rozhraní do kompilovaného jazyka}
+Webové API poskytující služby pro uživatelské rozhraní a další součásti systému AITechDetect je napsán v jazyce Python, který je interpretovaný. To sebou přináší několik obtíží a \textit{overhead} v podobě interpreteru. Dalším problémem je fakt, že zdrojový kód aplikace je čitelný běžnému smrtelníkovi, což je v rámci politiky společnosti stav nežádoucí. Nabízela se tedy otázka, zdali by nebylo výhodné tuto část apliakce zkompilovat a jaký jazyk k tomu využít. Pro python existují kompilační nástroje, ovšem kompilace trvají dlouho a navíc přinášejí další zátěž do celého procesu.
+
+Pro účely měření byl vytvořen testovací dataset o velikosti 1000 souborů JSON. Cílem úlohy bylo tyto data načíst a vrátit jako jeden velký JSON payload. Měření probíhalo pomocí nástroje Apache Benchmark, kde byl postupně zvyšován počet celkových požadavků a počet celkově souběžných požadavků. Měření byla provedena na stejném hardware se srovnatelně stejným zatížením od operačního systému Ubuntu 24.02. První měření proběhlo na implementaci v jazyce Python
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/request_speed_python.png}
+	\centering
+	\caption{Porovnání rychlosti čtení datasetu}
+    \label{fig:dataset_speed_python}
+\end{figure}
+
+Z grafu \ref{fig:dataset_speed_python} můžeme vidět, že nízké počty celkových požadavků byly obslouženy decentně, ovšem s rostoucím sekvenčním zatížením výkon python serveru klesá. Lze spekulovat nad důvodem takového poklesu, ozvláště když je pokles vázaný na počet celkových požadavků a ne na počet souběžných požadavků. Jedním z možných vysvětlení je manipulace paměti při alokování a dealokování proměnných, které mohou negativně ovlinit následné požadavky. Problémy se správou paměti a \textit{garbage collection} algoritmy je u intepretovaných jazyků znám již dlouho, a je to jedna z věcí, kterou je třeba zvážit při výběru platformy. Další možností, či pouze faktorem, je prodleva při manipulaci s vlákny, které Flask používá k obsluze požadavků. V některých případech je pohodlí vývoje na úkor menší výkonové ztráty přijatelná. V případě systému AITechDetect ovšem není, a proto bylo přistoupeno k implementaci v jiném, kompilovaném, programovacím jazyce.
+
+Volbou pro novou implementaci byl jazyk Go. Tento jazyk skvěle pasuje do prostředí kontejnerů, kdy výstupní obrazy mají minimální velikosti, a zároveň je optimalizovaný na webové aplikace. Navíc nemá natolik komplikovanou syntaxi, aby přechod z jazyka Python byl pro zbytek vývojového týmu složitý. Byl tedy implementován koncový bod pro načtení datasetu, který využívá gorutiny a synchronizační primitiva, a bylo provedeno další měření.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/request_speed_golang.png}
+	\centering
+	\caption{Porovnání rychlosti čtení datasetu}
+\end{figure}
+
+
+
+\subsubsection{Normalizace webového API}
+Původní webové API postrádalo konzistentní strukturu. CWE-1099 (Inconsistent Naming Conventions for Identifiers) upozorňuje na riziko, které s tím souvisí – konkrétně obtížnější lokalizaci chyb a slabin. Koncové body API byly nepředvídatelné a nebyly ani řádně dokumentované.
+
+Řešením bylo co nejvíce normalizovat webové rozhraní podle standardu REST. Pro jednotlivé entity byly vytvořeny patřičné CRUD operace a byla zavedena architektura MVC s menšími úpravami. \texttt{Controller} zajišťuje obsluhu jednotlivých cest, \texttt{model} se stará o interakci s databází a místo tradičních pohledů jsou vytvořeny \texttt{services}, které poskytují obecné funkce, například připojení k databázi nebo validaci dat. Využití architektury MVC přivedlo konzistenci při vytváření nových koncových bodů, protože lze jednoznačně oddělit odpovědnosti jednotlivých částí. 
+
+\subsubsection{Deklarativní validace vstupních dat}
+
+\subsubsection{Generování dokumentace z anotací}
+
+\subsection{Využití dokumentové databáze pro práci s JSON soubory}
+Jak bylo již řečeno v [[[[[Bakalářské práci, tady musíme dát proper odkaz]]]]], systém AITechDetect pracuje převážně nad soubory JSON. Každý dataset může mít od nižších desítek a po nižší desetitisíce takových souborů, a obzvláště na té větší spektra dochází k výrazném zpomalení při práci s datasety. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/mongo_golang_comp.png}
+	\centering
+	\caption{Porovnání rychlosti čtení datasetu}
+\end{figure}
+
+\subsection{Předělání systému projektů}
+
+\subsection{Přidání systému specifikací pro definici inspekce}
+Lorem ipsum už něco máme z Hajdíku, ale je to hard coded.
+
+\subsection{Přidání systému pro správu toolů}
+- Seznam toolů a jejich verzí
+- V seznamu projektů vidět nasazené verze
+- Evaluační metriky z https://en.wikipedia.org/wiki/F-score
+
+\subsection{Přidání důkladné autentizace a autorizace}
+Jak bylo popsáno v analýze původního stavu řešení, aplikace nyní postrádá autentizaci a autorizaci, čímž se otevírají dveře k slabinám, které jsou popsané v CWE-284. Než vymýšlet vlastní řešení a řešit všechny bezpečnostní problémy s tím spojené, včetně auditů, je výhodnější využít již existující řešení, které je prověřené a aktivně používané. Z tohoto důvodu se pro autentizaci a autorizaci využil Keycloak. Ten je distribuován pod licencí Apache License 2.0, která umožňuje komerční užití bez licenčních poplatků a jiných právních omezení, které by jinak bránily jeho využití v komerční sféře.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/licence}
+	\centering
+	\caption{Nasazení Keycloak kontejneru do systému AITechDetect}
+\end{figure}
+
+Keycloak umožňuje autentizaci pomocí protokolu OpenID, přičemž služby následně mohou uživatele autorizovat na základě dotazu, ve kterém přiloží informaci o chráněném zdroji a uživatelově tokenu. Keycloak pak rozhoduje, jestli má být uživatel autorizován či nikoliv. Služba má tak možnost vytvořit vlastní autorizační logiku, nebo ji delegovat na Keycloak.
+
+Jední
+
+\subsection{Přidání procesu sestavení řešení}
+
+\subsection{Předělání procesu nasazení}
+% orchestrace kontejnerů
+
+\subsection{Přidání observability a monitoringu}
+
+\subsection{Přidání licenčního systému}
+Jedním z požadavků společnosti CLOUDCODE bylo vytvořit systém licencování a zajistit, že software bude použit pouze oprávněnými uživateli a v souladu s podmínkami licence. Tento systém musí řešit dva problémy - jak zabránit neoprávněné manipulaci se soubory poskytující informaci o licenci, a jak zabránit neoprávněné reprodukci.
+
+AITechDetect je rozdělen do tří licencí, které se liší svými možnostmi a cenou. Licence jsou koncipované do hiearchie, kdy každá další úroveň obsahuje všechny funkce té předchozí. Cílem je poskytnout možnost levnější integrace výměnou za omezenější možnosti, které jsou pro danou problematiku dostačující. Na toto rozdělení funkcí je ale potřeba připravit i samotné řešení, a zabezpečit, že software bude odolný vůči účelné manipulaci zvenčí.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/licence}
+	\centering
+	\caption{AITechDetect licence}
+\end{figure}
+
+Integrita a platnost licence je řešena pomocí kryptograficky podepsaného souboru, čímž se zabrání jeho manipulaci. Aby vše bylo bezpečné, byla využita asymetrická kryptografie. Licenční soubor je podepsán privátním klíčem zaměstnance CLOUDCODE a aplikace AITechDetect využívá veřejný klíč k ověření daného podpisu.
+
+Samotná implementace licenčního systému byla koncipována jako webová služba, která implementuje rozhraní nad \textit{GNU Privacy Guard} (GPG). Ten slouží ke správě klíčů a šifrování dat, a běžně se používá pro generování klíčů například pro SSH. GPG ovšem není jenom na vytvoření páru klíčů. Umožňuje také z privátního klíče generovat podklíče. Ty jsou využity jako další bezpečnostní opatření, ale tentokrát na straně samotné společnosti. Licenční systém totiž pro dané zaměstance vygeneruje unikátní podklíče, čímž je zajištěno, že původní privátní klíč nikdy nepřijde do styku se zaměstanci ani se zákazníky a je tak razantně nižší šance jeho kompromitace.
+
+Posledním bezpečnostním opatřením bylo napojení licenčního systému na autorizační kontejner. Aby mohl zaměstnanec vytvářet licence, musí mít k tomu patřičná oprávnění definovaná v aplikaci Keycloak. Pokud tak není učiněno, licenční systém odmítne vystavit zaměstnanci jak podklíč, tak i podepsanou licenci. Tím je zajištěno, že k vytváření licencí má přístup pouze kontrolovaný počet zaměstnanců, kteří jsou tímto úkolem pověřeni a pro které případně plyne odpovědnost z nekalého počínání.
+
+Podepsáním licenčního souboru je zajištěna integrita dat o zakoupené licenci, ovšem je potřeba také řešení ochránit před neoprávněnou reprodukcí. Počet možností zásadně snižuje fakt, že ověření licence musí kvůli bezpečnostním zásadám klientů fungovat offline. Nad tímto problémem byla vedena dlouhá úvaha. Prvotní myšlenka byla vytvořit otisky zařízení, ovšem řešení nasazováno v kontejnerech a tak nejde tak efektivně vytvářet otisky, nemluvě o situaci, kdy s dostatečným úsilím lze otisky zfalšovat. Další možností byly hardwarové klíče, které sice představují bezpečnější variantu, ale vyžadují fyzické umístění čipu do stanice nebo využití TPM. Tento způsob byl kvůli svému poměru náročnosti ku výsledku zamítnut.
+
+Finálním řešením této kopírovací otázky byla změna úhlu pohledu. Než-li se snažit zamezit neoprávněné reprodukci, je z hlediska času i zdrojů lepší ji ošetřit právně. Pokud je zákazníkem zakoupena licence na AITechDetect, může sice software a licenci zkopírovat, ale bude muset čelit potenciálním právním důsledkům. Mezi ně může patřit například smluvní pokuta ve výši násobku ceny projektu. Na podobném principu fungují dohody o mlčenlivosti, které sdílení utajené informace nezastaví, ale  potrestají odstrašující pokutou. Dalším faktorem je, že i při zatajení neoprávněné reprodukce se musí viník obejít bez podpory ze strany společnosti CLOUDCODE, protože žádáním o podporu by odhalil svůj přečin vůči smlouvě.
+
+\iffalse
+\chapter{Infrastruktura vnitřní sítě}
+Dobře navržená vnitřní síť a její infrastruktura by měla být oporou každodenní práce týmu, nikoli překážkou. Měla by poskytovat spolehlivé a bezpečné prostředí, které umožňuje jednotlivým členům týmu plně se soustředit na svou práci — ať už jde o vývoj, testování nebo nasazování aplikací.
+
+Cílem této kapitoly je analyzovat současný stav vnitřní sítě, identifikovat její nedostatky a navrhnout taková opatření, která povedou k vytvoření spolehlivého a efektivního DevOps prostředí. To by mělo umožnit týmu soustředit se primárně na vývoj aplikací a strojového učení, bez nutnosti řešit, kde běží jaká verze softwaru a na jakém systému lze bezpečně testovat.
+
+\section{Analýza počátečního stavu}
+V současném stavu je vnitřní síť organizována v podobě běžné domácí infrastruktury, bez centrální správy nebo vyhrazených serverových prostředků. V rámci subnetu \texttt{192.168.0.0/24} funguje několik zařízení, přičemž jedno z nich – pracovní stanice s výkonným GPU (NVIDIA RTX 3090) – zároveň slouží jako aplikační server.
+
+Tato pracovní stanice (dále jen \texttt{rtx3090}) provozuje serverovou aplikaci, ke které se přistupuje přímo pomocí její IP adresy v rámci lokální sítě. Server je spuštěn z vývojového prostředí (např. Visual Studio Code) a jeho běh není nijak oddělen od běžného provozu stanice. Tato stanice je zároveň využívána pro trénování neuronových sítí, což často zatěžuje systémové prostředky a v některých případech vyžaduje restart systému nebo způsobuje neočekávané ukončení serveru.
+
+Do vnitřní sítě se lze aktuálně připojit pouze pomocí nástroje VNCViewer, který umožňuje vzdálenou práci na \texttt{rtx3090}. Tento přístup je však náchylný ke kolizím, protože nepodporuje více souběžných relací — při jednom připojení dochází ke sdílení plochy i vstupních zařízení (myš, klávesnice), což znemožňuje paralelní práci více uživatelů.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/interni_sit_pocatecni.png}
+	\centering
+	\caption{Blokové schéma počátečního stavu interní sítě}
+\end{figure}
+
+V současnosti není na straně firmy zaveden žádný nástroj ani proces pro kontinuální integraci a nasazení (CI/CD). Změny v kódu jsou nasazovány ručně, což zvyšuje riziko nesrovnalostí mezi vývojovým a produkčním prostředím. Neprobíhá žádné automatické testování ani sestavování aplikace. Nové funkce se tak automaticky nenasadí do interního prostředí a nemohou být včas otestovány v kanceláři předtím, než se dostanou k zákazníkovi.
+
+V současnosti probíhá nasazení aplikace jednoduše pomocí příkazu \texttt{git pull} a přepnutí na konkrétní commit. Tento přístup ale nenabízí žádnou záruku, že se nasazuje stabilní nebo plně funkční verze softwaru — commit může být neotestovaný, rozpracovaný nebo nekompletní. Problému nasazení na cílovou stanici se bude práce věnovat v jiné kapitole, ovšem stejně jako je problematické nasazení u zákazníka, tak je problematické nasazení lokálně pro testování.
+
+\section{Návrh řešení}
+Cílem opatření je rozvinout ve společnosti DevOps, čímž 
+\begin{itemize}
+	\item \textbf{Wireguard} jako služba VPN pro vzdálený přístup do sítě.
+	\item \textbf{Rustdesk} pro vzdálený RDP.
+	\item \textbf{Coolify} pro správu interních hostovaných služeb.
+	\item \textbf{Caddy} pro reverse-proxy.
+	\item \textbf{Něco} pro správu natrénovaných modelů.
+\end{itemize}
+
+\section{Implementace řešení}
+
+\subsection{Funkční vzorek}
+\subsection{Nasazení řešení}
+\fi
+
+\chapter{Závěr}
+Analýzy přiložené k textu práce nejsou nijak redigovány, protože neodpovídají nynějšímu skutečnému stavu.
+
+\clearpage
+
+\printbibliography
+
+\renewcommand{\indexname}{Přehled příkazů, prostředí a voleb}
+\addtocontents{toc}{\bigskip}
+\phantomsection\addcontentsline{toc}{section}{\indexname}
+\printindex
+
+\end{document}
