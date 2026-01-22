@@ -180,9 +180,32 @@ Identifikátory by měli být hledatelné a vyslovitelné. Není žádným přek
 S odlišováním musí být člověk opatrný, protože to může svádět k porušení dalšího doporučení, které radí nekódovat informaci o typu nebo kontextu do názvu proměnné. V době našeptávačů a statických analyzérů již není potřeba zakódovat typ proměnné do jejího identifikátoru. Stejně jako není potřeba do názvu rozhraní zakódovat, že se jedná o rozhraní. Pokud nastane případ, kdy máme kolizi názvu rozhraní a třídy, je to pro nás indikátor, že je třeba se nad názvy lépe zamyslet. Ač bychom mohli mít třídu \texttt{Camera} a k tomu rozhraní \texttt{ICamera}, je lepší třídu pojmenovat \texttt{CameraImplementation} a nebo podle návrhového vzoru \texttt{CameraFactory}. V tomto případě totiž dáváme do názvu informaci o způsobu, jakým třída funguje a co dělá, a nekódujeme akorát typ do identifikátoru.
 
 \subsection{Funkce}
+Funkce a procedury jsou většinou první úrovní abstrakce a členění kódu, se kterou se vývojář setká. Není programátor, který by nenapsal ve své kariéře funkci. Na funkcích se ostatně zakládají celá paradigmata. \textit{Clean Code} nemůže takto důležitou konstrukci opomenout a přichází s řadou doporučení, která mají za cíl udělat funkce snadno testovatelné a pochopitelné i pro ostatní členy týmu.
 
-\subsection{title}
+Pravidla pro funkce by se dala shrnout do tří následujících vět: Funkce by měla být malá, měla by dělat jednu věc a neměla by ovlivnit nic mimo svůj kontext. To, že by funkce měla být malá, je varování před vysokou mírou zanoření programu. Pokud se ve funkci vyskytuje několikanásobné zanoření, jedná se s velikou pravděpodobností o nekonzistentní úroveň abstrakce a je vhodné se zamyslet, zda-li by neměly být některé bloky kódu refaktorovány do samostatných funkcí. Jak ostatně řekl Linus Torvalds na počet zanoření: \textit{"... if you need more than 3 levels of indentation, you're screwed anyway, and should fix your program."}
 
+Co znamená, že by funkce měla dělat jednu věc? V rámci jedné funkce by měla panovat jedna úroveň abstrakce a jedna úloha, kterou řeší. Buďto funkce něco upravuje, nebo něco zodpovídá, ale nikdy by neměla dělat obojí.
+
+Pokud funkce provádí nízkoúrovňový výpočet, nebude potřebovat volat abstrakci pro zpracování dat. Naopak vysokoúrovňová abstrakce by neměla provádět surový výpočet a místo toho řešení problému delegovat. Ředitel firmy se nezabývá balením zásilek a vyřizováním objednávek, ale chceme, aby dobře řídil firmu. Skladník zase řeší naskladnění a vyskladnění zboží, a ne logistický proces. Jak tedy efektivně rozdělit problém na úrovně abstrakce? \textit{Clean Code} doporučuje postup zhora dolů, kdy program by měl být čitelný jako posloupnost odstavců začínající anglickou předponou \textit{to} (česká předpona \textit{k}). Tato pomůcka nám dovoluje intuitivně rozdělit problém na jednotlivé úrovně abstrakce a zůstat v maximální míře konzistentní.
+
+\begin{itemize}
+	\item K vyřízení objednávky potřebujeme zabalit zboží, odečíst ho ze skladu a vytisknout štítek
+	\item K zabalení zboží potřebujeme zboží najít na skladě, a najít vhodnou krabici
+	\item K odečtení ze skladu potřebujeme najít, na které pozici se zboží nachází
+	\item K vytisknutí štítku potřebujeme určit přepravce, vyplnit jeho šablonu a odeslat k tisku
+	\item ...
+\end{itemize}
+
+Funkce mají ovšem kromě implementace jeden další bod, který určuje jejich komplexitu. Jedná se o její argumenty. Ideální funkce je niladická, tudíž nemá žádné argumenty. Monadická funkce má přesně jeden argument a je zcela běžná. Dyadické funkce, které mají dva argumenty, jsou přijatelné. Přítomnost triadické funkce (tři argumenty) nebo polyadické funkce (více než 3 argumenty) by měla být varovným signálem, že je s návrhem něco špatně.
+
+S rostoucím počtem parametrů roste také počet testovacích případů, pokud předpokládáme čtyři parametry, které jsou pravdivostní hodnoty, jedná se o $2^4 = 16$ kombinací, které je potřeba otestovat. Podobně můžeme postupovat i u spojitých proměnných, kde vybíráme zástupce z jednotlivých tříd ekvivalence. Menší počet argumentů nejenom zjednodušejí použití funkce, ale i její testování.
+
+V čem tkví problém dvou a více argumentů? Jedná se o případy, kdy jednotlivé argumenty nejsou přirozeně seřazeny. Pokud bychom vytvářeli instanci bodu, je v pořádku mít dva argumenty, protože přirozeně řadíme body do uspořádaných dvojic $(x, y)$. Naopak pokud bychom měli funkci, která porovnává očekáváný výsledek a skutečný výsledek jednotkového testu, je pořadí argumentů dané konvencí a ne přirozeným řazením. Existuje ovšem metoda, jak počet argumentů redukovat. Jednotlivé argumenty je možné seskupit dohromady do tříd nebo jiných datových struktur.
+
+\textit{Clean Code} varuje před přepínači - pokud funkce přijímá argument v podobě pravdivostní hodnoty, znamená to, že dělá více jak jednu věc, a to v závislosti na daném přepínači. V takovém případě je lepší jednotlivé cesty rozdělit do samostatných funkcí. 
+
+\subsection{Clean Code jako programátorova mantra}
+\textit{Clean Code} ať už to jako koncept nebo jako kniha nemá být vnímána, ani v rámci v této práce, jako konkrétní body, které se v programu kontrolují podobně jako když se hledají běžné zranitelnosti (CVE). Jedná se spíše o mantru, která vede k hlubšímu porozumnění problematiky čitelnosti kódu. Každý vývojář dospěje do fáze, kdy chce vše dělat podle pravidel, aby následně zjistil, že je potřeba uvážit situace, kdy pravidla a doporučení více škodí, než pomáhají. Stejně tak \textit{Clean Code} není konceptem, který by měl být vštípán do hlavy začátečníkům, ale slouží jako horizontální rozšíření dovedností jednotlivce. Není tak důležité znění daných pravidel, ale jejich smysl a jaký problém se snaží řešit. V takový moment je možné uvažovat, která pravidla nasadit, a naopak která vynechat, pokud nás daný problém netrápí. Stejně jako mluvené slovo, jazyky jsou expresivní záleží na jednotlivci, komu je jeho slovo určeno a jak se chce vyjadřovat.
 
 \section{Zásady distribuovaného programování}
 
