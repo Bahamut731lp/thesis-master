@@ -128,11 +128,9 @@ Softwarové inženýrství je disciplína, která formalizuje programovací post
 
 Programování nemá od této myšlenky zas tak daleko. Pokud se ve vývoji zavážeme dodržovat určitá pravidla, umožníme tím ostatním programátorům snáze pochopit, čeho se kód snaží docílit. Ze snáze pochopitelného a předvídatelného kódu benefituje i samotný autor, který může s odstupem času přijít ke kódu zpět a netrávit čas nad jeho luštěním.
 
-Problematickým rozdílem mezi programováním a malováním je účel výsledku. Obrazy jsou převážně na ozdobu, zatímco program má sloužit svému účelu, čímž jsou na něj kladeny úplně jiné nároky. Programátor dokáže vytvořit program, ovšem softwarový inženýr chápe smysl úmyslného omezení, které plyne z dodržování pravidel společně s \textit{best-practices}. Také ví, kdy pravidla a \textit{best-practices} obejít a co za následky z toho plyne.
-
 Softwarové inženýrství je oborem obsáhlým, a proto jsou v této kapitole pouze vybraná témata, která jsou relevantní pro pozdější části práce.
 
-\section{Technický dluh a jeho řešení}
+\section{Řešení technického dluhu}
 Technický dluh vzniká v situaci, kdy došlo k nedodržení doporučených postupů či špatnému návrhu za účelem rychlejšího dokončení vývoje. Krátkodobě ušetřený čas se totiž vždy projeví jako dlouhodobé zdržení, obzvláště když je potřeba s kódem  dále pracovat. Ušetření času nemusí být nutně negativní věc, je ovšem potřeba se vzniklým technickým dluhem nakládat opatrně.
 
 Martin Fowler ve svém blogu z roku 2009 rozděluje technický dluh do čtyř kategorií, přičemž dluh klasifikuje podle toho, zda-li byl úmyslný či neúmyslný, a jestli byl vývojář v daný okamžit obezřetný či nedbalý. Dluh je úmyslný nebo neúmyslný podle toho, jestli si je programátor vědom toho, že dělá něco špatně. Na druhou stranu dluh je nedbalý nebo obezřetný, pokud programátor nemá, respektive má, vůli a prostředky technický dluh řešit \parencite{fowler-technical-debt}.
@@ -144,7 +142,11 @@ Martin Fowler ve svém blogu z roku 2009 rozděluje technický dluh do čtyř ka
 	\caption{Kvadranty technického dluhu \parencite{asana-technical-debt}}
 \end{figure}
 
-Tento model nám pomáhá pochopit vznik a druhy technického dluhu, avšak je technický dluh opravdu takový problém?  
+Tento model nám pomáhá pochopit vznik a druhy technického dluhu, avšak je technický dluh opravdu takový problém? Technický dluh je nazýván dluhem právě proto, že se chová stejně závazek vůči cizímu kapitálu. Čas, který si v daný moment "půjčíme" pro zrychlení vývoje musí být v pozdější době někým splacen. Je pak na vývojáři, zda-li bude technický dluh splácet průběžně, nebo počká, než mu přímo znemožní další práci.
+
+Jak technický dluh vypadá v praxi? Nízké pokrytí testy, nízká či žádná dokumentace, obří třídy a funkce, hodnoty definované "na tvrdo" - to jsou jenom některé znaky přítomnosti technického dluhu. Pokud je kód často měněn,
+
+Jak technický dluh řešit? Pro systém zatížený technickým dluhem je potřeba zvážit rozsah, riziko a rozpočet systému. Pokud systém není důležitý a nepředstavuje jeho výpadek riziko, není potřeba dluh řešit prioritně. Naopak pokud je systém kritický pro softwarový produkt, a je zanesen velkým rizikem z hlediska poruchovosti a udržitelnosti, je lepší celý systém přepsat od začátku. Touto úvahou lze analyzovat i každý dílčí podsystém. V nižších vrstvách abstrakce je potřeba hledět také na závislosti mezi částmi kódu. Pokud má jednotka kódu hodně závislostí, zvedá se tím její rizikový faktor a je potřeba pečlivě zvážit, jak dál postupovat.
 
 \begin{figure}[H]
 	\centering
@@ -153,9 +155,6 @@ Tento model nám pomáhá pochopit vznik a druhy technického dluhu, avšak je t
 	\caption{Kvadranty řešení technického dluhu \parencite{forest-technical-debt}}
 \end{figure}
 
-churn
-
-\section{Návrhové vzory}
 
 \section{Clean Code}
 \textbf{Clean Code} je souhrnný název pro sadu pravidel a doporučení, které mají za cíl snížit kongitivní zátěž při čtení a údržbě kódu. Na clean code je spíše pohlíženo jako na princip a myšlenkový pochod, který má za cíl usnadnit práci nejenom ostatním vývojářům v týmu, ale i autorovi v budoucnu, pokud se ke kódu vrátí s odstupem času. Jak píše i samotný Robert Martin ve své knize \textit{Clean Code: A Handbook of Agile Software Craftsmanship}, každý může s jednotlivými zásadami pro \textit{Clean Code} souhlasit či nesouhlasit, nejedná se o absolutní pravdu.
@@ -207,9 +206,8 @@ V čem tkví problém dvou a více argumentů? Jedná se o případy, kdy jednot
 \subsection{Clean Code jako programátorova mantra}
 \textit{Clean Code} ať už to jako koncept nebo jako kniha nemá být vnímána, ani v rámci v této práce, jako konkrétní body, které se v programu kontrolují podobně jako když se hledají běžné zranitelnosti (CVE). Jedná se spíše o mantru, která vede k hlubšímu porozumnění problematiky čitelnosti kódu. Každý vývojář dospěje do fáze, kdy chce vše dělat podle pravidel, aby následně zjistil, že je potřeba uvážit situace, kdy pravidla a doporučení více škodí, než pomáhají. Stejně tak \textit{Clean Code} není konceptem, který by měl být vštípán do hlavy začátečníkům, ale slouží jako horizontální rozšíření dovedností jednotlivce. Není tak důležité znění daných pravidel, ale jejich smysl a jaký problém se snaží řešit. V takový moment je možné uvažovat, která pravidla nasadit, a naopak která vynechat, pokud nás daný problém netrápí. Stejně jako mluvené slovo, jazyky jsou expresivní záleží na jednotlivci, komu je jeho slovo určeno a jak se chce vyjadřovat.
 
-\section{Zásady distribuovaného programování}
 
-\section{Zásady resilientní komunikace}
+\section{Návrhové vzory}
 
 \section{Testování}
 
