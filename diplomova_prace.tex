@@ -162,9 +162,7 @@ churn
 
 Je ovšem důležité si uvědomit, že cílem \textit{Clean Code} není fanatické dodržování arbitrárních pravidel, která jsou vytesána do kamenných desek jako desatero Božích příkázání. Cílem je zmírnit dopad neudržitelného kódu, často psaného ve spěchu na koleni, na budoucí produktivitu celého týmu. Žádoucím výsledkem je minimální pokles produktivity v čase a vyhnout se velkým přepisům a refaktorům celého projektu.
 
-Clean Code a technický dluh jdou ruku v ruce. Jedna z příčin technického dluhu je právě zanedbání čitelnosti a udržitelnosti za cenu momentálního zrychlení vývoje. Dodržení, či alespoň snaha o Clean Code, nese sebou cenu dočasného zpomalení vývoje. Vývojář dočasně investuje více kongitivní aktivity do práce s kódem, aby ji mohl v budoucnu ušetřit.
-
-V této kapitole si dovolím vyzdvihnout několik zásad, která mají dle mého názoru největší dopad na čitelnost a udržitelnost kódu.
+Clean Code a technický dluh jdou ruku v ruce. Jedna z příčin technického dluhu je právě zanedbání čitelnosti a udržitelnosti za cenu momentálního zrychlení vývoje. Dodržení, či alespoň snaha o Clean Code, nese sebou cenu zvýšené kognitivní aktivity a dočasného zpomalení vývoje, ale zároveň investici do budoucí časové úspory. V této kapitole si dovolím vyzdvihnout několik zásad, která mají dle mého názoru největší dopad na čitelnost a udržitelnost kódu.
 
 \subsection{Identifikátory}
 V programech pojmenováváme mnohé konstrukce. Od proměnných, funkcí, návětší, tříd a různých struktur a jazykových specifik. Je důležité mít za názvem nějaký smysl, a právě o tom je tato kapitola. Jak tedy identifikátor smysluplně pojmenovat?
@@ -196,7 +194,7 @@ Pokud funkce provádí nízkoúrovňový výpočet, nebude potřebovat volat abs
 	\item ...
 \end{itemize}
 
-Funkce mají ovšem kromě implementace jeden další bod, který určuje jejich komplexitu. Jedná se o její argumenty. Ideální funkce je niladická, tudíž nemá žádné argumenty. Monadická funkce má přesně jeden argument a je zcela běžná. Dyadické funkce, které mají dva argumenty, jsou přijatelné. Přítomnost triadické funkce (tři argumenty) nebo polyadické funkce (více než 3 argumenty) by měla být varovným signálem, že je s návrhem něco špatně.
+Funkce mají ovšem kromě implementace jeden další bod, který určuje jejich komplexitu. Jedná se o její argumenty. Ideální funkce je niladická, tudíž nemá žádné argumenty. \textbf{Monadická funkce} má přesně jeden argument a je zcela běžná. \textbf{Dyadické funkce}, které mají dva argumenty, jsou přijatelné. Přítomnost \textbf{triadické funkce} (tři argumenty) nebo \textbf{polyadické funkce} (více než 3 argumenty) by měla být varovným signálem, že je s návrhem něco špatně.
 
 S rostoucím počtem parametrů roste také počet testovacích případů, pokud předpokládáme čtyři parametry, které jsou pravdivostní hodnoty, jedná se o $2^4 = 16$ kombinací, které je potřeba otestovat. Podobně můžeme postupovat i u spojitých proměnných, kde vybíráme zástupce z jednotlivých tříd ekvivalence. Menší počet argumentů nejenom zjednodušejí použití funkce, ale i její testování.
 
@@ -205,7 +203,9 @@ V čem tkví problém dvou a více argumentů? Jedná se o případy, kdy jednot
 \textit{Clean Code} varuje před přepínači - pokud funkce přijímá argument v podobě pravdivostní hodnoty, znamená to, že dělá více jak jednu věc, a to v závislosti na daném přepínači. V takovém případě je lepší jednotlivé cesty rozdělit do samostatných funkcí. 
 
 \subsection{Clean Code jako programátorova mantra}
-\textit{Clean Code} ať už to jako koncept nebo jako kniha nemá být vnímána, ani v rámci v této práce, jako konkrétní body, které se v programu kontrolují podobně jako když se hledají běžné zranitelnosti (CVE). Jedná se spíše o mantru, která vede k hlubšímu porozumnění problematiky čitelnosti kódu. Každý vývojář dospěje do fáze, kdy chce vše dělat podle pravidel, aby následně zjistil, že je potřeba uvážit situace, kdy pravidla a doporučení více škodí, než pomáhají. Stejně tak \textit{Clean Code} není konceptem, který by měl být vštípán do hlavy začátečníkům, ale slouží jako horizontální rozšíření dovedností jednotlivce. Není tak důležité znění daných pravidel, ale jejich smysl a jaký problém se snaží řešit. V takový moment je možné uvažovat, která pravidla nasadit, a naopak která vynechat, pokud nás daný problém netrápí. Stejně jako mluvené slovo, jazyky jsou expresivní záleží na jednotlivci, komu je jeho slovo určeno a jak se chce vyjadřovat.
+\textit{Clean Code} ať už to jako koncept nebo jako kniha nemá být vnímána, ani v rámci v této práce, jako konkrétní body, které se v programu kontrolují podobně jako když se hledají běžné zranitelnosti (CVE). Jedná se spíše o mantru, která vede k hlubšímu porozumnění problematiky čitelnosti kódu. Každý vývojář dospěje do fáze, kdy chce vše dělat podle pravidel, aby následně zjistil, že je potřeba uvážit situace, kdy pravidla a doporučení více škodí, než pomáhají.
+
+Stejně tak technický dluh není inherentně špatnou věcí. Technický dluh je problémem až tehdy, je-li opomenut. \textit{Clean Code} slouží jako horizontální rozšíření dovedností jednotlivce. Není tak důležité znění daných pravidel, ale jejich smysl a jaký problém se snaží řešit. V takový moment je možné uvažovat, která pravidla nasadit, a naopak která vynechat, pokud nás daný problém netrápí. Stejně jako mluvené slovo, jazyky jsou expresivní záleží na jednotlivci, komu je jeho slovo určeno a jak se chce vyjadřovat.
 
 \section{Zásady distribuovaného programování}
 
