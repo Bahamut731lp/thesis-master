@@ -1,0 +1,68 @@
+\documentclass[FM]{tulpresentation}
+
+\title{Architektura systému pohledové inspekce kvality}
+\subtitle{Kevin Daněk}
+\author{Vedoucí: Ing. Igor Kopetschke}
+
+\begin{document}
+
+\TULtitleframe
+
+\begin{frame}
+	\frametitle{Zadání}
+	\begin{items}
+		\item Analyzujte architekturu softwarového řešení ve společnosti CLOUDCODE pro kamerovou inspekci kvality.
+		\item Identifikujte a odůvodněte její nedostatky a navrhněte potřebné změny reflektující moderní požadavky softwarového inženýrství.
+		\item Implementujte sledování řešení pomocí OpenTelemetry a softwarových řešení společnosti Grafana Labs.
+		\item Implementujte automatické testování a sestavení pomocí nástrojů pro CI/CD.
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Řešená problematika}
+	\begin{items}
+		\item Současný zdrojový kód řešení je zatížen dlouhodobě neřešeným technickým dluhem.
+		\begin{subitems}
+			\item \textbf{Vznikají překážky} v dalším vývoji, nasazování a údržbě.
+			\item Jak technický dluh identifikovat a řešit?
+			\item Vlastnosti udržitelného kódu a správné rozdělení odpovědnosti.
+			\item Principy, postupy a nástroje pro analýzu a návrh softwarové architektury.
+		\end{subitems}
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Řešená problematika}
+	\begin{items}
+		\item Vývoj a nasazení řešení probíhá prakticky vzato stejně.
+		\begin{subitems}
+			\item Visual Studio Code + Python Virtual Environment.
+			\item Zotavení z chyb probíhá modlitbou k Bohu.
+			\item Žádný staging, žádné testy, žádný linting, žádná statická analýza, ...
+			\item 
+		\end{subitems}
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Vlastní obsah práce}
+	\begin{items}
+		\item Cílem je analyzovat současný systém z hlediska softwarové architektury.
+		\item Identifikovat konkrétní případy technického dluhu.
+		\item Navrhnout změny v architektuře s konkrétním odůvodněním.
+		\item Přidat sběr logů, metrik a trasovacích protokolů.
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Vlastní obsah práce}
+	\begin{items}
+		\item Rozdělení na mikroslužby podle Siemens Indrustrial Edge Platform Guidelines.
+		\item Dockerizace mikroslužeb – vývojový a produkční Docker Compose Stack.
+		\item Autentifikace a autorizace je delegována na Keycloak.
+		\item FastAPI + SQLModel – zcela nové schéma relační databáze.
+		\item Přidány podpůrné služby (MongoDB, Redis, Celery, Minio).
+	\end{items}
+\end{frame}
+\TULendframe
+\end{document}
