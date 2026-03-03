@@ -182,7 +182,7 @@ Při snaze o odlišení je však nutné vyvarovat se kódování technických in
 \subsection{Funkce}
 Funkce a procedury jsou většinou první úrovní abstrakce a metodou pro členění kódu. \textit{Clean Code} proto shrnuje pravidla pro návrh funkcí do tří principů: funkce by měla být krátká, měla by vykonávat právě jednu činnost a měla by svoje působení omezit na kontext funkce (nesmí mít \textit{vedlejší účinky}) \parencite{martin-clean-code}.
 
-Požadavek na minimalizaci délky funkce je především varováním před přílišnou hloubkou zanoření. Vysoká míra zanoření v řídicích strukturách obvykle indikuje nekonzistentní úroveň abstrakce a naznačuje, že by konkrétní bloky kódu měly být refaktorovány do samostatných metod. Jak poznamenal Linus Torvalds: \textit{„... if you need more than 3 levels of indentation, you're screwed anyway, and should fix your program.“}
+Požadavek na minimalizaci délky funkce je především varováním před přílišnou hloubkou zanoření. Vysoká míra zanoření v řídicích strukturách obvykle indikuje nekonzistentní úroveň abstrakce a naznačuje, že by konkrétní bloky kódu měly být refaktorovány do samostatných metod. Jak poznamenal Linus Torvalds: \textit{„if you need more than 3 levels of indentation, you're screwed anyway, and should fix your program.“} \parencite{torvalds-indentation}
 
 Princip jediné činnosti na úrovni funkce znamená, že by v rámci jejího těla měla být zachována jednotná úroveň abstrakce. Funkce by měla buď vykonávat příkaz, nebo odpovídat na dotaz, ale nikdy obojí zároveň (princip \textit{Command Query Separation}). Vysokoúrovňová logika by neměla být zatěžována nízkoúrovňovými výpočty; ty by měly být delegovány na specializované podfunkce. Tento hierarchický přístup lze přirovnat k fungování firmy: ředitel se věnuje strategickému řízení a logistické procesy deleguje na vedoucí skladů, kteří dále řídí konkrétní naskladnění zboží \parencite{martin-clean-code}.
 
@@ -204,6 +204,9 @@ Pokud funkce vyžaduje velký počet parametrů, je vhodné zvážit jejich sesk
 \clearpage
 
 \section{Návrhové vzory}
+Návrhové vzory představují konceptuální řešení opakujících se problémů v rámci návrhu softwarové architektury. Na rozdíl od algoritmu, který definuje jasně předepsanou sekvenci kroků k dosažení konkrétního výsledku, jsou návrhové vzory spíše obecnými šablonami či strategiemi. Jednotlivé vzory vývojář implementuje v souladu se specifiky daného programovacího jazyka a potřebami konkrétního programu \parencite{refactoring-guru-patterns}.
+
+Zatímco principy Clean Code se soustředí na udržitelnost, testovatelnost a předvídatelnost na nejnižší úrovni (proměnné, funkce), návrhové vzory tyto žádoucí vlastnosti přenášejí do vyšších úrovní abstrakce, kde se formují rozsáhlejší architektonické celky.
 
 \section{Testování}
 
@@ -228,6 +231,8 @@ Metriky jsou kvantitativní veličiny, které měří konkrétní vlastnosti bě
 
 Je nutné podotknout, že metriky má smysl zaznamenávat dlouhodobě jakožto časové řady, abychom určili chování systému v čase. Je nutné tak metriky zaznamenávat na základě události, nebo pravidelného měření. Naopak zaznamenávat metriky vycházející ze statické analýzy smysl nedává, protože pokud bychom chtěli například analyzovat složitost programu pomocí Halsteadových vzorců, tak se tato metrika nemůže měnit v čase běhu programu. Naopak zatížení konkrétní instance programu nebo využití hardwarových prostředků proměnlivé čase běhu programu je.
 
+\section{C4 Diagramy}
+
 \chapter{Architektura nasazeného řešení}
 
 \section{Analýza stávajícího řešení}
@@ -240,18 +245,6 @@ Prvním diagramem je diagram systémového kontextu. Ten nám dovoluje modelovat
 \subsection{Diagram kontejnerů}
 
 \subsection{Diagram komponent}
-
-\subsection{Komunikace mezi kontejnery}
-
-\subsection{Absence návrhových vzorů}
-
-\subsection{Absence architektury}
-
-\subsection{Absence zotavení z výjimky}
-
-\subsection{Absence procesu sestavení a nasazení}
-
-\subsection{Absence použitelné uživatelské dokumentace}
 
 \chapter{Mitigace chyb v archiktuře}
 Po analýze celého systému je možné začít jednotlivé neduhy napravovat. Tato kapitola dokumentuje jednotlivé snahy o napravení nalezených problémů a slabin, pričemž zvláštní důraz je kladen na empirický přístup k implementaci nejlepšího řešení. Je tedy možné, že potenciální náprava problému se po měření ukáže jako ta, která působí více škody než užitku. Nelze takto ale měřit všechny problémové aspekty, a u takových případů je kladen důraz na \textit{best-practices} vyjmenované v konkrétních CWE.  
@@ -278,211 +271,10 @@ Jádrem systému AITechDetect je proces inspekce. Ten probíhá ve třech krocí
 
 \subsection{Přehled ověřovacích metod}
 
-
-
-\section{Mitigace chyb v archiktuře}
-
-\subsection{Rozbití monolitu}
-Monolitický návrh řešení je pro začátek vývojového cyklu velmi výhodnou cestou. Umožňuje totiž velmi snadno komunikovat mezi částmi aplikace a přidávat nové funkcionality, které staví na těch předchozích. Výhodou je také to, že řešení se chová a pouští jako celek, který nepotřebuje k jeho běhu další závislosti.
-
-Každý větší projekt se ovšem jednou dostane do fáze, kdy je třeba zvážit, jestli monolitický návrh projektu spíše neškodí. Neošetřená chyba v jedné části programu sebou stáhne celý program a části, které nijak s chybovým kódem nesouvisí, jsou kvůli pádu programu nedostupné. Pokud je monolit dostatečně velký, nese sebou i jistou míru komplexity, která stěžuje hledání chyb a jejich reprodukci. Navíc pokud je monolit orientovaný kolem určité technologie, např. kombinace Flask a Python, jsou do této technologie vývojáři uzamčeny, i když zrovna nemusí být ta nejideálnější, a v horším případě i aktivně nedoporučovaná.
-
-Důvodů pro zachování monolitu i pro jeho rozbití je v případě CLOUDCODE AITechDetect mnoho, k jeho rozbití bylo nakonec přistoupeno s ohledem na budoucí implementaci CI/CD, monitoringu a způsobu nasazení pomocí kontejnerů, enginu Docker a Docker Compose pro orchestraci kontejnerů. Do kontejnerového diagramu tudíž přibudou nové kontejnery, které se převážně odštěpí od Flask Serveru.
-\begin{itemize}
-    \item CCM-ML
-    \item CCM-INSPEKCE
-    \item CCM-FRONTEND
-    \item CCM-BACKEND
-    \item CCM-BROKER
-\end{itemize}
-
-Jedna věc je monolit rozbít, ale druhou je jednotlivé části opět spojit zpátky. K tomu má sloužit primárně kontejner CCM-BROKER, se kterým lze komunikovat pomocí HTTP nebo pomocí Websockets.
-
-\subsection{Přidání definic funkcí a životních cyklů v řešení}
-
-
-\subsection{Přidání brokeru pro systémové zprávy a události}
-https://kafka.apache.org/documentation/
-
-\subsection{Normalizování schématu relační databáze}
-AITechDetect využívá relační databází SQLite pro uchovávání některých dat systému. V této kapitole je cílem podívat se na schéma této relační databáze a normalizovat ho na úroveň, kdy nebude docházet k aktualizačním anomáliím. Databáze obsahuje celkově 8 tabulek, které jsou ovšem svými atributy natolik rozsáhlé, že nebudou zakresleny do ER diagramu, ale podrobně popsány v následujícím textu.
-
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/er_diagram_before.png}
-	\centering
-	\caption{Zkrácený ER Diagram původního schématu databáze}
-\end{figure}
-
-\section{Mitigace chyb v návrhu databáze}
-
-\subsubsection{Normální formy}
-% povídání o BCNF
-
-
-\subsubsection{Návrh schématu}
-Při návrhu schématu relační databáze je třeba dbát na fakt, že databáze má modelovat vztahy mezi entitami z reálného světa. Je proto důležité mít výčet těchto entit a jaké mají mezi sebou závislosti. Mezi podstatné entity modelu AITechDetect patří:
-\begin{itemize}
-	\item \textbf{Projekty}, neboli logická jednotka pro konkrétní druh výrobku a jeho souvisejících kontrol,
-	\item \textbf{Vady}, které je možné nalézt na výrobku,
-	\item \textbf{Kamery}, které jsou rozmístěné na kontrolní stanici,
-	\item \textbf{Specifikace}, která určuje zásady pro vyhodnocení kontroly (kolik vad je ještě v pořádku),
-	\item a \textbf{Kontroly}, které zaznamenávají výsledek jednotlivých kontrol inspekce.
-\end{itemize}
-
-Každá inspekce se odvíjí od projektů, které reprezentují jednotlivé druhy výrobků, které systém kontroluje.
-
-\subsubsection{Druhy vad}
-Tabulka \texttt{druh\_vady} je minimálně v BCNF, a to čistě z toho důvodu, že obsahuje tři atributy - identifikační číslo vady, název a přepínač, jestli je vada považována na smazanou. 
-
-\subsubsection{Vytvoření vlastního systému migrací}
-
-
-\begin{itemize}
-	\item \texttt{druh\_vady}, která reprezentuje vadu na výrobku
-	\item \texttt{uzivatel}, která reprezentuje přihlášeného uživatele v systému
-	\item \texttt{neural\_network}, která reprezentuje natrénovanou neuronovou síť
-	\item \texttt{specifikace}, která definuje kolik vad a jakého druhu může být na jednom výrokbu.
-\end{itemize}
-
-\subsection{Přepsání API rozhraní do kompilovaného jazyka}
-Webové API poskytující služby pro uživatelské rozhraní a další součásti systému AITechDetect je napsán v jazyce Python, který je interpretovaný. To sebou přináší několik obtíží a \textit{overhead} v podobě interpreteru. Dalším problémem je fakt, že zdrojový kód aplikace je čitelný běžnému smrtelníkovi, což je v rámci politiky společnosti stav nežádoucí. Nabízela se tedy otázka, zdali by nebylo výhodné tuto část apliakce zkompilovat a jaký jazyk k tomu využít. Pro python existují kompilační nástroje, ovšem kompilace trvají dlouho a navíc přinášejí další zátěž do celého procesu.
-
-Pro účely měření byl vytvořen testovací dataset o velikosti 1000 souborů JSON. Cílem úlohy bylo tyto data načíst a vrátit jako jeden velký JSON payload. Měření probíhalo pomocí nástroje Apache Benchmark, kde byl postupně zvyšován počet celkových požadavků a počet celkově souběžných požadavků. Měření byla provedena na stejném hardware se srovnatelně stejným zatížením od operačního systému Ubuntu 24.02. První měření proběhlo na implementaci v jazyce Python
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/request_speed_python.png}
-	\centering
-	\caption{Porovnání rychlosti čtení datasetu}
-    \label{fig:dataset_speed_python}
-\end{figure}
-
-Z grafu \ref{fig:dataset_speed_python} můžeme vidět, že nízké počty celkových požadavků byly obslouženy decentně, ovšem s rostoucím sekvenčním zatížením výkon python serveru klesá. Lze spekulovat nad důvodem takového poklesu, ozvláště když je pokles vázaný na počet celkových požadavků a ne na počet souběžných požadavků. Jedním z možných vysvětlení je manipulace paměti při alokování a dealokování proměnných, které mohou negativně ovlinit následné požadavky. Problémy se správou paměti a \textit{garbage collection} algoritmy je u intepretovaných jazyků znám již dlouho, a je to jedna z věcí, kterou je třeba zvážit při výběru platformy. Další možností, či pouze faktorem, je prodleva při manipulaci s vlákny, které Flask používá k obsluze požadavků. V některých případech je pohodlí vývoje na úkor menší výkonové ztráty přijatelná. V případě systému AITechDetect ovšem není, a proto bylo přistoupeno k implementaci v jiném, kompilovaném, programovacím jazyce.
-
-Volbou pro novou implementaci byl jazyk Go. Tento jazyk skvěle pasuje do prostředí kontejnerů, kdy výstupní obrazy mají minimální velikosti, a zároveň je optimalizovaný na webové aplikace. Navíc nemá natolik komplikovanou syntaxi, aby přechod z jazyka Python byl pro zbytek vývojového týmu složitý. Byl tedy implementován koncový bod pro načtení datasetu, který využívá gorutiny a synchronizační primitiva, a bylo provedeno další měření.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/request_speed_golang.png}
-	\centering
-	\caption{Porovnání rychlosti čtení datasetu}
-\end{figure}
-
-
-
-\subsubsection{Normalizace webového API}
-Původní webové API postrádalo konzistentní strukturu. CWE-1099 (Inconsistent Naming Conventions for Identifiers) upozorňuje na riziko, které s tím souvisí – konkrétně obtížnější lokalizaci chyb a slabin. Koncové body API byly nepředvídatelné a nebyly ani řádně dokumentované.
-
-Řešením bylo co nejvíce normalizovat webové rozhraní podle standardu REST. Pro jednotlivé entity byly vytvořeny patřičné CRUD operace a byla zavedena architektura MVC s menšími úpravami. \texttt{Controller} zajišťuje obsluhu jednotlivých cest, \texttt{model} se stará o interakci s databází a místo tradičních pohledů jsou vytvořeny \texttt{services}, které poskytují obecné funkce, například připojení k databázi nebo validaci dat. Využití architektury MVC přivedlo konzistenci při vytváření nových koncových bodů, protože lze jednoznačně oddělit odpovědnosti jednotlivých částí. 
-
-\subsubsection{Deklarativní validace vstupních dat}
-
-\subsubsection{Generování dokumentace z anotací}
-
-\subsection{Využití dokumentové databáze pro práci s JSON soubory}
-Jak bylo již řečeno v [[[[[Bakalářské práci, tady musíme dát proper odkaz]]]]], systém AITechDetect pracuje převážně nad soubory JSON. Každý dataset může mít od nižších desítek a po nižší desetitisíce takových souborů, a obzvláště na té větší spektra dochází k výrazném zpomalení při práci s datasety. 
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/mongo_golang_comp.png}
-	\centering
-	\caption{Porovnání rychlosti čtení datasetu}
-\end{figure}
-
-\subsection{Předělání systému projektů}
-
-\subsection{Přidání systému specifikací pro definici inspekce}
-Lorem ipsum už něco máme z Hajdíku, ale je to hard coded.
-
-\subsection{Přidání systému pro správu toolů}
-- Seznam toolů a jejich verzí
-- V seznamu projektů vidět nasazené verze
-- Evaluační metriky z https://en.wikipedia.org/wiki/F-score
-
-\subsection{Přidání důkladné autentizace a autorizace}
-Jak bylo popsáno v analýze původního stavu řešení, aplikace nyní postrádá autentizaci a autorizaci, čímž se otevírají dveře k slabinám, které jsou popsané v CWE-284. Než vymýšlet vlastní řešení a řešit všechny bezpečnostní problémy s tím spojené, včetně auditů, je výhodnější využít již existující řešení, které je prověřené a aktivně používané. Z tohoto důvodu se pro autentizaci a autorizaci využil Keycloak. Ten je distribuován pod licencí Apache License 2.0, která umožňuje komerční užití bez licenčních poplatků a jiných právních omezení, které by jinak bránily jeho využití v komerční sféře.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/licence}
-	\centering
-	\caption{Nasazení Keycloak kontejneru do systému AITechDetect}
-\end{figure}
-
-Keycloak umožňuje autentizaci pomocí protokolu OpenID, přičemž služby následně mohou uživatele autorizovat na základě dotazu, ve kterém přiloží informaci o chráněném zdroji a uživatelově tokenu. Keycloak pak rozhoduje, jestli má být uživatel autorizován či nikoliv. Služba má tak možnost vytvořit vlastní autorizační logiku, nebo ji delegovat na Keycloak.
-
-Jední
-
-\subsection{Přidání procesu sestavení řešení}
-
-\subsection{Předělání procesu nasazení}
-% orchestrace kontejnerů
-
-\subsection{Přidání observability a monitoringu}
-
-\subsection{Přidání licenčního systému}
-Jedním z požadavků společnosti CLOUDCODE bylo vytvořit systém licencování a zajistit, že software bude použit pouze oprávněnými uživateli a v souladu s podmínkami licence. Tento systém musí řešit dva problémy - jak zabránit neoprávněné manipulaci se soubory poskytující informaci o licenci, a jak zabránit neoprávněné reprodukci.
-
-AITechDetect je rozdělen do tří licencí, které se liší svými možnostmi a cenou. Licence jsou koncipované do hiearchie, kdy každá další úroveň obsahuje všechny funkce té předchozí. Cílem je poskytnout možnost levnější integrace výměnou za omezenější možnosti, které jsou pro danou problematiku dostačující. Na toto rozdělení funkcí je ale potřeba připravit i samotné řešení, a zabezpečit, že software bude odolný vůči účelné manipulaci zvenčí.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/licence}
-	\centering
-	\caption{AITechDetect licence}
-\end{figure}
-
-Integrita a platnost licence je řešena pomocí kryptograficky podepsaného souboru, čímž se zabrání jeho manipulaci. Aby vše bylo bezpečné, byla využita asymetrická kryptografie. Licenční soubor je podepsán privátním klíčem zaměstnance CLOUDCODE a aplikace AITechDetect využívá veřejný klíč k ověření daného podpisu.
-
-Samotná implementace licenčního systému byla koncipována jako webová služba, která implementuje rozhraní nad \textit{GNU Privacy Guard} (GPG). Ten slouží ke správě klíčů a šifrování dat, a běžně se používá pro generování klíčů například pro SSH. GPG ovšem není jenom na vytvoření páru klíčů. Umožňuje také z privátního klíče generovat podklíče. Ty jsou využity jako další bezpečnostní opatření, ale tentokrát na straně samotné společnosti. Licenční systém totiž pro dané zaměstance vygeneruje unikátní podklíče, čímž je zajištěno, že původní privátní klíč nikdy nepřijde do styku se zaměstanci ani se zákazníky a je tak razantně nižší šance jeho kompromitace.
-
-Posledním bezpečnostním opatřením bylo napojení licenčního systému na autorizační kontejner. Aby mohl zaměstnanec vytvářet licence, musí mít k tomu patřičná oprávnění definovaná v aplikaci Keycloak. Pokud tak není učiněno, licenční systém odmítne vystavit zaměstnanci jak podklíč, tak i podepsanou licenci. Tím je zajištěno, že k vytváření licencí má přístup pouze kontrolovaný počet zaměstnanců, kteří jsou tímto úkolem pověřeni a pro které případně plyne odpovědnost z nekalého počínání.
-
-Podepsáním licenčního souboru je zajištěna integrita dat o zakoupené licenci, ovšem je potřeba také řešení ochránit před neoprávněnou reprodukcí. Počet možností zásadně snižuje fakt, že ověření licence musí kvůli bezpečnostním zásadám klientů fungovat offline. Nad tímto problémem byla vedena dlouhá úvaha. Prvotní myšlenka byla vytvořit otisky zařízení, ovšem řešení nasazováno v kontejnerech a tak nejde tak efektivně vytvářet otisky, nemluvě o situaci, kdy s dostatečným úsilím lze otisky zfalšovat. Další možností byly hardwarové klíče, které sice představují bezpečnější variantu, ale vyžadují fyzické umístění čipu do stanice nebo využití TPM. Tento způsob byl kvůli svému poměru náročnosti ku výsledku zamítnut.
-
-Finálním řešením této kopírovací otázky byla změna úhlu pohledu. Než-li se snažit zamezit neoprávněné reprodukci, je z hlediska času i zdrojů lepší ji ošetřit právně. Pokud je zákazníkem zakoupena licence na AITechDetect, může sice software a licenci zkopírovat, ale bude muset čelit potenciálním právním důsledkům. Mezi ně může patřit například smluvní pokuta ve výši násobku ceny projektu. Na podobném principu fungují dohody o mlčenlivosti, které sdílení utajené informace nezastaví, ale  potrestají odstrašující pokutou. Dalším faktorem je, že i při zatajení neoprávněné reprodukce se musí viník obejít bez podpory ze strany společnosti CLOUDCODE, protože žádáním o podporu by odhalil svůj přečin vůči smlouvě.
-
-\iffalse
-\chapter{Infrastruktura vnitřní sítě}
-Dobře navržená vnitřní síť a její infrastruktura by měla být oporou každodenní práce týmu, nikoli překážkou. Měla by poskytovat spolehlivé a bezpečné prostředí, které umožňuje jednotlivým členům týmu plně se soustředit na svou práci — ať už jde o vývoj, testování nebo nasazování aplikací.
-
-Cílem této kapitoly je analyzovat současný stav vnitřní sítě, identifikovat její nedostatky a navrhnout taková opatření, která povedou k vytvoření spolehlivého a efektivního DevOps prostředí. To by mělo umožnit týmu soustředit se primárně na vývoj aplikací a strojového učení, bez nutnosti řešit, kde běží jaká verze softwaru a na jakém systému lze bezpečně testovat.
-
-\section{Analýza počátečního stavu}
-V současném stavu je vnitřní síť organizována v podobě běžné domácí infrastruktury, bez centrální správy nebo vyhrazených serverových prostředků. V rámci subnetu \texttt{192.168.0.0/24} funguje několik zařízení, přičemž jedno z nich – pracovní stanice s výkonným GPU (NVIDIA RTX 3090) – zároveň slouží jako aplikační server.
-
-Tato pracovní stanice (dále jen \texttt{rtx3090}) provozuje serverovou aplikaci, ke které se přistupuje přímo pomocí její IP adresy v rámci lokální sítě. Server je spuštěn z vývojového prostředí (např. Visual Studio Code) a jeho běh není nijak oddělen od běžného provozu stanice. Tato stanice je zároveň využívána pro trénování neuronových sítí, což často zatěžuje systémové prostředky a v některých případech vyžaduje restart systému nebo způsobuje neočekávané ukončení serveru.
-
-Do vnitřní sítě se lze aktuálně připojit pouze pomocí nástroje VNCViewer, který umožňuje vzdálenou práci na \texttt{rtx3090}. Tento přístup je však náchylný ke kolizím, protože nepodporuje více souběžných relací — při jednom připojení dochází ke sdílení plochy i vstupních zařízení (myš, klávesnice), což znemožňuje paralelní práci více uživatelů.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/interni_sit_pocatecni.png}
-	\centering
-	\caption{Blokové schéma počátečního stavu interní sítě}
-\end{figure}
-
-V současnosti není na straně firmy zaveden žádný nástroj ani proces pro kontinuální integraci a nasazení (CI/CD). Změny v kódu jsou nasazovány ručně, což zvyšuje riziko nesrovnalostí mezi vývojovým a produkčním prostředím. Neprobíhá žádné automatické testování ani sestavování aplikace. Nové funkce se tak automaticky nenasadí do interního prostředí a nemohou být včas otestovány v kanceláři předtím, než se dostanou k zákazníkovi.
-
-V současnosti probíhá nasazení aplikace jednoduše pomocí příkazu \texttt{git pull} a přepnutí na konkrétní commit. Tento přístup ale nenabízí žádnou záruku, že se nasazuje stabilní nebo plně funkční verze softwaru — commit může být neotestovaný, rozpracovaný nebo nekompletní. Problému nasazení na cílovou stanici se bude práce věnovat v jiné kapitole, ovšem stejně jako je problematické nasazení u zákazníka, tak je problematické nasazení lokálně pro testování.
-
-\section{Návrh řešení}
-Cílem opatření je rozvinout ve společnosti DevOps, čímž 
-\begin{itemize}
-	\item \textbf{Wireguard} jako služba VPN pro vzdálený přístup do sítě.
-	\item \textbf{Rustdesk} pro vzdálený RDP.
-	\item \textbf{Coolify} pro správu interních hostovaných služeb.
-	\item \textbf{Caddy} pro reverse-proxy.
-	\item \textbf{Něco} pro správu natrénovaných modelů.
-\end{itemize}
-
 \section{Implementace řešení}
 
 \subsection{Funkční vzorek}
 \subsection{Nasazení řešení}
-\fi
 
 \chapter{Závěr}
 Analýzy přiložené k textu práce nejsou nijak redigovány, protože neodpovídají nynějšímu skutečnému stavu.
