@@ -253,9 +253,11 @@ Ve světe softwarového inženýrství je již zavadený standard, který slouž
 
 Jak popisuje Simon Brown v úvodu do C4 diagramů, týmy očekávají jednoduchost a srozumitelnost zápisu \parencite{c4-introduction}. UML diagramy slouží zároveň jako dokumentace, což je jeho síla, a zároveň jeho slabina. Dokumentace musí být dostatečně podrobná a jednoznačná, s čímž přichází určitá dávka složitosti zápisu. Diagramy se stávají více deskriptivní a více nahuštěné, a zároveň se vytváří diagramy pro každý aspekt softwarového produktu. Množství diagramů tak rapidně stoupá a jejich udržování se stává časově i zdrojově náročnější. Pokud navíc dodržujeme netriviální notaci (například symboly panáčků nebo obdélníků s lištami a popisky), je o něco časově náročnější dokreslit nový blok nebo ho najít v knihovně komponent.
 
-C4 byl navržen právě proto, aby se předešlo složité symbolice a velkému počtu diagramů. Každý diagram je de facto blokový diagram, který se skládá z jednoduchých tvarů a šipek. UML produkuje velké množství diagramů pokrývající každý aspekt a část softwarového řešení (modelování do šířky), zatímco C4 produkuje maximálně čtyři diagramy, které jsou ale úplné (modelování do výšky).
+C4 byl navržen právě proto, aby se předešlo složité symbolice a velkému počtu diagramů. Každý diagram je de facto blokový diagram, který se skládá z jednoduchých tvarů a šipek. UML produkuje velké množství diagramů pokrývající každý aspekt zvlášť, zatímco C4 produkuje čtyři diagramy, které ale popisují řešení vždy v celku.
+\clearpage
 
-Každý takový diagram odpovídá jedné úrovni abstrakce \parencite{c4-introduction}. Ke každé z nich můžeme navíc přiřadit jeden princip návrhu, které jsem popsal v této práci dříve a které slouží k prevenci či mitigaci technického dluhu:
+\section{Modelování softwarové architektury}
+C4 diagramy dělí softwarovou architekturu na vrstvu systémového kontextu, kontejnerů, komponent a kódu \parencite{c4-introduction}. Diagram lze sestrojit pro každou úroveň zvlášť, přičemž diagram komponent a kódu se dají následně dělit podle jednotlivých kontejnerů a respektive komponent. V rámci této práce je vhodné ujasnit, že ke každé úrovni jsem přiřadil odpovídající princip pro řízení kvality kódu, který má za cíl předejít či eliminovat technický dluh:
 
 \begin{table}[H]
 	\centering
@@ -276,10 +278,7 @@ Každý takový diagram odpovídá jedné úrovni abstrakce \parencite{c4-introd
 	\caption{Propojení úrovní modelu C4 s principy softwarového inženýrství}
 \end{table}
 
-\section{Modelování softwarové architektury}
-
-
-\subsection{Diagram systémového kontextu}
+\subsection{Úroveň systémového kontextu}
 Prvním krokem mé analýzy je zmapování systému v jeho přirozeném prostředí a definování hranic mezi stávajícím řešením a okolím. Tento diagram slouží k zachycení závislostí od řešení směrem k vnějším službám, ale i k zachycení závislostí od služeb směrem k řešení. Tím je možné vizualizovat, jak moc kritický je konkrétní systém v širším kontextu nasazených technologií \parencite{c4-system-context}.
 
 \begin{figure}[H]
@@ -290,10 +289,20 @@ Prvním krokem mé analýzy je zmapování systému v jeho přirozeném prostře
 	\caption{Diagram systémového kontextu}
 \end{figure}
 
-\subsection{Diagram kontejnerů}
+\subsection{Úroveň kontejnerů}
 \label{chapter:c4_containers}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-container.excalidraw.png
+	}
+	\centering
+	\caption{Diagram kontejnerů}
+\end{figure}
+
+
 \subsection{Diagram komponent}
+- Archiv, Login Required, Inspekce, Projekt, QR Marker, Labeling, Druhy vad, Dataset, Camera Setup, Tools, Statistics, Flex GUI, Cryptography, Specifikace, Uzivatele
 \label{chapter:c4_components}
 
 \section{Modelování doménových procesů}
@@ -347,8 +356,10 @@ Prvním faktorem je pravděpodobnost výskytu selhání.
 \begin{table}[H]
 	\centering
 	\renewcommand{\arraystretch}{1.5}
-	\begin{minipage}{0.48\textwidth}
+	\begin{minipage}[t]{0.49\textwidth}
+		\vspace{0pt}
 		\centering
+		\subcaption{Standardní FMEA škála vážnosti selhání}
 		\begin{tabularx}{\textwidth}{|l|X|}
 			\hline
 			\textbf{Stup.} & \textbf{Význam} \\ \hline
@@ -358,19 +369,44 @@ Prvním faktorem je pravděpodobnost výskytu selhání.
 			4 & \textbf{Kritické}. Produkt je vážně poškozen. Vede maximálně k jedné smrti.\\ \hline
 			5 & \textbf{Katastrofální}. Produkt se stává nefunkčním a může vést k několika smrtím.\\ \hline
 		\end{tabularx}
-		\subcaption{Standardní FMEA škála vážnosti selhání}
 	\end{minipage}
 	\hfill
-	\begin{minipage}{0.48\textwidth}
+	\begin{minipage}[t]{0.49\textwidth}
+		\vspace{0pt}
 		\centering
+		\subcaption{Adaptovaná škála závažnosti selhání}
 		\begin{tabularx}{\textwidth}{|l|X|}
 			\hline
-			\textbf{Stup.} & \textbf{Definice} \\ \hline
+			\textbf{Stup.} & \textbf{Význam} \\ \hline
+			1 & \textbf{Bez dopadu}. Žádný vliv na spolehlivost a rozšířitelnost systému.\\ \hline
+			2 & \textbf{Velmi nízká}. Produkt Zpozoruje pouze diskriminující zákazník.\\ \hline
+			3 & \textbf{Nízká}. Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
+			4 & \textbf{Střední}. Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
+			5 & \textbf{Vysoká}. Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
+			6 & \textbf{Kritická}. Systém se umí ze selhání zotavit, ale výskyt selhání negativně ovliní jeho běh. \\\hline
+			7 & \textbf{Katastrofální}. Systém se stává nefunkčním a je obtížné dotrasovat příčinu selhání.\\ \hline
 		\end{tabularx}
-		\subcaption{Adaptovaná škála vážnosti selhání}
 	\end{minipage}
 	\caption{Škála vážnosti selhání}
 \end{table}
+
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabularx}{\textwidth}{|l|l|l|X|}
+		\hline
+			\textbf{Stup.} & \textbf{Význam} & Zotavení & Debugovatelnost \\ \hline
+		1 & \textbf{Bez dopadu}. & Ano & Žádný vliv na spolehlivost a rozšířitelnost systému.\\ \hline
+		2 & \textbf{Velmi nízká}. & Ano &\\ \hline
+		3 & \textbf{Nízká}. & Ano &\\ \hline
+		4 & \textbf{Střední}. & Ano & Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
+		5 & \textbf{Vysoká}. & Ano & Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
+		6 & \textbf{Kritická}. & Ano & Systém se umí ze selhání zotavit, ale výskyt selhání negativně ovliní jeho běh. \\\hline
+		7 & \textbf{Katastrofální}. & Ne & ystém se stává nefunkčním a je obtížné dotrasovat příčinu selhání.\\ \hline
+	\end{tabularx}
+	\caption{Škála vážnosti technického dluhu}
+\end{table}
+
 
 \begin{table}[H]
 	\centering
@@ -399,6 +435,22 @@ Prvním faktorem je pravděpodobnost výskytu selhání.
 		\subcaption{Adaptovaná škála odhalitelnosti selhání}
 	\end{minipage}
 	\caption{Škála odhalitelnosti selhání}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabularx}{\textwidth}{|l|X|X|X|X|X|X|}
+		\hline
+		\textbf{Stup.} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} \\ \hline
+		1 & \textbf{Jistá}.&&&&&\\ \hline
+		2 & \textbf{Skoro jistá}.&&&&&\\ \hline
+		3 & \textbf{Vysoká}.&&&&&\\ \hline
+		4 & \textbf{Průměrná}.&&&&&\\ \hline
+		5 & \textbf{Nízká}.&&&&&\\ \hline
+		6 & \textbf{Nedetekovatelná} &&&&&\\\hline
+	\end{tabularx}
+	\caption{Matice rizik}
 \end{table}
 
 \chapter{Architektura nového řešení}
