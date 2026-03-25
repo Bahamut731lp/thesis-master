@@ -33,6 +33,10 @@
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage{appendix}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+
 \renewcommand{\appendixname}{Příloha}
 % potřebuji neproporcionální kurzívu, kterou Noto Sans Mono zatím nemá
 % ˇ\setmonofont{Roboto Mono}
@@ -139,7 +143,22 @@ Další část práce se věnuje metodice efektivního testování a principům 
 \clearpage
 \section{Technický dluh}
 \label{chapter:technical_debt}
-Technický dluh vzniká v situacích, kdy dojde k nedodržení doporučených postupů nebo k volbě suboptimálního návrhu s cílem urychlit dokončení vývoje. Krátkodobě ušetřený čas se v budoucnu projevuje jako dlouhodobá zátěž, zejména v momentě, kdy je zapotřebí systém dále rozšiřovat či upravovat. Akceptace technického dluhu nemusí být nutně negativním krokem, je však nezbytné s ním nakládat opatrně. Čas, který si v daný moment „vypůjčíme“ pro urychlení vývoje, musí být v budoucnu splacen. Je pak na zodpovědnosti vývojářů a managementu, zda budou tento dluh umořovat průběžně, nebo vyčkají, dokud jeho výše neznemožní další produktivní práci.
+Při vývoji software musí být učiněna určitá rozhodnutí o jeho návrhu. Ta jsou ovlivněna mnoha faktory - od hloubky znalosti domény a specifik zadání až po technologická omezení a časový tlak. Výsledná architektura je pak nevyhnutelně kompromisem mezi okamžitou rychlostí dodání a dlouhodobou udržitelností systému. Pod tlakem termínů musí vývojář neustále vyvažovat míru investice do čitelnosti, abstrakce a budoucí rozšířitelnosti kódu na úkor času, který má aktuálně k dispozici.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/technical_debt_compromise.excalidraw}
+	\centering
+	\caption{Rychlost vývoje v závislosti na složitosti návrhu}
+\end{figure}
+
+Pokud je zvolena cesta rychlejšího dodání namísto systematického návrhu, vzniká kód, který je tvořen ad hoc a postrádá ucelenou vizi. Absence celkového nadhledu pak způsobuje, že se systém s každou další funkcí stává nepřehlednějším a jeho údržba vyžaduje stále větší úsilí. Tento jev nazývám technickým dluhem. Pokud se technický dluh nechá střádat, postupně transformuje triviální změny na netriviální.
+
+Trivialní změnou myslím takovou změnu, kdy není potřeba zasahovat do řídících struktur a logiky existujícího systému. Naopak netriviální změny vyžadují hlubší pozorumnění a studium existujícího kódu a jsou tím pádem nejen časově náročnější, ale i více zatíženy možnostmi pro vznik chyby. Příkladem triviální změny je přidání záznamu do slovníku dostupných algoritmů, nebo přidání nové obslužné metody pro údalost. Naopak příklad netriviální změny je aktualizace výrazů \textit{switch} nebo \textit{if} pro přidání nového algoritmu. V tento okamžik je totiž potřeba hlídat, že jsou tyto řídící struktury aktualizovány na všech relevantních místech.
+
+Technický dluh se nazývá dluhem právě proto, že vykazuje stejné charakteristiky jako finanční závazek. Výměnou za rychlejší uvedení produktu na trh si vývojový tým od systému obrazně vypůjčuje čas, a to na úkor technické preciznosti. Stejně jako u finančních závazků, i zde je nutné počítat s úroky v podobě degradace kvality kódu.
+\subsection{Vznik technického dluhu}
+Vznik technického dluhu popisuje ve svých knihách a článcích Martin Fowler, který rozděluje příčiny vzniku technického dluhu do čtyř kategorií. Tyto kategorie leží na kvadrantu, který je založen na dvou osách: ose obezřetnosti a ose úmyslnosti.  \parencite{fowler-technical-debt}
 
 \begin{figure}[H]
 	\centering
@@ -148,22 +167,70 @@ Technický dluh vzniká v situacích, kdy dojde k nedodržení doporučených po
 	\caption{Kvadranty technického dluhu \parencite{asana-technical-debt}}
 \end{figure}
 
-Martin Fowler definuje tzv. kvadrant technického dluhu, ve kterém jej rozděluje do čtyř kategorií na základě dvou os: zda byl dluh vytvořen úmyslně a zda byl vývojář v daný okamžik obezřetný. Úmyslný dluh vzniká vědomým rozhodnutím upřednostnit rychlost dodání před kvalitou. Neúmyslný dluh je naopak důsledkem nezkušenosti nebo nedostatku znalostí v době návrhu. Rozlišení na dluh obezřetný a nedbalý pak odráží míru profesionality a zhodnocení rizik – zatímco obezřetný dluh je přijat s vědomím budoucích nákladů na jeho splacení, nedbalý dluh vzniká ignorováním základních principů softwarového inženýrství \parencite{fowler-technical-debt}.
+Úmyslný dluh vzniká vědomým rozhodnutím upřednostnit rychlost dodání před správným návrhem. Naproti tomu neúmyslný dluh bývá důsledkem nezkušenosti nebo nedostatku znalostí v době tvorby architektury. Osa obezřetnosti pak odráží schopnost týmu zhodnotit rizika při zavádění technického dluhu: zatímco obezřetný dluh je přijat s plným vědomím budoucích nákladů na jeho splacení, nedbalý dluh vzniká s nedostatkem informací či zkušeností \parencite{fowler-technical-debt}.
 
-Identifikace technického dluhu v rámci softwarového projektu může probíhat několika způsoby. Prvotním indikátorem je obvykle dynamika samotného vývoje. Pokud se rychlost vývoje (tzv. velocity) snižuje a čas potřebný k vydání nové verze neúměrně roste, bývá jednou z příčin právě nutnost vývojářů neustále překonávat bariéry v podobě zanedbaného či nepřehledného kódu. Subjektivní, avšak kriticky důležité hodnocení poskytují i samotní vývojáři, kteří jsou schopni přesně identifikovat konkrétní úseky systému, jež je při práci nejvíce zpomalují \parencite{asana-technical-debt}.
+\subsection{Nešváry}
+Pokud je technický dluh podle mé dřívější definice jev způsobující celkovou nepřehlednost a neudržitelnost systému, vyvstává rozumná otázka - jak konkrétně technický dluh vypadá? Technický dluh je tvořen hromaděním kusů kódu, které degradují kvalitu softwarového řešení. Tyto kusy se nazývají \textit{code smells}, a v této práci je nazývám \textbf{nešváry}.
 
-Objektivnější pohled nabízejí nástroje pro statickou analýzu kódu, které dokáží automatizovaně detekovat duplicity (tzv. code smells) nebo antipatterny naznačující architektonické nedostatky. Významnou metriku představuje rovněž code churn – ukazatel četnosti změn v konkrétních částech kódu. Vysoká míra fluktuace změn v určitém modulu často signalizuje jeho nevhodný návrh, nestabilitu nebo přílišnou provázanost s ostatními částmi systému, což jej činí náchylným k chybám a náročným na údržbu  \parencite{asana-technical-debt}.
+Před samotným výčtem důležitých nešvárů je vhodné se pozastavit nad jejich tříděním a podívat se, jakým způsobem je odborníci klasifikují. Pro účely této práce je důležité zmínit dvě klasifikace, které na problém nahlíží zcela odlišně a přivádí do problematiky důležité myšlenky - Mäntylovu klasifikovaci a Perezovu klasifikaci. Mäntylä nahlíží na nešváry jako na skupiny příbuzných symptomů. Dívá se tedy na nešváry optikou jejich dopadu na kód samotný. Jednotlivé kategorie definoval na základě společného negativního dopadu na kvalitu kódu \parencites{mantyla-code-smells, refactoring-guru-smells}:
 
-Příčiny vzniku technického dluhu mohou být jak technické tak procesní. V technické rovině jde především o absenci smysluplné dokumentace, která by popisovala architekturu a chování systému, a o nízké pokrytí kódu testy. Automatizované testy totiž fungují také jako popis očekávaného chování systému. V rovině procesní pak dluh vzniká jako je nátlak vedení na rychlost dodání, nebo v důsledku soustavného odkládání nezbytného refactoringu na neurčito \parencite{refactoring-guru-technical-debt}.
+\begin{itemize}
+	\item \textbf{Nabobtnalci} - tedy kód, který se rozrostl do takových proporcí, že s ním nelze nadále efektivně pracovat;
+	\item \textbf{Zneužívači} - tedy kód, který špatně využívá možnosti objektového návrhu;
+	\item \textbf{Zabraňovači} - tedy kód, který ztěžuje změny či další vývoj;
+	\item \textbf{Zbytečníci} - tedy zbytečné části kódu, které ztěžují jeho pochopení;
+	\item a \textbf{Vazbiči} - tedy případy, kdy je kód nesprávně provázaný a dochází ke špatnému rozdělení odpovědnosti.
+\end{itemize}
 
-Strategie řešení technického dluhu závisí na analýze rozsahu, rizik a dostupného rozpočtu. U méně kritických systémů, jejichž případný výpadek nepředstavuje vysoké riziko, nemusí být eliminace dluhu prioritou. Naopak u kritických komponent s vysokou mírou poruchovosti a nízkou udržitelností je nutné zvážit, zda je efektivnější refaktorizace, nebo kompletní přepsání systému. 
+Alternativní klasifikaci nabízí právě Perez, který netřídí nešváry do skupin podle společných vlastností, ale přišel s myšlenkou, že tyto nešváry tvoří de-facto monoid s operací skládání. Perez totiž popisuje některé nešváry jako nízkoúrovňové a atomické, tudíž jsou ireducibilní a tvoří základní kámeny pro skládání složitějších nešvárů, které nazývá vysokoúrovňovými \parencite{perez-code-smells}. Tento pohled na nešváry závádí do problematiky důležitou myšlenku - že nešváry nejsou disjunktními problémy, ale že i v případě Mäntylovy klasifikace existuje míra překrytí. Pokud například odhalíme duplicitní kód, může být v tom samém místě přítomný i \textit{nešvár divergentní změny} nebo \textit{shotgun surgery}.
+
+Samotný výčet nešvárů je dlouhý a každý zdroj bude jmenovat jinou podmnožinu. Níže jsem do tabulky sepsal podle mého názory ty nejpodstatnější nešvary, na které lze narazit, z původního seznamu podle Martina Fowlera \parencite{refactoring-guru-smells}.
+
+\begin{table}[H]
+	\centering
+	\caption{Výběr nešvarů, jejich symptonů a příčin}
+	\label{tab:code_smells_detailed}
+	\small
+	\begin{tabularx}{\textwidth}{@{} l X X @{}}
+		\toprule
+		\textbf{Název} & \textbf{Symptomy} & \textbf{Příčiny} \\ \midrule
+		Dlouhá metoda & Metody nad 20 řádků. & Postupné nabalování logiky. \\ \midrule
+		Velká třída & Třída s mnoha zodpovědnostmi. & Nedodržení principu jedné odpovědnosti. \\ \midrule
+		Divergentní změna & Mnoho úprav v jednom souboru. & Kopírování kódu.\\ \midrule
+		Shotgun Surgery & Jedna úprava v mnoha souborech. & Jedna odpovědnost v mnoha třídách. \\ \midrule
+		Duplicitní kód & Stejná logika na více místech. & Kopírování kód. \\ \midrule
+		Mrtvý kód & Nevyužité metody/proměnné. & Strach ze smazání kódu. \\ \midrule
+		Switch Statements & Rozsáhlé switch/if řetězce. & Neobratné využití OOP. \\ \midrule
+		Refused Bequest & Nevyužívání děděných metod. & Chybná hierarchie tříd. \\ \bottomrule
+	\end{tabularx}
+\end{table}
+\subsection{Detekce technického dluhu}
+Každý nešvár přispívá k celkovému technickému dluhu. Nešváry jsou příčinou, technický dluh stavem a netrivialita změn následkem. V důsledku se tak technický dluh v projektu projevuje jako překážka v životním cyklu softwaru, kterou je nutné nejprve identifikovat, zmapovat a zpětně dotrasovat k nešvárům.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.5\textwidth]{obrazky/diplomka/tech_debt_matrix_solution.png}
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/technical_debt_smells_relation.excalidraw.png}
+	\centering
+	\caption{Technický dluh je kolekce nešvárů}
+\end{figure}
+
+Prvotním indikátorem přítomnosti technického dluhu je obvykle dynamika samotného vývoje. Pokud se rychlost vývoje snižuje a čas potřebný k implementaci nových funkcionalit či opravě zdánlivě prostých chyb roste, bývá jednou z příčin právě nutnost vývojářů neustále překonávat bariéry v podobě zanedbaného či nepřehledného kódu. Právě samotní vývojáři nabízí sice subjektivní, avšak kriticky důležité hodnocení. Ti jsou totiž schopni přesně identifikovat konkrétní úseky systému, jež je při práci nejvíce zpomalují.
+
+Objektivnější pohled nabízejí nástroje pro statickou analýzu kódu, které dokáží automatizovaně detekovat duplicity nebo antipatterny. Významnou metriku představuje rovněž code churn – ukazatel četnosti změn v konkrétních částech kódu. Vysoká míra netriviálních změn v určitém modulu často signalizuje jeho nevhodný návrh, nestabilitu nebo přílišnou provázanost s ostatními částmi systému, což jej činí náchylným		 k chybám a náročným na údržbu \parencite{asana-technical-debt}.
+
+\subsection{Řešení technického dluhu}
+Volba strategie pro řešení technického dluhu vyžaduje analýzu rozsahu, souvisejících rizik a dostupných zdrojů. 
+
+U systémů s nízkou prioritou, kde případná chybovost nepředstavuje zásadní riziko, nemusí být eliminace dluhu ekonomicky efektivní a lze jej v systému ponechat. Naopak u kritických komponent, které vykazují vysokou poruchovost a nízkou udržitelnost, je nutné zvolit aktivní přístup. Rozhodovací proces se v takovém případě soustředí na volbu mezi postupnou refaktorizací, která zachovává funkční celek a snižuje riziko regrese, a kompletním přepisem. Zatímco refaktorizace je vhodná pro kontinuální splácení dluhu, úplný přepis je často nevyhnutelný tehdy, pokud je stávající architektura již natolik rigidní nebo technologicky zastaralá, že jakákoliv snaha o její údržbu a rozšiřování postrádá ekonomický i časový smysl.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.45\textwidth]{obrazky/diplomka/tech_debt_matrix_solution.png}
 	\centering
 	\caption{Kvadranty řešení technického dluhu \parencite{forest-technical-debt}}
 \end{figure}
+
+Následující kapitoly se budou věnovat technikám a návrhovým principům, které mají za úkol snížit množství technického dluhu na jednotlivých úrovních abstrakce či mu úplně předejít.
 
 \clearpage
 \section{Clean Code}
@@ -211,7 +278,27 @@ Pokud funkce vyžaduje velký počet parametrů, je vhodné zvážit jejich sesk
 \label{chapter:design_patterns}
 Návrhové vzory představují konceptuální řešení opakujících se problémů v rámci návrhu softwarové architektury. Na rozdíl od algoritmu, který definuje jasně předepsanou sekvenci kroků k dosažení konkrétního výsledku, jsou návrhové vzory spíše obecnými šablonami či strategiemi. Jednotlivé vzory vývojář implementuje v souladu se specifiky daného programovacího jazyka a potřebami konkrétního programu \parencite{refactoring-guru-patterns}.
 
-Zatímco principy Clean Code se soustředí na udržitelnost, testovatelnost a předvídatelnost na nejnižší úrovni (proměnné, funkce), návrhové vzory tyto žádoucí vlastnosti přenášejí do vyšších úrovní abstrakce, kde se formují rozsáhlejší architektonické celky.
+Zatímco principy Clean Code se soustředí na technické řemeslo a disciplínu na té nejnižší úrovni – tedy na to, jak psát čitelný a udržitelný kód – návrhové vzory představují strategie, které určují, co a proč stavět. Tyto vzory přenášejí žádoucí vlastnosti Clean Code do vyšších úrovní abstrakce, kde se formují rozsáhlejší architektonické celky. Cílem této kapitoly není taxativní výčet všech existujících vzorů, nýbrž analýza konkrétních problémů, které tyto vzory adresují, a mechanismů, jimiž dosahují kýženého řešení. Zvláště je dobré umět identifikovat vhodnost konkrétního vzoru ještě před napsáním prvního řádku kódu, čímž lze, alespoň z části, předejít vzniku dalšího technického dluhu.
+
+\subsection{Factory}
+
+\subsection{Builder}
+
+\subsection{Singleton}
+
+\subsection{Adapter}
+
+\subsection{Facade}
+
+\subsection{Proxy}
+
+\subsection{Composite}
+
+\subsection{Chain of Responsibility}
+
+\subsection{Strategy}
+
+\subsection{Observer}
 
 \section{Architektonické vzory}
 \label{chapter:architectural_patterns}
