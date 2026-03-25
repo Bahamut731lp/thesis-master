@@ -182,62 +182,64 @@ Před samotným výčtem důležitých nešvárů je vhodné se pozastavit nad j
 	\item a \textbf{Vazbiči} - tedy případy, kdy je kód nesprávně provázaný a dochází ke špatnému rozdělení odpovědnosti.
 \end{itemize}
 
-Alternativní klasifikaci nabízí právě Perez, který netřídí nešváry do skupin podle společných vlastností, ale přišel s myšlenkou, že tyto nešváry tvoří de-facto monoid s operací skládání. Perez totiž popisuje některé nešváry jako nízkoúrovňové a atomické, tudíž jsou ireducibilní a tvoří základní kámeny pro skládání složitějších nešvárů, které nazývá vysokoúrovňovými \parencite{perez-code-smells}. Tento pohled na nešváry závádí do problematiky důležitou myšlenku - že nešváry nejsou disjunktními problémy, ale že i v případě Mäntylovy klasifikace existuje míra překrytí. Pokud například odhalíme duplicitní kód, může být v tom samém místě přítomný i \textit{nešvár divergentní změny} nebo \textit{shotgun surgery}.
+Alternativní klasifikaci nabízí právě Perez, který netřídí nešváry do skupin podle společných vlastností, ale přišel s myšlenkou, že tyto nešváry tvoří de-facto monoid s operací skládání. Perez totiž popisuje některé nešváry jako nízkoúrovňové a atomické, tudíž jsou ireducibilní a tvoří základní kámeny pro skládání složitějších nešvárů, které nazývá vysokoúrovňovými \parencite{perez-code-smells}. Tento pohled na nešváry závádí do problematiky důležitou myšlenku - že nešváry nejsou disjunktními problémy, ale že i v případě Mäntylovy klasifikace existuje míra překrytí.
 
-Samotný výčet nešvárů je dlouhý a každý zdroj bude jmenovat jinou podmnožinu. Níže jsem do tabulky sepsal podle mého názory ty nejpodstatnější nešvary, na které lze narazit, z původního seznamu podle Martina Fowlera \parencite{refactoring-guru-smells}.
+Právě Pérezova myšlenka hierarchického skládání nešvarů vysvětluje, proč je v praxi obtížné stanovit mezi Mäntylovými kategoriemi ostré hranice. Atomické nešváry, jako je například \textit{duplicitní kód}, totiž často fungují jako katalyzátory pro vznik složitějších, vysokoúrovňových problémů. Pokud se identická logika vyskytuje na mnoha místech systému, nevyhnutelně to vede ke \textit{shotgun surgery}, kdy i triviální změna požadavku vynucuje koordinovanou netriviální změnu napříč rozptýlenými moduly.
+
+Kromě této přímé posloupnosti, kdy jeden nešvar vyvolává druhý, však v kódu existují i vztahy, které připomínají spíše korelaci než jasnou kauzalitu. Typickým příkladem je právě \textit{velká třída} (Large Class). Jakožto zástupce \textit{nabobtnanců} má symptom mnoha řádků kódu, ale v těchto řádcích se mohou ukrývat další nešváry, které nemají s velkou třídou kromě kolokace nic společného. Perez by hledal přímou souvislost mezi těmito jevy, tudíž že všechny dohromady skládají velkou třídu. Mäntyla ale dovoluje uvažovat bezpříčinné překrytí kategorií a soustředit se na kvantitativní výčet.
+
+Volba mezi těmito dvěma klasifikacemi pak v praxi závisí především na cíli samotné analýzy. Zatímco Pérezův přístup je nepostradatelný při snaze pochopit hloubkovou strukturu dluhu a identifikovat jeho primární příčiny, Mäntylova klasifikace nabízí přímočařejší cestu ke kvantitativnímu výčtu symptomů. Pro vývojáře je v danou chvíli důležité se rozhodnout, zda se zaměří na sledování kauzálních řetězců a bude se snažit eliminovat dluh u jeho kořene, nebo zda využije horizontální překryv kategorií k rychlé identifikaci nejvíce degradovaných modulů.
+
+V následující tabulce \ref{tab:code_smells_detailed} jsem vybral nešváry, které považuji za stěžejní pro praktickou část této práce:
 
 \begin{table}[H]
 	\centering
 	\caption{Výběr nešvarů, jejich symptonů a příčin}
 	\label{tab:code_smells_detailed}
-	\small
-	\begin{tabularx}{\textwidth}{@{} l X X @{}}
+	\footnotesize
+	\begin{tabularx}{\textwidth}{@{} p{0.2\textwidth} X X X @{}}
 		\toprule
-		\textbf{Název} & \textbf{Symptomy} & \textbf{Příčiny} \\ \midrule
-		Dlouhá metoda & Metody nad 20 řádků. & Postupné nabalování logiky. \\ \midrule
-		Velká třída & Třída s mnoha zodpovědnostmi. & Nedodržení principu jedné odpovědnosti. \\ \midrule
-		Divergentní změna & Mnoho úprav v jednom souboru. & Kopírování kódu.\\ \midrule
-		Shotgun Surgery & Jedna úprava v mnoha souborech. & Jedna odpovědnost v mnoha třídách. \\ \midrule
-		Duplicitní kód & Stejná logika na více místech. & Kopírování kód. \\ \midrule
-		Mrtvý kód & Nevyužité metody/proměnné. & Strach ze smazání kódu. \\ \midrule
-		Switch Statements & Rozsáhlé switch/if řetězce. & Neobratné využití OOP. \\ \midrule
-		Refused Bequest & Nevyužívání děděných metod. & Chybná hierarchie tříd. \\ \bottomrule
+		\textbf{Název} & \textbf{Symptomy} & \textbf{Příčiny} & \textbf{Možné řešení} \\ \midrule
+		Dlouhá metoda & Metody nad 20 řádků. & Nedodržení principu jedné odpovědnosti & Rozdělení na více metod \\ \midrule
+		Velká třída & Třída, která dělá více věcí zároveň & Nedodržení principu jedné odpovědnosti. & Rozdělení na více tříd \\ \midrule
+		Divergentní změna & Mnoho úprav v jednom souboru. & Kopírování kódu. & Vytvoření třídy \\ \midrule
+		Shotgun Surgery & Jedna úprava v mnoha souborech. & Jedna odpovědnost v mnoha třídách. & Vytvoření třídy \\ \midrule
+		Duplicitní kód & Stejná logika na více místech. & Kopírování kód. & Vytvoření metody\\ \midrule
+		Mrtvý kód & Nevyužité metody/proměnné. & Strach ze smazání kódu. & Odstranění kódu\\ \midrule
+		Switch Statements & Rozsáhlé switch/if struktury. & Neobratné využití OOP. & Polymorfismus\\ 
+		\midrule
+		Magické literály & Čísla a řetězce v řídících strukturách & Chybějící abstrakce, snaha o rychlé řešení & Nahrazení symbolickou konstantou\\ 
+		\bottomrule
 	\end{tabularx}
 \end{table}
 \subsection{Detekce technického dluhu}
 Každý nešvár přispívá k celkovému technickému dluhu. Nešváry jsou příčinou, technický dluh stavem a netrivialita změn následkem. V důsledku se tak technický dluh v projektu projevuje jako překážka v životním cyklu softwaru, kterou je nutné nejprve identifikovat, zmapovat a zpětně dotrasovat k nešvárům.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/technical_debt_smells_relation.excalidraw.png}
-	\centering
-	\caption{Technický dluh je kolekce nešvárů}
-\end{figure}
 
 Prvotním indikátorem přítomnosti technického dluhu je obvykle dynamika samotného vývoje. Pokud se rychlost vývoje snižuje a čas potřebný k implementaci nových funkcionalit či opravě zdánlivě prostých chyb roste, bývá jednou z příčin právě nutnost vývojářů neustále překonávat bariéry v podobě zanedbaného či nepřehledného kódu. Právě samotní vývojáři nabízí sice subjektivní, avšak kriticky důležité hodnocení. Ti jsou totiž schopni přesně identifikovat konkrétní úseky systému, jež je při práci nejvíce zpomalují.
 
 Objektivnější pohled nabízejí nástroje pro statickou analýzu kódu, které dokáží automatizovaně detekovat duplicity nebo antipatterny. Významnou metriku představuje rovněž code churn – ukazatel četnosti změn v konkrétních částech kódu. Vysoká míra netriviálních změn v určitém modulu často signalizuje jeho nevhodný návrh, nestabilitu nebo přílišnou provázanost s ostatními částmi systému, což jej činí náchylným		 k chybám a náročným na údržbu \parencite{asana-technical-debt}.
 
 \subsection{Řešení technického dluhu}
-Volba strategie pro řešení technického dluhu vyžaduje analýzu rozsahu, souvisejících rizik a dostupných zdrojů. 
+Volba strategie pro řešení technického dluhu vyžaduje analýzu rozsahu, souvisejících rizik a dostupných zdrojů. Pro hodnocení lze využít standardních postupů jako analýza SWOT, výpočet poměru nákladů na vývoj a na opravu (\textit{Technical Debt Ratio}) a nebo pokročilejších analýz pro hodnocení rizik, které si lze přizpůsobit pro účely hodnocení technického dluhu. \parencite{sonar-technical-debt-ratio}
 
-U systémů s nízkou prioritou, kde případná chybovost nepředstavuje zásadní riziko, nemusí být eliminace dluhu ekonomicky efektivní a lze jej v systému ponechat. Naopak u kritických komponent, které vykazují vysokou poruchovost a nízkou udržitelnost, je nutné zvolit aktivní přístup. Rozhodovací proces se v takovém případě soustředí na volbu mezi postupnou refaktorizací, která zachovává funkční celek a snižuje riziko regrese, a kompletním přepisem. Zatímco refaktorizace je vhodná pro kontinuální splácení dluhu, úplný přepis je často nevyhnutelný tehdy, pokud je stávající architektura již natolik rigidní nebo technologicky zastaralá, že jakákoliv snaha o její údržbu a rozšiřování postrádá ekonomický i časový smysl.
+Základní metodu pro vyhodnocení strategie splácení technického dluhu představuje rozhodovací matice, která dělí systémy do čtyř kategorií na základě dvou os: přínos pro podnik a technické  riziko. Právě přínos pro podnik určuje, zda má smysl do daného systému investovat zdroje – pokud je vysoký, nemůžeme si dovolit nechat dluh nekontrolovaně hromadit a musíme zvolit cestu nápravy.
+
+O konkrétním postupu pak rozhoduje osa technického rizika, která posuzuje pravděpodobnost selhání a závažnost jeho dopadů. V situaci, kdy je kód relativně stabilní nebo jsou následky případné chyby přijatelné, se jako ideální cesta jeví postupná refaktorizace. Ta umožňuje kontinuální splácení dluhu za plného provozu, čímž minimalizuje rizika regrese. Naopak v extrémním případě, kdy je systém pro podnik kritický, ale zároveň vykazuje neúnosnou míru rizika, se kompletní přepis stává nevyhnutelným. Přepis tak v tomto kontextu nepředstavuje selhání údržby, ale strategické rozhodnutí o vybudování nového, udržitelného základu.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.45\textwidth]{obrazky/diplomka/tech_debt_matrix_solution.png}
+	\includegraphics[width=0.66\textwidth]{obrazky/diplomka/tech_debt_matrix_solution.png}
 	\centering
 	\caption{Kvadranty řešení technického dluhu \parencite{forest-technical-debt}}
 \end{figure}
 
-Následující kapitoly se budou věnovat technikám a návrhovým principům, které mají za úkol snížit množství technického dluhu na jednotlivých úrovních abstrakce či mu úplně předejít.
-
-\clearpage
 \section{Clean Code}
 \label{chapter:clean_code}
-\textbf{Clean Code} představuje soubor pravidel a doporučení, jejichž primárním cílem je snížit kognitivní zátěž při čtení a údržbě zdrojového kódu \parencite{martin-clean-code}. Na clean code je pohlíženo jako na myšlenkový pochod, který má za cíl sjednotit komunikaci záměrů a zjednodušit údržbu či rozšíření kódu po určitém časovém odstupu. Jak píše i samotný Robert Martin ve své knize\footfullcite{martin-clean-code}, jednotlivé zásady nejsou absolutní pravdou a míra jejich aplikace může být předmětem diskuse v týmu. V následujících podkapitolách jsou rozebrány vybrané zásady, které mají podle mých zkušeností největší vliv na čitelnost a dlouhodobou udržitelnost systému.
+Každý pokus o odstranění technického dluhu v praxi dříve či později naráží na nutnost provést v kódu netriviální změnu. Jak bylo definováno v kapitole \ref{chapter:technical_debt}, taková operace vyžaduje nejen hluboké pochopení stávající logiky a řídicích struktur, ale také značnou dávku kognitivního úsilí. Míra této zátěže však není dána pouze složitostí samotného problému, ale především kvalitou a stylem, jakým byl kód napsán.
 
-Je důležité zdůraznit, že cílem Clean Code není přesné dodržování arbitrárních pravidel. Smyslem je zmírnit negativní dopady neudržitelného kódu – často psaného pod časovým tlakem – na budoucí produktivitu celého týmu. Žádoucím výsledkem je udržení konstantního tempa vývoje v čase a eliminace potřeby rozsáhlých a rizikových přepisů, či celkové refaktorizace projektu.
+Pro systematické snižování této kognitivní zátěže se v softwarovém inženýrství ustálil koncept \textit{Clean Code}. Jedná se o soubor principů a doporučení, jejichž primárním cílem je zjednodušit čtení a údržbu zdrojového kódu. Aplikace těchto zásad v praxi přímo koreluje s kognitivní zátěží vývojáře: čím je kód „čistší“, tím méně mentálních kapacit musí věnovat jeho dešifrování a tím více prostoru zbývá na samotnou refaktorizaci a tvorbu nových funkcionalit \parencite{martin-clean-code}.
+
+\textit{Clean Code} není pouhým souborem pravidel, ale především způsobem uvažování o kódu jako o komunikačním prostředku. Jeho cílem je sjednotit sdělení záměru autora a zjednodušit budoucí údržbu či rozšiřování systému. Jak uvádí Robert Martin, jednotlivé zásady nelze vnímat jako absolutní dogmata; jejich konkrétní aplikace je vždy výsledkem odborné diskuse v rámci týmu \parencite{martin-clean-code}.
 
 \subsection{Identifikátory}
 Vývoj softwaru vyžaduje pojmenovávání široké škály konstrukcí – od proměnných a funkcí až po třídy, rozhraní a specifické jazykové struktury. Zásadním principem je, aby každý název nesl jasný význam a záměr. Název identifikátoru by měl zodpovídat otázky jako: „Proč tato entita existuje?“, „Co dělá?“ a „Jakým způsobem se používá?“. Například jednopísmenný název proměnné neposkytuje žádnou informaci o jejím účelu. Pokud však řešíme výpočet délky přepony pravoúhlého trojúhelníku, název \texttt{delkaPreponyCm} jasně definuje obsah i jednotky dané hodnoty \parencite{martin-clean-code}.
