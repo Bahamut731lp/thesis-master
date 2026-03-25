@@ -33,6 +33,10 @@
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage{appendix}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+
 \renewcommand{\appendixname}{Příloha}
 % potřebuji neproporcionální kurzívu, kterou Noto Sans Mono zatím nemá
 % ˇ\setmonofont{Roboto Mono}
@@ -168,19 +172,40 @@ Vznik technického dluhu popisuje ve svých knihách a článcích Martin Fowler
 \subsection{Nešváry}
 Pokud je technický dluh podle mé dřívější definice jev způsobující celkovou nepřehlednost a neudržitelnost systému, vyvstává rozumná otázka - jak konkrétně technický dluh vypadá? Technický dluh je tvořen hromaděním kusů kódu, které degradují kvalitu softwarového řešení. Tyto kusy se nazývají \textit{code smells}, a v této práci je nazývám \textbf{nešváry}.
 
-Před samotným výčtem těch nejdůležitějších nešvárů je vhodné se pozastavit nad jejich tříděním a podívat se, jakým způsobem je odborníci klasifikují. Pro účely této práce je důležité zmínit dvě klasifikace, které na problém nahlíží zcela odlišně a přivádí do problematiky důležité myšlenky - Mäntylovu klasifikovaci a Perezovu klasifikaci. Mäntylä nahlíží na nešváry jako na skupiny příbuzných symptomů. Jednotlivé kategorie definoval na základě společného negativního dopadu na kvalitu kódu \parencites{mantyla-code-smells, refactoring-guru-smells}:
+Před samotným výčtem důležitých nešvárů je vhodné se pozastavit nad jejich tříděním a podívat se, jakým způsobem je odborníci klasifikují. Pro účely této práce je důležité zmínit dvě klasifikace, které na problém nahlíží zcela odlišně a přivádí do problematiky důležité myšlenky - Mäntylovu klasifikovaci a Perezovu klasifikaci. Mäntylä nahlíží na nešváry jako na skupiny příbuzných symptomů. Dívá se tedy na nešváry optikou jejich dopadu na kód samotný. Jednotlivé kategorie definoval na základě společného negativního dopadu na kvalitu kódu \parencites{mantyla-code-smells, refactoring-guru-smells}:
 
 \begin{itemize}
 	\item \textbf{Nabobtnalci} - tedy kód, který se rozrostl do takových proporcí, že s ním nelze nadále efektivně pracovat;
-	\item \textbf{Špatný objektový návrh} - tedy kód, který nevyužívá možnosti objektového návrhu, nebo je využívá špatně;
+	\item \textbf{Zneužívači} - tedy kód, který špatně využívá možnosti objektového návrhu;
 	\item \textbf{Zabraňovači} - tedy kód, který ztěžuje změny či další vývoj;
 	\item \textbf{Zbytečníci} - tedy zbytečné části kódu, které ztěžují jeho pochopení;
 	\item a \textbf{Vazbiči} - tedy případy, kdy je kód nesprávně provázaný a dochází ke špatnému rozdělení odpovědnosti.
 \end{itemize}
 
-Alternativní klasifikaci nabízí právě Perez, který netřídil nešváry do skupin podle společných vlastností, ale přišel s myšlenkou, že tyto nešváry tvoří de-facto monoid s operací skládání. Perez totiž popisuje některé nešváry jako nízkoúrovňové a atomické, tudíž jsou ireducibilní a tvoří základní kámeny pro skládání složitějších nešvárů, které nazývá vysokoúrovňovými \parencite{perez-code-smells}. Tento pohled na nešváry závádí do problematiky důležitou myšlenku - že nešváry nejsou disjunktními problémy, ale že i v případě Mäntylovy klasifikace existuje míra překrytí, na kterou je nutné brát zřetel. Přítomnost jednoho nešváru může indikovat i další nešváry, které z něho plynou.
+Alternativní klasifikaci nabízí právě Perez, který netřídí nešváry do skupin podle společných vlastností, ale přišel s myšlenkou, že tyto nešváry tvoří de-facto monoid s operací skládání. Perez totiž popisuje některé nešváry jako nízkoúrovňové a atomické, tudíž jsou ireducibilní a tvoří základní kámeny pro skládání složitějších nešvárů, které nazývá vysokoúrovňovými \parencite{perez-code-smells}. Tento pohled na nešváry závádí do problematiky důležitou myšlenku - že nešváry nejsou disjunktními problémy, ale že i v případě Mäntylovy klasifikace existuje míra překrytí. Pokud například odhalíme duplicitní kód, může být v tom samém místě přítomný i \textit{nešvár divergentní změny} nebo \textit{shotgun surgery}.
 
-Každý nešvár tak přispívá k celkovému technickému dluhu dané programové jednotky. Nešváry jsou příčinou, technický dluh stavem a netrivialita následkem. V důsledku se tak technický dluh v projektu neprojevuje pouze jako statický nedostatek v kvalitě kódu, ale jako dynamická překážka v životním cyklu softwaru. Protože se dluh projevuje až po delší akumulaci nešvárů, musí se k identifikaci jeho příčin jít od konce a nejprve identifikovat jeho reálné projevy v procesu vývoje a zpětně je dotrasovat k nešvárům.
+Samotný výčet nešvárů je dlouhý a každý zdroj bude jmenovat jinou podmnožinu. Níže jsem do tabulky sepsal podle mého názory ty nejpodstatnější nešvary, na které lze narazit, z původního seznamu podle Martina Fowlera \parencite{refactoring-guru-smells}.
+
+\begin{table}[H]
+	\centering
+	\caption{Výběr nešvarů, jejich symptonů a příčin}
+	\label{tab:code_smells_detailed}
+	\small
+	\begin{tabularx}{\textwidth}{@{} l X X @{}}
+		\toprule
+		\textbf{Název} & \textbf{Symptomy} & \textbf{Příčiny} \\ \midrule
+		Dlouhá metoda & Metody nad 20 řádků. & Postupné nabalování logiky. \\ \midrule
+		Velká třída & Třída s mnoha zodpovědnostmi. & Nedodržení principu jedné odpovědnosti. \\ \midrule
+		Divergentní změna & Mnoho úprav v jednom souboru. & Kopírování kódu.\\ \midrule
+		Shotgun Surgery & Jedna úprava v mnoha souborech. & Jedna odpovědnost v mnoha třídách. \\ \midrule
+		Duplicitní kód & Stejná logika na více místech. & Kopírování kód. \\ \midrule
+		Mrtvý kód & Nevyužité metody/proměnné. & Strach ze smazání kódu. \\ \midrule
+		Switch Statements & Rozsáhlé switch/if řetězce. & Neobratné využití OOP. \\ \midrule
+		Refused Bequest & Nevyužívání děděných metod. & Chybná hierarchie tříd. \\ \bottomrule
+	\end{tabularx}
+\end{table}
+\subsection{Detekce technického dluhu}
+Každý nešvár přispívá k celkovému technickému dluhu. Nešváry jsou příčinou, technický dluh stavem a netrivialita změn následkem. V důsledku se tak technický dluh v projektu projevuje jako překážka v životním cyklu softwaru, kterou je nutné nejprve identifikovat, zmapovat a zpětně dotrasovat k nešvárům.
 
 \begin{figure}[H]
 	\centering
@@ -191,9 +216,12 @@ Každý nešvár tak přispívá k celkovému technickému dluhu dané programov
 
 Prvotním indikátorem přítomnosti technického dluhu je obvykle dynamika samotného vývoje. Pokud se rychlost vývoje snižuje a čas potřebný k implementaci nových funkcionalit či opravě zdánlivě prostých chyb roste, bývá jednou z příčin právě nutnost vývojářů neustále překonávat bariéry v podobě zanedbaného či nepřehledného kódu. Právě samotní vývojáři nabízí sice subjektivní, avšak kriticky důležité hodnocení. Ti jsou totiž schopni přesně identifikovat konkrétní úseky systému, jež je při práci nejvíce zpomalují.
 
-Objektivnější pohled nabízejí nástroje pro statickou analýzu kódu, které dokáží automatizovaně detekovat duplicity nebo antipatterny. Významnou metriku představuje rovněž code churn – ukazatel četnosti změn v konkrétních částech kódu. Vysoká míra netriviálních změn v určitém modulu často signalizuje jeho nevhodný návrh, nestabilitu nebo přílišnou provázanost s ostatními částmi systému, což jej činí náchylným k chybám a náročným na údržbu \parencite{asana-technical-debt}.
+Objektivnější pohled nabízejí nástroje pro statickou analýzu kódu, které dokáží automatizovaně detekovat duplicity nebo antipatterny. Významnou metriku představuje rovněž code churn – ukazatel četnosti změn v konkrétních částech kódu. Vysoká míra netriviálních změn v určitém modulu často signalizuje jeho nevhodný návrh, nestabilitu nebo přílišnou provázanost s ostatními částmi systému, což jej činí náchylným		 k chybám a náročným na údržbu \parencite{asana-technical-debt}.
 
-Volba strategie pro řešení technického dluhu vyžaduje analýzu rozsahu, souvisejících rizik a dostupných zdrojů. U systémů s nízkou prioritou, kde případná chybovost nepředstavuje zásadní riziko, nemusí být eliminace dluhu ekonomicky efektivní a lze jej v systému ponechat. Naopak u kritických komponent, které vykazují vysokou poruchovost a nízkou udržitelnost, je nutné zvolit aktivní přístup. Rozhodovací proces se v takovém případě soustředí na volbu mezi postupnou refaktorizací, která zachovává funkční celek a snižuje riziko regrese, a kompletním přepisem. Zatímco refaktorizace je vhodná pro kontinuální splácení dluhu, úplný přepis je často nevyhnutelný tehdy, pokud je stávající architektura již natolik rigidní nebo technologicky zastaralá, že jakákoliv snaha o její údržbu a rozšiřování postrádá ekonomický i časový smysl.
+\subsection{Řešení technického dluhu}
+Volba strategie pro řešení technického dluhu vyžaduje analýzu rozsahu, souvisejících rizik a dostupných zdrojů. 
+
+U systémů s nízkou prioritou, kde případná chybovost nepředstavuje zásadní riziko, nemusí být eliminace dluhu ekonomicky efektivní a lze jej v systému ponechat. Naopak u kritických komponent, které vykazují vysokou poruchovost a nízkou udržitelnost, je nutné zvolit aktivní přístup. Rozhodovací proces se v takovém případě soustředí na volbu mezi postupnou refaktorizací, která zachovává funkční celek a snižuje riziko regrese, a kompletním přepisem. Zatímco refaktorizace je vhodná pro kontinuální splácení dluhu, úplný přepis je často nevyhnutelný tehdy, pokud je stávající architektura již natolik rigidní nebo technologicky zastaralá, že jakákoliv snaha o její údržbu a rozšiřování postrádá ekonomický i časový smysl.
 
 \begin{figure}[H]
 	\centering
