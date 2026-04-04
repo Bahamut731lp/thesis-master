@@ -1,0 +1,84 @@
+\documentclass[FM]{tulpresentation}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\title{Architektura systému pohledové inspekce kvality}
+\subtitle{Kevin Daněk}
+\author{Vedoucí: Ing. Igor Kopetschke}
+
+\definecolor{Success}{HTML}{008236}
+\definecolor{Warning}{HTML}{d08700}
+\definecolor{Error}{HTML}{e7000b}
+
+\begin{document}
+
+\TULtitleframe
+
+\begin{frame}
+	\frametitle{Zadání}
+	\begin{items}
+		\item Analyzujte architekturu softwarového řešení ve společnosti CLOUDCODE pro kamerovou inspekci kvality.
+		\item Identifikujte a odůvodněte její nedostatky a navrhněte potřebné změny reflektující moderní požadavky softwarového inženýrství.
+		\item Implementujte sledování řešení pomocí OpenTelemetry a softwarových řešení společnosti Grafana Labs.
+		\item Implementujte automatické testování a sestavení pomocí nástrojů pro CI/CD.
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Teoretický základ}
+	\begin{items}
+		\item Technický dluh = Jev, který způsobuje, že údržba systému vyžaduje stále větší úsilí.
+		\begin{subitems}
+		\item Vzniká tam, kde chybí systematický návrh a ucelená vize.
+		\item Je úhrnem všech nešvárů v kódu - velké třídy, dlouhé metody, mrtvý kód, ...
+		\item Detekujeme ho pomocí statické analýzy a podle dynamiky vývoje.
+		\item Přecházíme mu pomocí uplatnění správných návrhových principů (Clean Code, Návrhové vzory, Architektonické vzory, Integrační vzory)
+	 	\end{subitems}
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dosažené výsledky}
+	\begin{items}
+		\item Řešení společnosti CLOUCODE bylo rozděleno na mikroslužby.
+		\item Jednotlivé mikroslužby používají patřičné návrhové vzory (kde jsou potřeba):
+		\begin{subitems}
+			\item \textbf{REST API} - FastAPI - \textit{Builder, Strategy, Observer}
+			\item \textbf{Frontend} - React - \textit{Factory, Composite}
+			\item \textbf{Peripherals API} - Celery - \textit{Singleton, Strategy, Adapter}
+			\item \textbf{Machine Learning API} - Celery - \textit{Builder, Strategy, Adapter}
+		\end{subitems}
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dosažené výsledky}
+	\begin{items}
+		\item Komunikace mezi kontejnery napřímo pomocí Docker DNS.
+		\item Vysoká propustnost zajištěna pomocí Redis fronty.
+		\begin{subitems}
+			\item Snímání snímků z kamery - běžně až 5 za vteřinu
+			\item Pokud má stanice 4 kamery, zátěž rychle roste.
+			\item Je nežádoucí přehltit kontejner s REST API.
+		\end{subitems}
+		\item Celé řešení je monitorováno a vizualizováno v Grafana Dashboardu.
+	\end{items}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Shrnutí}
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabularx}{\textwidth}{|X|l|}
+			\hline
+			\textbf{Bod zadání} & \textbf{Stav}\\\hline
+			Analýza architektury stávajícího softwarového řešení & \textbf{\textcolor{Success}{Ano}} \\\hline
+			Identifikace a odůvodnění změn a návrh řešení & \textbf{\textcolor{Success}{Ano}} \\\hline
+			Implementace sledování pomocí OpenTelemetry & \textbf{\textcolor{Success}{Ano}} \\\hline
+			Implementace automatického testování a sestavení & \textbf{\textcolor{Warning}{Částečně}} \\\hline 
+		\end{tabularx}
+	\end{table}
+\end{frame}
+\TULendframe
+\end{document}

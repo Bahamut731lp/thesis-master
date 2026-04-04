@@ -4,7 +4,7 @@
 % nebo vymažte příkazy \set...font na následujících řádcích
 
 \newcommand{\verze}{2.3}
-
+\usepackage[table]{xcolor}
 \usepackage{polyglossia}
 \setdefaultlanguage{czech}
 
@@ -104,10 +104,11 @@ Liberec thesis typesetting using the \LaTeX\ typographic system.
 \clearpage
 
 \begin{acknowledgement}
+V první řadě bych chtěl poděkovat vedoucímu mé práce, panu Ing. Igorovi Kopetschkovi, který mé bláznivé kvalifikační práce zastřešuje po celou dobu mého studia. Jeho lidský a pragmatický přístup mi dával naději, že nemusím hrát v absurdnímu dramatu akademické aristokracie - a že je nejenom možné, ba dokononce žádoucí, umět podat odborné téma lidsky a srozumitelně. Mrzí mě, že kdybych se rozhodl pokračovat do vyšších pater akademického studia, nebude mě moci doprovázet. Možná je to ale signálem, že je čas uvolnit místo pro ostatní, a věřte, že pokud vložíte v pana Koptschkeho důvěru, rozhodně nebudete strádat.
 
 Dál bych chtěl poděkovat i zbytku akademické obce, se kterou jsem měl co dočinění. I když se s některými jejími členy, ozvláště pak z nadřízených pozic, neshodnu ani na počasí, tak díky každému jsem získal novou zkušenost. Někdy byla pozitivní, a někdy zase i negativní - to ale k životu patří.
 
-A na závěr musím poděkovat svojí drahé polovičce, Simče Daňkové, která mě podporovala po celou dobu psaní této práce. Na začátku této práce byla mou přítelkyní, a nyní, na jejím konci, je již mojí manželkou. Díky ní si budu tuto práci pamatovat nejenom jako svůj \textit{magnum opus}, ale jako životní milník, kterým se změnil skoro každý aspekt mého života. Pokud Vás zajímají regionální dějiny a příběhy z časů minulých, doporučuji si přečíst její bakalářskou práci, kterou tvořila souběžně s tou mojí, a zabývá se tématem sebevražd po druhé světové válce na Liberecku a obzvláště v Jablonci nad Nisou a jeho blízkém okolí. 
+A na závěr musím poděkovat svojí drahé polovičce, Simče Daňkové, která mě podporovala po celou dobu psaní této práce. Na začátku této práce byla mou přítelkyní, a nyní, na jejím konci, je již mojí manželkou. Díky ní si budu tuto práci pamatovat nejenom jako svůj \textit{magnum opus}, ale jako životní milník, kterým se změnil skoro každý aspekt mého života. Pokud Vás zajímají regionální dějiny a příběhy z časů minulých, doporučuji si přečíst její bakalářskou práci, kterou tvoří souběžně s tou mojí, a zabývá se tématem sebevražd po druhé světové válce na Liberecku a obzvláště v Jablonci nad Nisou a jeho blízkém okolí. 
 
 \end{acknowledgement}
 
@@ -308,7 +309,7 @@ Pro udržení této hierarchie abstrakce je doporučeno dodržovat pravidlo sest
 \subsection{Rozhraní a počet argumentů}
 Komplexitu funkce však neurčuje pouze její tělo, ale také šířka jejího rozhraní. Ideální funkce je niladická (bez argumentů). Monadické a dyadické funkce jsou běžné a přijatelné, ale s každým dalším parametrem roste obtížnost pochopení záměru a dramaticky se komplikuje testování.
 
-Uvažujeme-li funkci se čtyřmi parametry typu \textit{boolean}, vzniká celkem 24=16 možných kombinací vstupních stavů, které je v ideálním případě nutné validovat. Obecně je pak počet všech teoreticky možných testovacích případů roven mohutnosti kartézského součinu množin přípustných hodnot všech jednotlivých argumentů. Pro k argumentů stejného výčtového typu o n prvcích je tento počet dán vztahem $n^k$. U spojitých proměnných je situace ještě kritičtější, neboť vyžaduje pečlivý výběr reprezentativních zástupců z tzv. tříd ekvivalence, aby bylo možné pokrýt hraniční stavy bez nekonečného nárůstu testovacích scénářů \parencite{martin-clean-code}.
+Uvažujeme-li funkci se čtyřmi parametry typu \textit{boolean}, vzniká celkem $2^4$ možných kombinací vstupních stavů, které je v ideálním případě nutné validovat. Obecně je pak počet všech teoreticky možných testovacích případů roven mohutnosti kartézského součinu množin přípustných hodnot všech jednotlivých argumentů. Pro k argumentů stejného výčtového typu o n prvcích je tento počet dán vztahem $n^k$. U spojitých proměnných je situace ještě kritičtější, neboť vyžaduje pečlivý výběr reprezentativních zástupců z tzv. tříd ekvivalence, aby bylo možné pokrýt hraniční stavy bez nekonečného nárůstu testovacích scénářů \parencite{martin-clean-code}.
 
 Vysoký počet argumentů navíc smazává přirozené pořadí parametrů, což zvyšuje riziko jejich záměny při volání – výjimkou jsou pouze případy kdy mezi parametry již existuje přirozené uspořádání, jako jsou například souřadnice v kartézské soustavě $(x,y)$. \parencite{martin-clean-code}
 
@@ -317,13 +318,105 @@ Pokud funkce vyžaduje velký počet parametrů, je to jasný signál, že někt
 
 \section{Návrhové vzory}
 \label{chapter:design_patterns}
-Zatímco principy \textit{Clean Code} se soustředí na technické řemeslo a disciplínu na té nejnižší úrovni – tedy na to, jak psát čitelný a srozumitelný kód v rámci funkcí a tříd – návrhové vzory posouvají tuto snahu o řád výše. Představují konceptuální řešení opakujících se problémů v rámci návrhu softwarové architektury a určují, jakým způsobem by měly být jednotlivé komponenty organizovány do funkčních celků. \parencite{refactoring-guru-patterns}
+Zatímco \textit{Clean Code} se soustředí na samotné technické řemeslo a disciplínu na té nejnižší úrovni – tedy na to, jak psát čitelný a srozumitelný kód v rámci funkcí a tříd – návrhové vzory posouvají tuto snahu o řád abstrakce výše. Návrhové vzory totiž představují konceptuální řešení častých problémů v rámci návrhu softwarové architektury. Na rozdíl od algoritmu, který definuje striktní sekvenci kroků k řešení problému, jsou návrhové vzory spíše obecnými šablonami či strategiemi. Vývojář tyto strategoie adaptuje v souladu se specifiky programovacího jazyka a potřebami daného systému \parencite{refactoring-guru-patterns}. Vzory tak přenášejí žádoucí vlastnosti \textit{Clean Code} do vyšších úrovní abstrakce, kde se formují rozsáhlejší architektonické celky.
 
-Na rozdíl od algoritmu, který definuje striktní sekvenci kroků k řešení problému, jsou návrhové vzory spíše obecnými šablonami či strategiemi. Vývojář tyto strategoie adaptuje v souladu se specifiky programovacího jazyka a potřebami daného systému \parencite{refactoring-guru-patterns}. Vzory tak přenášejí žádoucí vlastnosti \textit{Clean Code} do vyšších úrovní abstrakce, kde se formují rozsáhlejší architektonické celky.
+V minulé kapitole jsem kladl důraz na fakt, že samotný zdrojový kód slouží jako primární komunikační prostředek a že principy \textit{Clean Code} představují soubor zásad pro srozumitelné vyjádření záměru a krácení komunikačního šumu. Návrhové vzory tuto vlastnost replikují. Zatímco \textit{Clean Code} vysvětluje, jak je daná část implementována, návrhové vzory komunikují širší vlastnosti jednotlivých částí systému. Skrze jejich použití definujeme nejen záměr a myšlenku za existencí jednotlivých komponent, ale i jejich očekávané chování a vzájemné interakce. Rozpoznání vzoru v kódu tak vývojáři okamžitě odhaluje sémantiku celé komponenty bez nutnosti studovat detailní implementaci.
 
-\subsection{Factory}
+\subsection{Specifikace návrhových vzorů}
+Popis samotných návrhových vzorů se v praxi pohybuje na různých úrovních formality. Nejčastěji se setkáváme s neformálními popisy, které kombinují text a grafické notace, jako jsou blokové diagramy nebo UML diagramy \parencite{refactoring-guru-patterns}. Tyto vizualizace jsou sice srozumitelné, ale jejich sémantická nejednoznačnost a přílišná šíře neposkytují dostatečně pevný základ pro exaktní kontrolu vlastností navrženého systému. Vzniká tedy otázka, zdali existuje nějaký způsob, jak je alespoň kvaziformálně definovat, a zároveň zaznačit problém, který řeší.
+
+V oblasti návrhu a teorie databází slouží k popisu manipulace s daty relační algebra a k definici logických podmínek relační kalkul. I v objektovém návrhu vznikaly snahy o zavedení formálního aparátu, který by dokázal modelovat vztahy a komunikaci mezi objekty při zachování klíčových vlastností OOP, jako je zapouzdření nebo schopnost kompozice. Cílem těchto pokusů bylo tedy vytvořit tzv. objektový kalkul.
+
+\subsubsection{Nierstraszova notace}
+Významným příspěvkem k formalizaci objektového návrhu je práce Oscara Nierstrasze, který pro tento účel propojil lambda kalkul s procesním kalkulem. Volba těchto dvou disciplín byla strategická: lambda kalkul slouží k definici vnitřních stavů a chování objektů, zatímco procesní kalkul modeluje jejich vzájemnou komunikaci. Nierstrasz tak využil silné stránky dvou etablovaných formálních aparátů a spojil je do jednoho nástroje určeného pro komplexní popis objektových struktur \parencite{nierstrasz-object-calculus}.
+
+Ve své notaci Nierstrasz představil koncept agentů, kteří jsou definováni množinou jmen, vstupů a výstupů. Mezi těmito agenty následně vytvořil řadu operátorů pro modelování rekurze, kompozice, aplikace funkcí a dalších prvků objektového i funkcionálního programování, které ukázány v rovnici \ref{eq:nierstrasz-operators} \parencite{nierstrasz-object-calculus}.
+
+\begin{equation}\label{eq:nierstrasz-operators}
+	a ::= a\&a \mid n := a \mid a|a \mid x \to a \mid v \land a \mid a@v
+\end{equation}
+
+Analýzu konkrétního výrazu lze demonstrovat na definici prázdného zásobníku: $empty := (push, x?) \to stack@(x, empty)$. Tento zápis popisuje objekt, který disponuje operací \textit{push} s lokálním argumentem x. V momentě, kdy objekt přijme zprávu s touto signaturou, transformuje se na instanci \textit{stack}, které jsou předány parametry v podobě přijatého argumentu a reference na původní objekt \textit{empty}. Logika této transformace vychází z definice zásobníku v rovnicích \ref{eq:nierstrasz-stack-1} a \ref{eq:nierstrasz-stack-2}, kde je \textit{stack} koncipován jako entita přijímající parametry \textit{top} (aktuální hodnota x) a \textit{rest} (předchozí stav zásobníku) \parencite{nierstrasz-object-calculus}.
+
+\begin{equation}\label{eq:nierstrasz-stack-1}
+	stack := (top?, rest?) \to (pop, top) \land rest
+\end{equation}
+\begin{equation}\label{eq:nierstrasz-stack-2}
+	stack := (top?, rest?) \to (push, x?) \to stack@\left(x, stack@(top, rest)\right)
+\end{equation}
+
+Ačkoliv Nierstrasz skvěle modeluje předávání zpráv, z pohledu detekce návrhových vzorů je příliš verbózní. Nutí nás sledovat každou jednotlivou zprávu a transformaci agenta, abychom pochopili, že se jedná o obyčejný zásobník. S rostoucí složitostí systému poroste i náročnost popisu, což znemožňuje praktickou využitelnost modelu pro analýzu rozsáhlých architektur. Zásadním nedostatkem je z mého pohledu také absence explicitního vyjádření vazeb mezi objekty. Nierstraszova notace se soustředí primárně na sekvenci zpráv, čímž v podstatě vytváří formální verzi sekvenčního diagramu.
+
+\subsubsection{Mikkonenova notace}
+Na problém vyjádření vazeb již netrpí Mikkonenova notace, která je založena na metodě DisCo. Mikkonen se odklání od popisu komunikace pomocí zpráv a soustředí se na objekty jako na součásti širšího celku, přičemž klade důraz zejména na jejich vzájemné vztahy. Jednotlivé třídy definuje jako množiny atributů a mezi samotnými instancemi zavádí relace s explicitně vyjádřenou kardinalitou. Obecný zápis takové relace uvádí rovnice \ref{eq:mikkonen-relation}, kde je vztah definován jako výběr z kartézského součinu dvou tříd \parencite{mikkonen-formalizing-patterns}.
+
+\begin{equation}\label{eq:mikkonen-relation}
+	(n) \cdot R \cdot (m) : C \times D
+\end{equation}
+
+Konkrétní aplikaci ukazuje rovnice \ref{eq:mikkonen-relation-example} na relaci \textit{Attached} mezi třídami \textit{Subject} a \textit{Observer}. Tento zápis definuje, že k libovolnému počtu instancí třídy \textit{Observer} může být připojen buď jeden konkrétní \textit{Subject}, nebo žádný (vazba neexistuje). Relace tedy umožňuje, aby se jeden \textit{Subject} registroval u více pozorovatelů, zatímco každý \textit{Observer} může sledovat nanejvýš jeden \textit{Subject} \parencite{mikkonen-formalizing-patterns}.
+
+\begin{equation}\label{eq:mikkonen-relation-example}
+	(0..1) \cdot Attached \cdot (*) : Subject \times Observer
+\end{equation}
+
+Jednotlivé relace však nevznikají svévolně; ačkoliv mohou být pevně definovány již při inicializaci systému, mnohdy se ustavují dynamicky v čase prostřednictvím společných akcí (joint actions). Akce je v tomto pojetí chápána jako funkce, do níž vstupuje více objektů současně. Každá taková operace disponuje seznamem účastníků, aktivační podmínkou (guard) a definicí následných změn stavů.
+
+\begin{equation}\label{eq:mikkonen-actions}
+	A(c:C, i): i \neq c.x \rightarrow c.x' = i
+\end{equation}
+
+Příklad takové akce uvádí rovnice \ref{eq:mikkonen-actions}. Akce $A$ přijímá jako parametry instanci $c$ třídy $C$ a proměnnou $i$. Pokud je splněna podmínka, že se hodnota $i$ nerovná aktuálnímu atributu $x$ objektu $c$, dojde k aktualizaci tohoto atributu na hodnotu $i$. V podstatě se jedná o formální model setteru třídy, respektive atomické přiřazení nové hodnoty atributu \parencite{mikkonen-formalizing-patterns}.
+
+Ačkoliv je Mikkonenova notace pro popis architektury a návrhových vzorů výrazně lepším nástrojem než Nierstraszova notace, stále zůstává příliš svázána s konkrétním vnitřním stavem komponent. Mikkonen například při formalizaci vzoru \textit{Observer} operuje s pevně definovanými atributy subjektů, jako je \textit{Data} \parencite{mikkonen-formalizing-patterns}. I když jsou samotné vazby popsány skvěle, tento přežitek vnitřního stavu v praxi komplikuje srovnání ideální struktury vzoru s reálným zdrojovým kódem. V praktickém nasazení je totiž téměř nemožné dokázat shodu formálního popisu s existujícím řešením, pokud se implementační detaily (názvy a počty atributů) byť jen minimálně odchylují od vzoru.
+
+\subsubsection{Teorie kategorií}
+Právě dříve zmíněné nedostatky obou notací mě zavedly na cestu snahy o vlastní způsob formalizace návrhových vzorů. Cílem bylo nalézt rigorózní matematický základ, který by nebyl implementačně zkostnatělý a nabídl by dostatečnou flexibilitu pro popis struktury i dynamických vztahů. Prvotním impulzem byl pokus o syntézu Nierstraszovy a Mikkonenovy notace – snaha získat z obou modelů jejich nejsilnější stránky, podobně jako Nierstrasz kdysi sjednotil lambda kalkul s procesním kalkulem.
+
+Brzy jsem však narazil na ty samé problémy, které jsem na Nierstraszově notaci kritizoval dříve. S každou další úpravou a pokusem o zpřesnění modelu jsem se ocital v situaci připomínající Newtonovu metodu hledání kořene polynomu: sice jsem se v jednotlivých iteracích přibližoval k cíli, ale za cenu neúměrného nárůstu komplexity a ztráty elegance celého popisu.
+
+Rozhodl jsem se proto udělat krok zpět, a podívat se na již známé matematické koncepty, které by mohly sloužit jako univerzální základ pro popis návrhových vzorů. Mé prvotní úvahy směřovaly k diskrétní matematice a abstraktní algebře, konkrétně k lineárním zobrazením. Ta sice dokáží efektivně modelovat vazby, jsou však stále příliš úzce asociována s funkcemi či množinami. Potřeboval jsem jít z hlediska abstrakce výše.
+
+V tento okamžik jsem si vzpomněl na teorii kategorií, o kterou jsem se zlehka zajímal. Jedná se pravděpodobně o nejabstraktnější disciplínu pro popis matematických struktur a jejich vzájemných vztahů, stojící na pomezí moderní abstraktní algebry a teorie grafů. Experimentální aplikace této myšlenky mi potvrdila, že teorie kategorií nabízí nejen slušný způsob popisu samotných návrhových vzorů, ale dává mi i nástroje pro identifikaci vhodných míst pro jejich aplikaci v existujícím kódu. Rozhodl jsem se proto v této linii pokračovat; konkrétní výsledky a formální rámec mého přístupu jsou součástí následující podkapitoly.
+
+\subsection{Popis vybraných návrhových vzorů}
+Jak vyplývá z předchozí kapitoly, k formálnímu popisu vybraných návrhových vzorů využiji teorii kategorií. Je však nutné zdůraznit, že tato práce není zaměřena na teorii kategorií jako takovou, ani si neklade za cíl její hloubkový teoretický rozvoj. Záměrem je využít základní principy a abstrakce, které tato disciplína zavádí, a aplikovat je na modelování softwarových struktur s co největším důrazem na matematickou přesnost. Teorie kategorií zde tedy nefiguruje jako cíl, nýbrž jako cesta, která umožňuje překonat omezení předchozích notací a sjednotit popis strukturálních i dynamických aspektů návrhu. 
+\clearpage
+Samotnou teorii kategorií nevyužívám pouze k popisu struktury návrhového vzoru a jeho vztahů, ale také k definici protivzorů. Protivzor zde můžeme chápat jako nešváry, které jsou konkrétní strukturální anomálií. Tyto nešváry tvoří situace, kdy by měl být návrhový vzor aplikován, ale jeho implementace chybí nebo je vnitřně nekonzistentní.
+
+Aby bylo možné v analýze pokračovat, je nezbytné definovat základní stavební kameny teorie kategorií. Kategorie je matematická struktura tvořená dvěma hlavními entitami: množinou objektů (v grafickém znázornění uzly) a množinou morfismů (zobrazení či šipky). Každý morfismus $f: A \to B$ je jednoznačně určen svým definičním oborem (objekt A) a oborem hodnot (objekt B). Důležitou vlastností kategorie je možnost skládání morfismů, přičemž tato operace je asociativní a pro každý objekt musí existovat morfismus identity, který slouží jako neutrální prvek ve skládání. \parencite{racket-category}
+
+Objekty a morfismy lze vizualizovat pomocí diagramů. Diagram nazýváme komutativním, pokud všechny cesty (složené morfismy) se stejným počátečním a koncovým objektem vedou ke stejnému výslednému složenému morfismu. V kontextu této práce jsou komutativní diagramy nepostradatelné, neboť komutativita v návrhu softwaru garantuje úplnost a předvídatelnost systému. Pokud diagram v určitém bodě nekomutuje, signalizuje to rozkol mezi zamýšleným modelem a jeho implementací, což nám dovoluje identifikovat přítomnost technického dluhu. \parencite{racket-category}
+
+\subsubsection{Factory}
+Návrhový vzor \textit{Factory} je kategorií, která se skládá z objektů \textit{Type}, \textit{Product}, \textit{Interface} a z morfismů tvorby, abstrakce a kontraktu. Objekt \textit{Type} představuje požadavek na vytvoření konkrétního typu objektu, například pomocí textového řetězce v parametru metody. Objekt \textit{Product} představuje konkrétní implementaci třídy a objekt \textit{Interface} tvoří společné rozhraní pro všechny produkty. Morfismus tvorby představuje vytvoření či předání třídy pomocí požadavku, morfismus abstrakce zavazuje všechny produkty, aby implementovali společné rozhraní, a morfimus kontraktu zajišťuje, že při požadavku pomocí typu bude vrácena skutečně třída se společným rozhraním.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{obrazky/diplomka/category_factory.excalidraw.png}
+	\centering
+	\caption{Komutativní diagram návrhového vzoru: Factory}
+\end{figure}
+
+Tento návrhový vzor řeší jasný problém - skrytím tvorby konkrétních objektů za abstraktní požadavek dochází k odstínění klienta od implementace. Klient má díky garantovanému rozhraní možnost výměnit implementaci za běhu programu. Přidání nových typů produktů nevyžaduje modifikaci stávajícího kódu potenciálně na mnoha místech programu, ale je centralizované právě do jednoho místa.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{obrazky/diplomka/category_factory_antipatterns.excalidraw.png}
+	\centering
+	\caption{Možné protivzory návrhového vzoru: Factory}
+\end{figure}
+
+Identifikace tříd vykazujících shodné rozhraní, které jsou v systému využívány komplementárně v závislosti na kontextu, představuje primární cíle pro implementaci vzoru Factory. V takovém případě absence vzoru vede k fragmentaci logiky vytváření tříd a zvyšuje provázanost systému. Naopak u jednoúčelových tříd, kde se nepředpokládá budoucí existence alternativních implementací se shodným rozhraním, by byla aplikace tohoto vzoru kontraproduktivní.
 
 \subsection{Builder}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{obrazky/diplomka/category_builder.excalidraw.png}
+	\centering
+	\caption{Komutativní diagram návrhového vzoru: Builder}
+\end{figure}
 
 \subsection{Singleton}
 
@@ -407,7 +500,9 @@ C4 diagramy dělí softwarovou architekturu na vrstvu systémového kontextu, ko
 \end{table}
 
 \subsection{Úroveň systémového kontextu}
-Prvním krokem mé analýzy je zmapování systému v jeho přirozeném prostředí a definování hranic mezi stávajícím řešením a okolím. Tento diagram slouží k zachycení závislostí od řešení směrem k vnějším službám, ale i k zachycení závislostí od služeb směrem k řešení. Tím je možné vizualizovat, jak moc kritický je konkrétní systém v širším kontextu nasazených technologií \parencite{c4-system-context}.
+Prvním krokem analýzy je zmapování systému v jeho přirozeném prostředí a přesné vymezení hranic mezi stávajícím řešením a okolními entitami. Tento systémový kontext slouží k vizualizaci obousměrných závislostí: od řešení směrem k externím službám i naopak. Takový pohled umožňuje posoudit kritičnost systému v širším technologickém ekosystému a identifikovat potenciální rizika plynoucí z vnějších vazeb \parencite{c4-system-context}.
+
+Samotné softwarové řešení AITechDetect je koncipováno jako izolovaná instalace přímo na hostitelský operační systém. Zatímco dřívější nasazení probíhala na kombinaci distribucí Linux (primárně Ubuntu LTS) a Windows 10, současným standardem je výhradně platforma Windows 11. Tento přechod byl motivován především stabilitou a šíří podpory ovladačů grafických karet NVIDIA a výpočetní platformy CUDA, které jsou pro výkon a spolehlivost systému AITechDetect klíčové.
 
 \begin{figure}[H]
 	\centering
@@ -429,9 +524,16 @@ Prvním krokem mé analýzy je zmapování systému v jeho přirozeném prostře
 \end{figure}
 
 
-\subsection{Diagram komponent}
-- Archiv, Login Required, Inspekce, Projekt, QR Marker, Labeling, Druhy vad, Dataset, Camera Setup, Tools, Statistics, Flex GUI, Cryptography, Specifikace, Uzivatele
+\subsection{Úroveň komponent}
 \label{chapter:c4_components}
+ 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-component.excalidraw.png
+	}
+	\centering
+	\caption{Diagram kontejnerů}
+\end{figure}
 
 \section{Modelování doménových procesů}
 
@@ -488,6 +590,7 @@ Právě komplexní popis šíření selhání systémem a možnost objektivní k
 
 \chapter{Architektura nového řešení}
 
+\section{Postupné nasazení}
 \chapter{Závěr}
 
 \clearpage
