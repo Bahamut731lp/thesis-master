@@ -428,13 +428,14 @@ Návrhový vzor \textit{Factory} řeší problémy s vysokou provázaností, kte
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{obrazky/diplomka/category_factory.excalidraw.png}
+	\includegraphics[width=\textwidth]{obrazky/diplomka/category_factory.excalidraw.png}
 	\centering
 	\caption{Komutativní diagram návrhového vzoru: Factory}
 \end{figure}
 
-Formálně je návrhový vzor \textit{Factory} kategorií o objektech \textit{Type}, \textit{Product}, \textit{Interface} a o morfismech tvorby, abstrakce a kontraktu. Objekt \textit{Type} představuje požadavek na vytvoření konkrétního typu objektu, například pomocí textového řetězce v parametru metody. Objekt \textit{Product} představuje konkrétní implementaci třídy a objekt \textit{Interface} tvoří společné rozhraní pro všechny produkty. Morfismus tvorby představuje vytvoření či předání třídy pomocí požadavku; morfismus abstrakce zavazuje všechny produkty, aby implementovali společné rozhraní; a morfimus kontraktu zajišťuje, že při požadavku pomocí typu bude vrácena skutečně třída se společným rozhraním.
+Formálně lze návrhový vzor \textit{Factory} definovat jako kategorii sestávající ze tří objektů (\textit{Typ, Produkt a Rozhraní}) a tří morfismů, které definují proces delegované instanciace a typové abstrakce. Celý proces zahajuje morfismus tvorby, který na základě objektu \textit{Typ} — reprezentujícího specifický požadavek či parametr — iniciuje vznik konkrétní instance v podobě objektu \textit{Produkt}. Na tento úkon navazuje morfismus abstrakce, jenž zavazuje každý vytvořený \textit{Produkt} k implementaci společného \textit{Rozhraní}. Celou kategorii uzavírá morfismus kontraktu, který tvoří přímou vazbu mezi původním požadavkem a výsledným rozhraním.
 
+Na základě výše uvedené formální definice lze provést analýzu SWOT pro vyhodnocení přínosů a rizik návrhové vzoru \textit{Factory}:
 \begin{itemize}
 	\item \textbf{Silné stránky} – Vzor je silný v situacích, kdy jsou sémanticky ekvivalentní objekty ($\approx$) v systému zaměňovány podle kontextu.
 	\item \textbf{Slabé stránky} – Je pouze proxy pro izomorfní třídy, a nezabraňuje vývojáři obejít Factory přímo k implementaci. Navíc přidává vrstvu zanoření do zásobníku volání.
@@ -454,7 +455,7 @@ Návrhový vzor \textit{Builder} řeší nešváry převážně z třídy nabobt
 
 Formálně lze návrhový vzor \textit{Builder} definovat jako kategorii sestávající ze tří objektů (Počátek, Builder a Produkt) a tří morfismů, které definují životní cyklus konstrukce. Celý proces zahajuje morfismus inicializace, který vychází z \textit{Počátku} - stavu, kdy instance ještě neexistuje - a zavádí výchozí konfiguraci objektu \textit{Builder}. Ten je následně modifikován pomocí automorfismu konfigurace, jenž z principu zapouzdření smí modifikovat výhradně vnitřní stav samotného \textit{Builderu}. Po dosažení požadovaného stavu je proces završen morfismem sestavení, který transformuje zkonfigurovaný \textit{Builder} na výsledný, zpravidla již imutabilní \textit{Produkt}.
 
-Na základě výše uvedené formální definice lze provést systematické vyhodnocení přínosů a rizik návrhové vzoru \textit{Builder}:
+Na základě výše uvedené formální definice lze provést analýzu SWOT pro vyhodnocení přínosů a rizik návrhové vzoru \textit{Builder}:
 \begin{itemize}
 	\item \textbf{Silné stránky} – \textit{Builder} transformuje proces tvorby objektu z jednorázového úkonu na řízenou sekvenci operací.
 	\item \textbf{Slabé stránky} – Proces konfigurace může být verbózní kvůli opakujícím se automorfismům konfigurace.
