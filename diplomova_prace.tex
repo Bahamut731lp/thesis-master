@@ -431,6 +431,7 @@ Návrhový vzor \textit{Factory} řeší problémy s vysokou provázaností, kte
 	\includegraphics[width=0.95\textwidth]{obrazky/diplomka/category_factory.excalidraw.png}
 	\centering
 	\caption{Komutativní diagram návrhového vzoru: Factory}
+	\label{diag:factory}
 \end{figure}
 
 Formálně lze návrhový vzor \textit{Factory} definovat jako kategorii sestávající ze tří objektů (\textit{Typ, Produkt a Rozhraní}) a tří morfismů, které definují proces delegované instanciace a typové abstrakce. Celý proces zahajuje morfismus tvorby, který na základě objektu \textit{Typ} — reprezentujícího specifický požadavek či parametr — iniciuje vznik konkrétní instance v podobě objektu \textit{Produkt}. Na tento úkon navazuje morfismus abstrakce, jenž zavazuje každý vytvořený \textit{Produkt} k implementaci společného \textit{Rozhraní}. Celou kategorii uzavírá morfismus kontraktu, který tvoří přímou vazbu mezi původním požadavkem a výsledným rozhraním.
@@ -502,7 +503,8 @@ Na základě výše uvedené formální definice lze provést systematické vyho
 	\item \textbf{Hrozby} – Předčasné zapouzdření do návrhového vzoru \textit{Facade} místo refaktorizace, když je to možné. Nadbytečné užívání návrhového vzoru tam, kde to nemá z hlediska zlepšení sémantiky význam.
 \end{itemize}
 
-\subsubsection{Chain of responsibility}
+\subsubsection{Chain of Responsibility}
+Návrhový vzor \textit{Chain of Responsibility} (zkráceně: COR) řeší nešváry ze třídy vazbičů a nabobtnalců. Toho dosahuje rozkladem podmíněného zpracování do posloupnosti objektů, ve které každý objekt nese odpovědnost za specifický případ. Každý objekt tak kontroluje, jestli má daný případ zpracovat, nebo poslat dalšímu.
 
 \begin{figure}[H]
 	\centering
@@ -511,23 +513,98 @@ Na základě výše uvedené formální definice lze provést systematické vyho
 	\caption{Komutativní diagram návrhového vzoru: COR}
 \end{figure}
 
+Formálně lze návrhový vzor \textit{Chain of Responsibility} definovat jako kategorii ze dvou objektů (\textit{Chain a Handler}) a tří morfismů, které definují mechanismus šíření a odbavení požadavku. Objekt \textit{Chain} zahajuje proces a pomocí morfismu předání aktivuje první uzel v posloupnosti. Každý uzel následně aplikuje vnitřní morfismus rozlišení, kterým určí směr šíření požadavku v diagramu. Tento morfismus určí, zda uzel požadavek zpracuje pomocí stejnojmenného morfismu, nebo jej propustí dále do struktury pomocí morfismu předání. Proces předávání je zakončen terminálním uzlem, který z definice nesmí požadavek dále propouštět a musí jej zpracovat, čímž se zajišťuje konečnost celého procesu.
+
+Na základě výše uvedené formální definice lze provést systematické vyhodnocení přínosů a rizik návrhové vzoru \textit{Chain of Responsibility}:
+\begin{itemize}
+	\item \textbf{Silné stránky} – Každý objekt zpracovává konkrétní situaci za konkrétně dané podmínky.
+	\item \textbf{Slabé stránky} – Podmínky musí být správně navrženy, aby požadavky nepropadaly řetězem k terminálnímu objektu.
+	\item \textbf{Příležitosti} – Komplexní rozhodovací logika, která řídí tok programu, může být rozložena na posloupnost jednodušších rozhodovacích kroků.
+	\item \textbf{Hrozby} – Při minimálním počtu větvení a minimálním podmíněném chování se stává \textit{Chain of Responsibility} zbytečnou zátěží. Je potřeba dobře vybalancovat přínos a čas návrhového vzoru.
+\end{itemize} 
+
 \subsubsection{Strategy}
+Návrhový vzor \textit{Strategy} řeší nešváry ze třídy vazbičů. Jeho cílem je umožnit volbu strategií, které se využijí k řešení daného problému, bez závislosti na konkrétní implementaci. Pokud například vezmeme problém řazení prvků, pak řadící algoritmy mohou být reprezentovány jako strategie, a můžeme je za běhu programu volit podle potřeby.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.95\textwidth]{obrazky/diplomka/category_strategy.excalidraw.png}
+	\includegraphics[width=0.85\textwidth]{obrazky/diplomka/category_strategy.excalidraw.png}
 	\centering
 	\caption{Komutativní diagram návrhového vzoru: Strategy}
+	\label{diag:strategy}
 \end{figure}
 
+Podíváme-li se na komutativní diagram \ref{diag:strategy}, je zřejmé, že vypadá velmi podobně komutativnímu diagramu \ref{diag:factory} návrhového vzoru \textit{Factory}. Není tomu tak náhodou. Zatímco návrhový vzor \textit{Factory} abstrahuje a deleguje vytváření objektů, návrhový vzor \textit{Strategy} abstrahuje a deleguje vykonávání metod. Návrhový vzor \textit{Factory} vede k instanci objektu, \textit{Strategy} vede k výsledku operace.
+
+Na základě výše uvedené formální definice lze provést systematické vyhodnocení přínosů a rizik návrhové vzoru \textit{Strategy}:
+\begin{itemize}
+	\item \textbf{Silné stránky} – Složitá, externí či nízkoúrovňová rozhraní, které nelze refaktorizovat, mohou být extrahovány do sémanticky smysluplných rozhraní. 
+	\item \textbf{Slabé stránky} – Závislost dalších komponent na singletonu může zavést vedlejší účinky do dalších objektů.
+	\item \textbf{Příležitosti} – Zjednodušení rozhraní externích systémů a zapouzdření běžných operací v rámci domény.
+	\item \textbf{Hrozby} – Předčasné zapouzdření do návrhového vzoru \textit{Facade} místo refaktorizace, když je to možné. Nadbytečné užívání návrhového vzoru tam, kde to nemá z hlediska zlepšení sémantiky význam.
+\end{itemize}
+
+
 \subsubsection{Observer}
+Návrhový vzor \textit{Observer} řeší nešváry ze třídy vazbičů a zabraňovačů. Řeší je tak, že vytváří událostmi řízený mechanismus pro odesílání a přijímání zpráv.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{obrazky/diplomka/category_observer.excalidraw.png}
+	\centering
+	\caption{Komutativní diagram návrhového vzoru: Observer}
+	\label{diag:observer}
+\end{figure}
+
+Formálně je návrhový vzor \textit{Observer} kategorií o dvou objektech (\textit{Observer a Subscriber}) a dvou morfismech, které reprezentují životní cyklus událostí. Objekt \textit{Observer} vystupuje jako centrální uzel, který pomocí morfismu oznámení iniciuje odeslání zprávy. Objekty \textit{Subscriber} se přihlásí k přijímání zpráv pomocí morfismu přichycení. Komutativita diagramu \ref{diag:observer} je zajištěna právě díky tomu, že každý \textit{Subscriber} je ve smyčce s objektem \textit{Observer}. To je důležité proto, že není žádoucí, aby \textit{Observer} posílal zprávy objektům \textit{Subscriber}, které se k jejich přijímání nepřihlásili, a naopak, pokud se přihlásí pomocí morfismu přichycení, musí být o nových zprávách informováni.
+
+Na základě výše uvedené formální definice lze provést systematické vyhodnocení přínosů a rizik návrhové vzoru \textit{Observer}:
+\begin{itemize}
+	\item \textbf{Silné stránky} – Dovoluje libovolnému počtu objektů sledovat události, které vyvolávají morfismus oznámení. Tyto objekty nemusí být na sobě přitom nijak závislé.
+	\item \textbf{Slabé stránky} – Po oznámení události se ztrácí vazba na místo volání.
+	\item \textbf{Příležitosti} – Pokud je potřeba do programu zavést událostmi řízené programování, například volání více izolovaných funkcí z jednoho místa.
+	\item \textbf{Hrozby} – Může být spuštěna kaskáda událostí, která může zahltit systém a udělat ho netrasovatelným.
+\end{itemize}
 
 \subsection{Kompozitní vzory}
+Návrhové vzory popsané v předchozí kapitole nepředstavují izolované ani disjunktní konstrukce. Jak je zmíněno již na začátku kapitoly, návrhové vzory se přizpůsobují specifikům nejen jazyka, ale i konkrétního systému, což přirozeně vede k jejich vzájemnému prolínání. Těmto zkombinovaným vzorům říkám \textit{kompozitní vzory}.
 
-\subsection{Závěry}
+Kompozitní vzory nám umožňují integrovat typicky dva strukturálně kompatibilní diagramy do jedné kategorie, přičemž nesmí dojít ke konfliktu v rozdělení odpovědností. V předchozích definicích jsem se záměrně soustředil na vnitřní topologii a vnitřní morfismy jednotlivých vzorů namísto fixace jejich vstupních a výstupních rozhraní. Tento přístup nám nyní dovoluje pohlížet na vzory jako na modulární komponenty grafu objektů. Můžeme se tak plně soustředit na syntézu jejich funkcionality a zkoumat, jak se vnitřní struktura jednoho vzoru stává přirozeným stavebním kamenem vzoru druhého.
+
+Pozastavme se nad podmínkou nenarušení rozdělení odpovědností mezi návrhovými vzory. Tuto podmínku vkládám i z formálního hlediska, kdy vymezuje hranice strukturální podobnosti mezi jednotlivými vzory. Abychom mohli o kompozici uvažovat jako o validní operaci nad kategoriemi, musí být zachována sémantická ekvivalence vnitřních procesů každého zúčastněného vzoru. Pokud objekt v diagramu kumuluje protichůdné odpovědnosti, dochází k rozpadu izomorfismu s ideálním modelem.
+
+Případ, kdy taková kompozice funguje, je složení návrhového vzoru \textit{Factory} a \textit{Strategy}. Jak jsem již poukázal u kumulativního diagramu \ref{diag:strategy}, tyto dva vzory sdílejí z velké části kompatibilní vnitřní topologii. V případě továrny strategií je produkt $P_n$ sémanticky ekvivalentní se strategií $S_n$, protože ta konkrétní strategie je právě tím produktem, který má vzor \textit{Factory} vytvořit. Když tedy komutativní diagramy těchto dvou vzorů prostě zřetězíme, zjistíme, že vzniká složený morfismus $x$. Protože jsou produkty a strategie sémanticky ekvivalentní $S_N \approx P_N$, můžeme diagram redukovat, přičemž musí být zachovány morfismy tvorby, abstrakce a kontraktu ze strany vzoru \textit{Factory} a morfismy kontraktu a exekuce ze strany vzoru \textit{Strategy}.
+
+\begin{align}
+	x &= 0 \to T \to P_n \to I \to I \to S_n \to V\\
+	x &= 0 \to T \to S_n \to I \to I \to V \\
+	x &= 0 \to T \to S_n \to I \to V
+\end{align}
+
+Při této syntéze slouží rozhraní I jako společný uzel, kde se oba vzory potkávají. Vzor \textit{Factory} má za úkol objekt vyrobit a předat ho právě tomuto rozhraní. V tu chvíli přebírá štafetu vzor \textit{Strategy}, který rozhraní využije k tomu, aby provedl výpočet a dodal výsledek. Vzniká tak plynulá cesta od výroby až k cíli. Rozhraní $I$ v grafu musí zůstat, protože funguje jako pojistka: zaručuje, že strategie dostane přesně takový nástroj, jaký ke své práci potřebuje.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{obrazky/diplomka/composite_factory_strategy.excalidraw.png}
+	\centering
+	\caption{Kompozitní návrhový vzor: Factory of Strategies}
+\end{figure}
+
+Existuje ale i případy, kdy je syntéza návrhových vzorů logicky neproveditelná. K selhání dochází v momentě, kdy se střetnou základní strukturní pravidla. Pokud jeden vzor vyžaduje uspořádání, které přímo popírá princip vzoru druhého, vzniká neřešitelný rozpor. V takovém případě uzel v komutativním diagramu nedokáže plnit obě role současně, aniž by nedošlo k narušení stability celého systému.
+
+Příkladem strukturního konfliktu je pokus o sloučení vzorů \textit{Singleton} a \textit{Chain of Responsibility}. Zatímco \textit{COR} je z definice založen na posloupnosti několika různých objektů, které si předávají požadavek, \textit{Singleton} striktně vynucuje existenci pouze jediné instance. Pokud bychom tyto vzory chtěli složit do jednoho vzoru, řetězec by se zacyklil sám do sebe. Morfismus předání by v tomto bodě přestal existovat, protože by objekt neměl na koho jiného delegovat než sám na sebe, čímž se celá struktura zhroutí.
+
+Další bariérou pro úspěšnou kompozici je konflikt v životním cyklu objektů, který nastává například při spojení vzorů \textit{Builder} a \textit{Strategy}. \textit{Builder} je navržen pro postupné sestavování složitého objektu, který je po celou dobu procesu nekompletní. Naproti tomu Strategy vyžaduje plně inicializovaný a stabilní objekt, aby mohla okamžitě vykonat svůj algoritmus. Odpovědnost za tvorbu a odpovědnost za výkon se zde časově vylučují; pokud bychom nutili nehotový \textit{Builder} vykonávat strategii, výsledek by byl nepředvídatelný.
+
+Princip jedné odpovědnosti není tedy jen otázkou čistoty kódu, ale i formální správnosti. Jeho porušení vede k tomu, že výsledný diagram nelze logicky uzavřít – chybí mu jasný směr toku informací nebo terminální uzel s výsledkem. Úspěšná kompozice je tedy možná pouze tehdy, pokud spolu vzory spolupracují v čase i prostoru diagramu, jako je tomu u výše zmíněné kombinace vzorů \textit{Factory} a \textit{Strategy}.
+
+\subsection{Závěr}
+V této kapitole jsem nastínil problematiku návrhových vzorů a snažil jsem se o její formalizaci pomocí teorie kategorií. Je nutné ovšem podotknout, že plná formalizace není v mé kompetenci. Využil jsem pro mě známý nástroj, ale spousty rigoru jsem vynechal v zájmu použitelnosti a přístupnosti. Je dost možné, že při hlubším zkoumání mého postupu budou mé myšlenky o teorii kategorií jakožto formálním základu vyvráceny. V současné době je to ale pro mě dostatečně silný analytický nástroj, kterým mohu alespoň kvazifomálně popsat strukturu kódu a porovnávat ho s návrhovými vzory.
 
 \section{Architektonické vzory}
 \label{chapter:architectural_patterns}
+Jestliže návrhové vzory představují osvědčené strategie pro uspořádání vnitřních struktur jednotlivých komponent, architektonické vzory posouvají tuto abstrakci na další úroveň. Zatímco v předchozí kapitole jsme se soustředili na vztahy mezi objekty, zde se zaměřujeme na systém jako celek. Architektonické vzory definují globální organizační schéma a určují základní pravidla pro rozdělení odpovědností mezi rozsáhlé podsystémy, moduly či vrstvy \parencite{gfg-architectural-patterns}.
+
 
 \section{Integrační vzory}
 \label{chapter:integration_patterns}
