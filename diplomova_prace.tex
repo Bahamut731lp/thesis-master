@@ -371,33 +371,70 @@ Příklad takové akce uvádí rovnice \ref{eq:mikkonen-actions}. Akce $A$ přij
 
 Ačkoliv je Mikkonenova notace pro popis architektury a návrhových vzorů výrazně lepším nástrojem než Nierstraszova notace, stále zůstává příliš svázána s konkrétním vnitřním stavem komponent. Mikkonen například při formalizaci vzoru \textit{Observer} operuje s pevně definovanými atributy subjektů, jako je \textit{Data} \parencite{mikkonen-formalizing-patterns}. I když jsou samotné vazby popsány skvěle, tento přežitek vnitřního stavu v praxi komplikuje srovnání ideální struktury vzoru s reálným zdrojovým kódem. V praktickém nasazení je totiž téměř nemožné dokázat shodu formálního popisu s existujícím řešením, pokud se implementační detaily (názvy a počty atributů) byť jen minimálně odchylují od vzoru.
 
-\subsubsection{Teorie kategorií}
-Právě dříve zmíněné nedostatky obou notací mě zavedly na cestu snahy o vlastní způsob formalizace návrhových vzorů. Cílem bylo nalézt rigorózní základ, který by nebyl zkostnatělý a nabídl by dostatečnou flexibilitu pro popis struktury i dynamických vztahů. Prvotním impulzem byl pokus o syntézu Nierstraszovy a Mikkonenovy notace – snaha získat z obou modelů jejich nejsilnější stránky, podobně jako Nierstrasz kdysi sjednotil lambda kalkul s procesním kalkulem.
+\subsubsection{Hybridní notace}
+Právě dříve zmíněné nedostatky obou notací mě zavedly na cestu snahy o vlastní způsob formalizace návrhových vzorů. Cílem bylo nalézt rigorózní základ, který by nebyl zkostnatělý a nabídl by dostatečnou flexibilitu pro popis struktury i dynamických vztahů. Prvotním impulzem byl pokus o syntézu Nierstraszovy a Mikkonenovy notace – snaha získat z obou modelů jejich nejsilnější stránky, podobně jako Nierstrasz kdysi sjednotil lambda kalkul s procesním kalkulem. Příklad této syntézy je vidět v rovnici \ref{eq:nierstrasz-mikkonen-hybrid}.
 
-Brzy jsem však narazil na ty samé problémy, za které jsem Nierstraszovu notaci kritizoval. S každou další úpravou a pokusem o zpřesnění modelu jsem se ocital v situaci připomínající Newtonovu metodu hledání kořene polynomu: sice jsem se v jednotlivých iteracích přibližoval k cíli, ale za cenu neúměrného nárůstu komplexity a ztráty elegance celého popisu.
+\begin{align}
+	Factory &:= (create, x?) \xrightarrow[Factory \times Product]{(0..1) \cdot Created \cdot (*)} \label{eq:nierstrasz-mikkonen-hybrid} Product @ (x)
+\end{align}
 
-Rozhodl jsem se proto udělat krok zpět, a podívat se na již známé matematické koncepty, které by mohly sloužit jako univerzální základ pro popis návrhových vzorů. Mé prvotní úvahy směřovaly k diskrétní matematice a abstraktní algebře, konkrétně k lineárním zobrazením. Ta sice dokáží efektivně modelovat vazby, jsou však stále příliš úzce asociována s funkcemi či množinami. Potřeboval jsem jít z hlediska abstrakce výše.
+Brzy jsem však narazil na ty samé problémy, za které jsem Nierstraszovu notaci kritizoval. S každou další úpravou a pokusem o zpřesnění modelu jsem se ocital v situaci, kdy jsem se v jednotlivých iteracích přibližoval k cíli, ale za cenu neúměrného nárůstu komplexity a ztráty elegance celého zápisu.
 
-V tento okamžik jsem si vzpomněl na teorii kategorií, o kterou jsem se zlehka v minulosti zajímal. Jedná se pravděpodobně o nejabstraktnější disciplínu pro popis matematických struktur a jejich vzájemných vztahů, stojící na pomezí moderní abstraktní algebry a teorie grafů. Experimentální aplikace této myšlenky mi potvrdila, že teorie kategorií nabízí nejen slušný způsob popisu samotných návrhových vzorů, ale dává mi i nástroje pro identifikaci vhodných míst pro jejich aplikaci v existujícím kódu. Rozhodl jsem se proto v této linii pokračovat; konkrétní výsledky a formální rámec mého přístupu jsou součástí následující podkapitoly.
+Rozhodl jsem se proto udělat krok zpět, a podívat se na již známé matematické koncepty, které by mohly sloužit jako univerzální základ pro popis návrhových vzorů. Mé prvotní úvahy směřovaly k diskrétní matematice a abstraktní algebře, konkrétně k lineárním zobrazením. Ta sice dokáží efektivně modelovat vazby, jsou však stále příliš úzce asociována s funkcemi či množinami, což by mě limitovalo z hlediska aplikace. Potřeboval jsem najít způsob, jak jít na vyšší úroveň abstrakce.
 
-\subsection{Popis vybraných návrhových vzorů}
-Jak vyplývá z předchozí kapitoly, k formálnímu popisu vybraných návrhových vzorů využiji teorii kategorií. Je však nutné zdůraznit, že tato práce není zaměřena na teorii kategorií jako takovou, ani si neklade za cíl její hloubkový teoretický rozvoj. Cílem je využít základní principy a abstrakce, které tato disciplína zavádí, a aplikovat je na modelování softwarových struktur s co největším důrazem na matematickou přesnost. Před samotným užitím teorie kategorií je třeba rozvést, co je vůbec jejím předmětem - kategorie, morfismy a funktory.
+\subsection{Specifikace pomocí teorie kategorií}
+Pokračoval jsem tedy následující myšlenkou – proč nejít na tu nejvyšší úroveň matematické abstrakce, kterou znám. To mi dovolí soustředit se na volné modelování návrhových vzorů bez toho, aniž bych je podroboval formálním omezením. Naopak, pokud budu potřebovat řešit například kardinalitu, mohu tato omezení dodatečně doplnit do definice.
 
-Kategorie je struktura tvořená množinou objektů a množinou morfismů. Objekty jsou reprezentací předmětů zkoumání - funkce, prostory, metriky, a v našem případě softwarové třídy a funkční jednotky. Objekty značím velkými písmeny latinky. \parencite{racket-category}
+V minulosti jsem se okrajově zajímal o teorii kategorií, a tak jsem začal s experimentálním popisem vybraných vzorů právě pomocí kategoriálních struktur. Má očekávání byla nanejvýš předčena. Teorie kategorií je dostatečné flexibilním nástrojem nejen k popisu návrhových vzorů, ale i k jejich vzájemnému porovnávání. Rozhodl jsem se proto v této myšlenkové linii pokračovat a návrhové vzory tímto způsobem formalizovat.
 
-Morfismy jsou zobrazením mezi objekty. Slouží jako nositelé vazeb, transformací, operací a klidně i samotných objektů, pokud zůstanou dodržena pravidla skládání. Morfismy značím malými písmeny latinky. \parencite{racket-category}
+Je však nutné zdůraznit, že tato práce není zaměřena na matematickou podstatu teorie kategorií, a ani si neklade za cíl její hloubkový teoretický rozvoj. Cílem je využít základní principy a abstrakce, které tato disciplína zavádí, a aplikovat je na modelování softwarových struktur. Před samotným užitím teorie kategorií je třeba rozvést, co je vůbec jejím předmětem - kategorie, morfismy a funktory.
 
-Kategorie, respektive jejich objekty a morfismy, se vizuálně zakreslují do diagramů, které strukturou připomínají orientované grafy. Diagram označujeme jako komutativní, pokud všechny morfismy se stejným definičním oborem a oborem hodnot představují jeden a ten samý morfismus. Komutativní vlastnost je důležitá, protože když není dodržena, můžeme se z bodu $A$ dostat do bodu $B$, a pokaždé skončit s jiným výsledkem. Když diagram komutuje, máme zaručené, že výsledek bude vždy stejný. \parencite{racket-category}
+\subsubsection{Kategorie}
+Kategorie $\mathcal{C}$ je definována jako struktura tvořená kolekcí objektů $\mathcal{O}$ a kolekcí morfismů $\mathcal{M}$, přičemž nad kategorií je definována operace skládání ($\circ$) a pro každý objekt existuje morfismus identity. \parencite{racket-category}
+
+\begin{equation}\label{eq:category-definition}
+	\mathcal{C} = (\mathcal{C}, \mathcal{M}, \circ, \text{id})
+\end{equation}
+
+V kontextu teorie kategorií se pro seskupení objektů používá termín kolekce záměrně místo více známé množiny. Zatímco množina vyžadují striktní dodržování formálních pravidel a axiomů teorie množin, termín kolekce funguje jako sémanticky volnější seskupení prvků, které nemusí tvořit rigorózně definovanou strukturu. Použití kolekce nám tak rozvazuje ruce – umožňuje efektivně seskupovat objekty a morfismy i v případech, kdy by striktní aplikace teorie množin vedla k logickým rozporům. \parencite{racket-category}
+
+\subsubsection{Objekty}
+Objekty jsou reprezentací předmětů zkoumání - funkce, prostory, metriky, a v našem případě softwarové třídy a funkční jednotky. Samotné objekty ovšem mohou reprezentovat i celé kategorie, čímž je umožněno vytvářet podkategorie a definovat pro ně speciální pravidla v rámci většího celku. Objekty značím velkými písmeny latinky. \parencite{racket-category}
+
+\subsubsection{Morfismy}
+Morfismy jsou zobrazením mezi objekty, které transformují jeden objekt z definičního oboru na objekt z oboru hodnot. Slouží jako nositelé vazeb, transformací či operací. Symbolizují tok informací a jak se postupně objekty mění. Morfismy značím malými písmeny latinky.  \parencite{racket-category}
+
+\subsubsection{Diskrétní kategorie}
+Podobně jako můžeme množiny prvků rozložit na sjednocení jednoprvkových množin, či permutační cykly rozložit na součin transpozic, můžeme i kolekce objektů rozložit na jednoprvkové podkolekce a utvořit z nich samostatné kategorie. Tyto jednoobjektové podkategorie nazýváme diskrétními kategoriemi. Jejich význam je nesmírný: pokud totiž přestaneme tyto izolované objekty vnímat jako pouhé prvky kolekce a vybavíme je vnitřní strukturou, transformujeme je na monoidy. Monoidy mají kolekce morfismů nad svým jediným objektem (reprezentující jednotlivé interakce či operace objektu), které lze díky binární operaci skládání libovolně řetězit. Existence identity pak v tomto systému představuje morfismus, který zachovává objekt beze změny. \parencite{racket-category}
+
+\subsubsection{Homomorfismy}
+Pokud máme prvky kolekce, které si s sebou nesou vlastní strukturu (monoidy), musíme také patřičně upravit morfismy, kterými je transformujeme. V obecné kategorii bez dodatečných pravidel by morfismus mohl s prvky objektu nakládat libovolně, což by v našem případě vedlo k sémantickému rozpadu: vnitřní operace a interakce objektu by po transformaci ztratily svůj význam.
+
+Všechny kategorie v této práci budu dále definovat jako kolekci objektů a kolekci homomorfismů. V momentě, kdy objekty přestanou být beztvarými prvky a začneme je vnímat jako monoidy, musí se tomuto faktu přizpůsobit i vazby mezi nimi. Homomorfismus zde plní roli zobrazení, které strukturu objektů neignoruje, ale naopak ji přenáší a zachovává. Aby tohle platilo, musí být splněna podmínka zachování operace (rovnice \ref{eq:homomorphism-op}) a zachování identity (rovnice \ref{eq:homomorphism-id})
+
+\begin{align}
+	(S, \circ, id_S)\ &\text{a}\ (T, \bullet, id_T) \\
+	\forall x, y \in \mathcal{M}: f(x \circ y) &= f(x) \bullet f(y) \label{eq:homomorphism-op}\\
+	f(id_S) &= id_T \label{eq:homomorphism-id}
+\end{align}
+
+Udělejme krok zpět. Tento formální zápis v podstatě definuje pravidla překladu mezi různými úrovněmi softwarové abstrakce. Monoidy nepředstavují jen abstraktní množiny, ale konkrétní nositele logiky – například třídy, komponenty nebo rozhraní. Logiku lze reprezentovat dílčími morfismy uvnitř monoidu. Binární operace monoidů pak reprezentují skládání interakcí, tedy způsob, jakým na sebe v programu navazují jednotlivé metody nebo transformace stavu.
+
+Zachování operace (rovnice \ref{eq:homomorphism-op}) v praxi funguje jako pojistka proti rozpadu kauzality; Tato podmínka striktně vyžaduje, aby se systém při zřetězení operací choval přesně jako kdybychom je udělali samostatně a ručně spojili dohromady. Homomorfismus zde znemožňuje, aby se uvnitř objektu vytvořila de-facto nová logika, která se aktivuje pouze při určité kombinaci volání. V podstatě to garantuje, že kompozice metod v kódu nemá žádné skryté vedlejší efekty, které by nebyly definovány už v jejich jednotlivých obrazech.
+
+Podmínka zachování identity (rovnice \ref{eq:homomorphism-id}) pak řeší konzistenci výchozího stavu tím, že dohlíží na korektní přenos „nečinnosti“. Pokud v určitém kroku objekt nevykoná žádnou změnu stavu (operace typu No-Op, prázdná transformace nebo getter), homomorfismus zaručuje, že se tento neutrální prvek promítne i do navazujících vrstev systému. To v praxi eliminuje chyby, kdy volání zdánlivě „prázdné“ metody v jedné vrstvě nečekaně změní kontext v jiné vrstvě. Vyžadování homomorfismů nám tak dává jistotu, že architektura o fungování kódu nelže; nutí nás navrhovat vazby tak, aby výsledek složené operace byl vždy predikovatelný z jejích jednotlivých částí, bez ohledu na to, jak hluboko v hierarchii systému se nacházíme.
+
+\subsubsection{Komutativní diagramy}
+Kategorie, respektive jejich objekty a morfismy, se vizuálně zakreslují do diagramů, které strukturou připomínají orientované grafy. Diagram označujeme jako komutativní, pokud všechny cesty (posloupnosti morfismů) vedoucí ze stejného počátečního bodu A do stejného cílového bodu B představují identický výsledek. Komutativní vlastnost je důležitá, protože když není dodržena, můžeme se z bodu $A$ dostat do bodu $B$, a pokaždé skončit s jiným výsledkem. Když diagram komutuje, máme zaručené, že výsledek bude vždy stejný. \parencite{racket-category}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.4\textwidth]{obrazky/diplomka/category_diagram_example.excalidraw.png}
+	\includegraphics[width=0.7\textwidth]{obrazky/diplomka/category_diagram_example.excalidraw.png}
 	\centering
 	\caption{Komutativní diagram}
 \end{figure}
 
-
-Diagramy slouží k vizuální reprezentaci vnitřní struktury kategorií, přičemž tyto struktury nejsou vázány na konkrétní instance – různé kategorie mohou sdílet identické uspořádání objektů a morfismů. Tato strukturální podobnost vede ke konceptu ekvivalence kategorií a možnosti definovat přechody mezi nimi. K tomuto účelu slouží funktor – speciální typ zobrazení, který převádí jednu kategorii do druhé, aniž by narušil vztahy mezi definičními obory a obory hodnot. \parencite{racket-category}
+Diagramy nám dovolují se soustředit na čistou strukturu kategorií. Často totiž zjistíme, že různé části systému – ačkoliv pracují s jinými daty – sdílejí identické uspořádání vazeb. Tato strukturální podobnost nám dovoluje definovat přechody kategoriemi pomocí funktoru. Funktor lze chápat jako vyšší typ zobrazení, který převádí objekty a morfismy jedné kategorie do druhé, aniž by narušil jejich vnitřní strukturu. \parencite{racket-category}
 
 \begin{figure}[H]
 	\centering
@@ -406,25 +443,26 @@ Diagramy slouží k vizuální reprezentaci vnitřní struktury kategorií, při
 	\caption{Funktor}
 \end{figure}
 
+Pokud jsme si dříve definovali homomorfismus jako pojistku zachování struktury uvnitř monoidu, funktor je jeho analogií na úrovni celých kategorií. Zajišťuje, že pokud v původní kategorii existovala funkční cesta mezi body A a B, bude po transformaci funktorem existovat i v cílové kategorii a bude dávat stejný smysl. V praxi nám funktory umožňují například modelovat, jak se pravidla definovaná v návrhovém vzoru do konkrétní implementace, aniž by došlo k narušení logických vazeb mezi nimi.
 
 Pokud návrhové vzory formalizuji jako kategorie a reprezentuji je pomocí komutativních diagramů, lze v kódu vyhledávat nejen přesné strukturání shody, ale také identifikovat částečné shody o různé vzdálenosti vůči ideálnímu vzoru či definovaným protivzorům. Pro tento účel je potřeba zavést několik relací mezi objekty kategorie:
 \begin{itemize}
-	\item \textbf{Sémantická ekvivalence} ($A \approx B$) – Objekty jsou na sobě strukturálně nezávislé, ale sdílejí totožný koncepční záměr. V daném doménovém kontextu jsou logicky zaměnitelné.
+	\item \textbf{Sémantická ekvivalence} ($A \approx B$) – Objekty jsou na sobě strukturálně nezávislé, ale sdílejí totožný koncepční záměr. V daném doménovém kontextu jsou logicky zaměnitelné. Platí $A \approx B: \mathcal{O}_A = \mathcal{O}_B \land \mathcal{H}_A \not= \mathcal{H}_B$
 	
-	\item \textbf{Izomorfismus} ($A \cong B$) – Objekty vykazují naprostou shodu v rozhraní i struktuře. Tato relace představuje ideální stav čistého návrhu, kdy jsou entity plně a bezpečně zaměnitelné bez vedlejších účinků na okolní systém.
+	\item \textbf{Izomorfismus} ($A \cong B$) – Objekty vykazují naprostou shodu v rozhraní i struktuře. Tato relace představuje ideální stav čistého návrhu, kdy jsou entity plně a bezpečně zaměnitelné bez vedlejších účinků na okolní systém. Platí $A \cong B: \mathcal{O}_A = \mathcal{O}_B \land \mathcal{H}_A = \mathcal{H}_B$
 	
-	\item \textbf{Kongruence} ($A \equiv B$) – Objekty sdílejí shodu v konkrétní podmnožině metod či vlastností, ale nejsou jimi plně vázány. Typicky se jedná o projev \textit{duck typingu}; objekt sice disponuje očekávaným rozhraním, ale jeho vnitřní implementace či dodatečný balast  narušují čistotu vzoru.
+	\item \textbf{Kongruence} ($A \equiv B$) – Objekty sdílejí shodu v konkrétní podmnožině metod či vlastností, ale nejsou jimi plně vázány. Typicky se jedná o projev \textit{duck typingu}; objekt sice disponuje očekávaným rozhraním, ale jeho vnitřní implementace či dodatečný balast  narušují čistotu vzoru\footnote{Přítomnost kongruence nám nedovoluje objekty triválně zaměnit. Záměna takového objektu sebou totiž nese riziko chybějích morfismů.}. $A \equiv B: \mathcal{O}_A \subseteq \mathcal{O}_B \land \mathcal{H}_A \subseteq \mathcal{H}_B$
 	
-	\item \textbf{Strukturální podobnost} ($A \sim B$) – Objekty vykazují částečně shodné strukturní rysy (např. podobné grafové topologie), přestože mezi nimi neexistuje přímá vazba či společný předek.
+	\item \textbf{Strukturální podobnost} ($A \sim B$) – Objekty vykazují částečně shodné strukturní rysy (např. podobné grafové topologie), přestože mezi nimi neexistuje přímá vazba či společný předek. Platí $A \sim B \iff \exists U: Kategorie \to Graf \mid U(A) \cong U(B)$
 \end{itemize}
 
-Formální definici těchto relací upozadím ve prospěch jejich širší aplikace. Důležité rozlišení mezi těmito relacemi je, že sémantická ekvivalence spojuje shodný záměr; izomorfismus shodné objekty; kongruence shodu v rozhraní a strukturální podobnost shodu ve struktuře.
+Ačkoliv jsem u samotných definic relací ukázal platné vztahy, formálnější definici upozadím ve prospěch jejich širší aplikace. Důležité rozlišení mezi těmito relacemi je, že sémantická ekvivalence spojuje shodný záměr; izomorfismus shodné kategorie; kongruence shodu v rozhraní a strukturální podobnost shodu v topologické struktuře.
 
-Ještě se dovolím pozastavit nad rozdílem mezi izomorfismem a kongruencí, který je podle mého názoru zásadní pro pochopení jejich odlišení. Relací izomorfismu říkám, že objekty mají rozhraní shodné do posledního detailu. Relací kongruence zase říkám, že objekty mají průnik v rozhraní, ale objekty nabízí ještě další metody a atributy, které nejsou součástí společného rozhraní. To je nebezpečné v situaci, kdybychom chtěli tyto objekty zaměnit. Jakákoliv budoucí záměna takového objektu vyžaduje ošetření všech těchto volání.
+\subsection{Popis vybraných návrhových vzorů}
 
 \clearpage
 \subsubsection{Factory}
-Návrhový vzor \textit{Factory} řeší problémy s vysokou provázaností, které typicky způsobují zabraňovači a vazbiči. Umožňuje totiž vytvářet izomorfní třídy bez vzniku vazby na konkrétní implementaci. Tím, že \textit{Factory} ve své podstatě vytváří jediný vstupní bod pro vznik těchto tříd, je nejenom snadné rozšířit systém o novou izomorfní třídu, ale zároveň není nutné zasahovat do již existujícího kódu, který by jinak musel řešit logiku pro vytváření tříd.
+Návrhový vzor \textit{Factory} řeší nešváry z rodiny vazbičů a zabraňovačů. Umožňuje totiž vytvářet izomorfní třídy bez vzniku vazby na konkrétní implementaci. Tím, že \textit{Factory} ve své podstatě vytváří jediný vstupní bod pro vznik těchto tříd, je nejenom snadné rozšířit systém o novou třídu, ale zároveň není nutné zasahovat do již existujícího kódu, který by jinak musel řešit logiku pro vytváření tříd.
 
 \begin{figure}[H]
 	\centering
@@ -434,18 +472,19 @@ Návrhový vzor \textit{Factory} řeší problémy s vysokou provázaností, kte
 	\label{diag:factory}
 \end{figure}
 
-Formálně lze návrhový vzor \textit{Factory} definovat jako kategorii sestávající ze tří objektů (\textit{Typ, Produkt a Rozhraní}) a tří morfismů, které definují proces delegované instanciace a typové abstrakce. Celý proces zahajuje morfismus tvorby, který na základě objektu \textit{Typ} — reprezentujícího specifický požadavek či parametr — iniciuje vznik konkrétní instance v podobě objektu \textit{Produkt}. Na tento úkon navazuje morfismus abstrakce, jenž zavazuje každý vytvořený \textit{Produkt} k implementaci společného \textit{Rozhraní}. Celou kategorii uzavírá morfismus kontraktu, který tvoří přímou vazbu mezi původním požadavkem a výsledným rozhraním.
+Formálně lze návrhový vzor \textit{Factory} definovat jako kategorii tří objektů (\textit{Factory, Product, Interface}) a tří morfismů (\textit{tvorby, abstrakce a kontraktu}). Objekt \textit{Factory} pomocí vnitřní logiky volí konkrétní \textit{Product} k vytvoření, přičemž všechny tyto objekty musí odkazovat na, respektive implementovat, stejné rozhraní. Díky komutativitě diagramu a tranzitivitě skládání morfismů, dospějeme k závěru, že existuje morfismus kontraktu, který zaručuje, že objekt \textit{Factory} vždy vytvoří objekt svázaný se společným rozhraním. Tento morfismus nejen že existuje implicitně, ale dokonce musí pro správnou funkci návrhového vzoru existovat explicitně. Pokud by totiž neexistoval, znamená to, že jeden z objektů \textit{Produkt} neimplementuje společné rozhraní a nejsou tak navzájem kongruentní, natož izomorfmí.
+
 
 Na základě výše uvedené formální definice lze provést analýzu SWOT pro vyhodnocení přínosů a rizik návrhové vzoru \textit{Factory}:
 \begin{itemize}
 	\item \textbf{Silné stránky} – Vzor je silný v situacích, kdy jsou sémanticky ekvivalentní objekty ($\approx$) v systému zaměňovány podle kontextu.
 	\item \textbf{Slabé stránky} – Je pouze proxy pro izomorfní třídy, a nezabraňuje vývojáři obejít Factory přímo k implementaci. Navíc přidává vrstvu zanoření do zásobníku volání.
-	\item \textbf{Příležitosti} – Příležitost tvoří protivzory, jako jsou třídy delegující činnost na více tříd bez sdíleného rozhraní.
-	\item \textbf{Hrozby} – Aplikace vzoru u jednoúčelových tříd, kde neexistuje předpoklad budoucí existence alternativních implementací, je kontraproduktivní.
+	\item \textbf{Příležitosti} – Příležitost tvoří třídy delegující činnost na více tříd bez sdíleného rozhraní.
+	\item \textbf{Hrozby} – Aplikace vzoru u jednoúčelových tříd, kde neexistuje předpoklad budoucí existence alternativních implementací, je kontraproduktivní a zbytečnou abstrakcí.
 \end{itemize}
 
 \subsubsection{Builder}
-Návrhový vzor \textit{Builder} řeší nešváry převážně z třídy nabobtnalců a zneužívačů objektového návrhu. Dovoluje nám totiž krok za krokem sestavit výsledný objekt a reprezentovat tak širokou škálu různých konfigurací. Tímto přístupem se předchází vzniku nabobtnalých seznamů argumentů a zároveň se otevírá prostor pro obohacení jednotlivých kroků nastavení o vstupní logiku a validaci. Builder tak transformuje proces tvorby objektu z jednorázového (často nepřehledného) úkonu na řízenou sekvenci operací.
+Návrhový vzor \textit{Builder} řeší nešváry převážně z třídy nabobtnalců a zneužívačů objektového návrhu. Dovoluje nám totiž komplexní objekt sestavit pomocí sekvence volání a reprezentovat tak širokou škálu různých konfigurací. Tímto přístupem se předchází vzniku nabobtnalých seznamů argumentů a zároveň se otevírá prostor pro definici vstupní logiky a validace u jednotlivých kroků. Builder tak transformuje proces tvorby objektu z jednorázového (často nepřehledného) úkonu na řízenou sekvenci operací.
 
 \begin{figure}[H]
 	\centering
@@ -454,7 +493,7 @@ Návrhový vzor \textit{Builder} řeší nešváry převážně z třídy nabobt
 	\caption{Komutativní diagram návrhového vzoru: Builder}
 \end{figure}
 
-Formálně lze návrhový vzor \textit{Builder} definovat jako kategorii sestávající ze tří objektů (Počátek, Builder a Produkt) a tří morfismů, které definují životní cyklus konstrukce. Celý proces zahajuje morfismus inicializace, který vychází z \textit{Počátku} - stavu, kdy instance ještě neexistuje - a zavádí výchozí konfiguraci objektu \textit{Builder}. Ten je následně modifikován pomocí automorfismu konfigurace, jenž z principu zapouzdření smí modifikovat výhradně vnitřní stav samotného \textit{Builderu}. Po dosažení požadovaného stavu je proces završen morfismem sestavení, který transformuje zkonfigurovaný \textit{Builder} na výsledný, zpravidla již imutabilní \textit{Produkt}.
+Formálně lze návrhový vzor \textit{Builder} definovat jako kategorii sestávající ze dvou objektů (\textit{Builder, Product}) a dvou morfismů (\textit{Konfigurace, Sestavení}). Objekt \textit{Builder} je inicializován a zároveň konfigurován pomocí automorfismu konfigurace, který postupně aktualizuje jeho vnitřní stav. Po dosažení požadovaného stavu je proces konfigurace dokončen sestavením, který transformuje zkonfigurovaný \textit{Builder} na výsledný, zpravidla již imutabilní \textit{Produkt}. Ačkoliv \textit{Product} může být mutabilní, je pak těžké správně rozdělit odpovědnosti za jeho konfiguraci mezi \textit{Builder} a \textit{Product}. Objekt \textit{Product} v tomto případě může být cokoliv od třídy po rozhraní, čímž umožňuje složit ho s dalšími návrhovými vzory.
 
 Na základě výše uvedené formální definice lze provést analýzu SWOT pro vyhodnocení přínosů a rizik návrhové vzoru \textit{Builder}:
 \begin{itemize}
@@ -592,19 +631,43 @@ Při této syntéze slouží rozhraní I jako společný uzel, kde se oba vzory 
 
 Existuje ale i případy, kdy je syntéza návrhových vzorů logicky neproveditelná. K selhání dochází v momentě, kdy se střetnou základní strukturní pravidla. Pokud jeden vzor vyžaduje uspořádání, které přímo popírá princip vzoru druhého, vzniká neřešitelný rozpor. V takovém případě uzel v komutativním diagramu nedokáže plnit obě role současně, aniž by nedošlo k narušení stability celého systému.
 
-Příkladem strukturního konfliktu je pokus o sloučení vzorů \textit{Singleton} a \textit{Chain of Responsibility}. Zatímco \textit{COR} je z definice založen na posloupnosti několika různých objektů, které si předávají požadavek, \textit{Singleton} striktně vynucuje existenci pouze jediné instance. Pokud bychom tyto vzory chtěli složit do jednoho vzoru, řetězec by se zacyklil sám do sebe. Morfismus předání by v tomto bodě přestal existovat, protože by objekt neměl na koho jiného delegovat než sám na sebe, čímž se celá struktura zhroutí.
+Příkladem strukturního konfliktu je pokus o sloučení vzorů \textit{Chain of Responsibility} a \textit{Singleton}. Zatímco \textit{COR} je z definice založen na posloupnosti několika různých objektů, které si předávají požadavek, \textit{Singleton} striktně vynucuje existenci pouze jediné instance. Pokud bychom tyto vzory chtěli složit do jednoho vzoru, řetězec by se strukturálně rozpadl a efektivně utvořil návrhový vzor \textit{Facade}.
+
+\begin{align}
+	COR &= C \to H_1 \to H_2 \to H_3 \to \dots \to H_n \to C &(H_i \not= H_j) \\
+	x &= C \to S_1 \to S_2 \to S_3 \to \dots \to S_n \to C & (H_n \approx S_n)\\
+	x &= C \to S \to C & (S_1 = S_2 = \dots = S_n)\\
+	x &\not\sim COR
+\end{align}
+
+ Morfismus předání by v tomto bodě přestal existovat, protože by objekt neměl na koho jiného delegovat než sám na sebe, čímž se celá struktura zhroutí.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{obrazky/diplomka/composite_factory_strategy.excalidraw.png}
+	\centering
+	\caption{Kompozitní návrhový vzor: Factory of Strategies}
+\end{figure}
 
 Další bariérou pro úspěšnou kompozici je konflikt v životním cyklu objektů, který nastává například při spojení vzorů \textit{Builder} a \textit{Strategy}. \textit{Builder} je navržen pro postupné sestavování složitého objektu, který je po celou dobu procesu nekompletní. Naproti tomu Strategy vyžaduje plně inicializovaný a stabilní objekt, aby mohla okamžitě vykonat svůj algoritmus. Odpovědnost za tvorbu a odpovědnost za výkon se zde časově vylučují; pokud bychom nutili nehotový \textit{Builder} vykonávat strategii, výsledek by byl nepředvídatelný.
 
 Princip jedné odpovědnosti není tedy jen otázkou čistoty kódu, ale i formální správnosti. Jeho porušení vede k tomu, že výsledný diagram nelze logicky uzavřít – chybí mu jasný směr toku informací nebo terminální uzel s výsledkem. Úspěšná kompozice je tedy možná pouze tehdy, pokud spolu vzory spolupracují v čase i prostoru diagramu, jako je tomu u výše zmíněné kombinace vzorů \textit{Factory} a \textit{Strategy}.
 
 \subsection{Závěr}
-V této kapitole jsem nastínil problematiku návrhových vzorů a snažil jsem se o její formalizaci pomocí teorie kategorií. Je nutné ovšem podotknout, že plná formalizace není v mé kompetenci. Využil jsem pro mě známý nástroj, ale spousty rigoru jsem vynechal v zájmu použitelnosti a přístupnosti. Je dost možné, že při hlubším zkoumání mého postupu budou mé myšlenky o teorii kategorií jakožto formálním základu vyvráceny. V současné době je to ale pro mě dostatečně silný analytický nástroj, kterým mohu alespoň kvazifomálně popsat strukturu kódu a porovnávat ho s návrhovými vzory.
+V této kapitole jsem nastínil problematiku návrhových vzorů a snažil jsem se o její formalizaci pomocí teorie kategorií. Je nutné ovšem podotknout, že plná formalizace není v mé kompetenci. Využil jsem pro mě známý nástroj, ale v rámci použitelnosti a přístupnosti jsem vynechal spoustu rigoru, který by si tato tématika zasloužila.
+
+Je totiž dost možné, že při hlubším zkoumání mého postupu budou mé myšlenky o teorii kategorií jakožto formálním základu návrhových vyvráceny, či vehementně opraveny. V současné době je to ale pro mě dostatečně silný analytický nástroj, kterým mohu alespoň kvazifomálně popsat strukturu kódu a porovnávat ho s návrhovými vzory pomocí relací.
 
 \section{Architektonické vzory}
 \label{chapter:architectural_patterns}
 Jestliže návrhové vzory představují osvědčené strategie pro uspořádání vnitřních struktur jednotlivých komponent, architektonické vzory posouvají tuto abstrakci na další úroveň. Zatímco v předchozí kapitole jsme se soustředili na vztahy mezi objekty, zde se zaměřujeme na systém jako celek. Architektonické vzory definují globální organizační schéma a určují základní pravidla pro rozdělení odpovědností mezi rozsáhlé podsystémy, moduly či vrstvy \parencite{gfg-architectural-patterns}.
 
+V první řadě musím vymezit úroveň abstrakce, na které se v této kapitole pohybuji. Často se totiž lze setkat s pojmy jako \textit{architektura klient-server} nebo \textit{monolitická architektura}, přičemž jsou chybně stavěny na stejnou úroveň jen proto, že sdílejí společné označení. Je však zásadní rozlišovat architekturou zaměřenou na vnitřní uspořádání aplikace a architekturou řešící interakci mezi systémy. Zatímco monolitická architektura je vzor určující vnitřní strukturu programu, model klient-server zase definuje styl propojení v rámci distribuovaného systému. V této kapitole se tedy zaměřuji výhradně na vzory formující topologii a rozdělení odpovědností uvnitř hranic jednoho softwarového řešení, zatímco interakci mezi více programovými celky řeším v kapitole \ref{chapter:integration_patterns}.
+
+\subsection{Koncept softwarové architektury}
+Každé programové řešení, bez ohledu na jeho rozsah, je podrobeno určité architektuře, která se formuje jako úhrn návrhových rozhodnutí v čase. Architekturu v tomto smyslu nelze vnímat jako statický plán, nýbrž jako dynamický proces neustálého přidávání, odebírání a modifikací prvků systému \parencite{jansen2005software}. Každé takové rozhodnutí představuje cílený zásah do struktury řešení a je definováno svým specifickým kontextem.
+
+Tento kontext tvoří především architektonické zdůvodnění (rationale), které osvětluje příčiny volby daného postupu. Rozhodovací proces je dále determinován návrhovými pravidly (design rules) a omezeními (design constraints), jež vymezují prostor přípustných řešení a zajišťují vnitřní integritu systému. V neposlední řadě jsou tato rozhodnutí přímou odpovědí na stanovené požadavky (requirements). Architektura tedy není pouze výsledným stavem komponent, ale je tvořena celou historií těchto rozhodnutí, z nichž každé nese informaci o své motivaci, pravidlech a limitech, za kterých vzniklo \parencite{jansen2005software}.
 
 \section{Integrační vzory}
 \label{chapter:integration_patterns}
