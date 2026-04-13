@@ -393,10 +393,10 @@ Je však nutné zdůraznit, že tato práce není zaměřena na matematickou pod
 Kategorie $\mathcal{C}$ je definována jako struktura tvořená kolekcí objektů $\mathcal{O}$ a kolekcí morfismů $\mathcal{M}$, přičemž nad kategorií je definována operace skládání ($\circ$) a pro každý objekt existuje morfismus identity. \parencite{racket-category}
 
 \begin{equation}\label{eq:category-definition}
-	\mathcal{C} = (\mathcal{C}, \mathcal{M}, \circ, \text{id})
+	\mathcal{C} = (\mathcal{C}, \mathcal{H}, \circ, \text{id})
 \end{equation}
 
-V kontextu teorie kategorií se pro seskupení objektů používá termín kolekce záměrně místo více známé množiny. Zatímco množina vyžadují striktní dodržování formálních pravidel a axiomů teorie množin, termín kolekce funguje jako sémanticky volnější seskupení prvků, které nemusí tvořit rigorózně definovanou strukturu. Použití kolekce nám tak rozvazuje ruce – umožňuje efektivně seskupovat objekty a morfismy i v případech, kdy by striktní aplikace teorie množin vedla k logickým rozporům. \parencite{racket-category}
+V kontextu teorie kategorií se pro seskupení objektů používá termín kolekce záměrně místo více známé množiny. Zatímco množina vyžadují striktní dodržování formálních pravidel a axiomů teorie množin, termín kolekce funguje jako sémanticky volnější seskupení prvků, které nemusí tvořit rigorózně definovanou strukturu. Použití kolekce nám tak rozvazuje ruce – umožňuje efektivně seskupovat objekty a morfismy i v případech, kdy by striktní aplikace teorie množin vedla k logickým rozporům. Posledním rozšířením kolekce je tzv. \textit{rodina objektů}. Jedná se o kolekci, ve které existuje zobrazení mezi prvky kolekce a kategorií přirozených čísel, čímž se efektivně stává indexovanou. \parencite{racket-category}
 
 \subsubsection{Objekty}
 Objekty jsou reprezentací předmětů zkoumání - funkce, prostory, metriky, a v našem případě softwarové třídy a funkční jednotky. Samotné objekty ovšem mohou reprezentovat i celé kategorie, čímž je umožněno vytvářet podkategorie a definovat pro ně speciální pravidla v rámci většího celku. Objekty značím velkými písmeny latinky. \parencite{racket-category}
@@ -445,13 +445,13 @@ Diagramy nám dovolují se soustředit na čistou strukturu kategorií. Často t
 
 Pokud jsme si dříve definovali homomorfismus jako pojistku zachování struktury uvnitř monoidu, funktor je jeho analogií na úrovni celých kategorií. Zajišťuje, že pokud v původní kategorii existovala funkční cesta mezi body A a B, bude po transformaci funktorem existovat i v cílové kategorii a bude dávat stejný smysl. V praxi nám funktory umožňují například modelovat, jak se pravidla definovaná v návrhovém vzoru do konkrétní implementace, aniž by došlo k narušení logických vazeb mezi nimi.
 
-Pokud návrhové vzory formalizuji jako kategorie a reprezentuji je pomocí komutativních diagramů, lze v kódu vyhledávat nejen přesné strukturání shody, ale také identifikovat částečné shody o různé vzdálenosti vůči ideálnímu vzoru či definovaným protivzorům. Pro tento účel je potřeba zavést několik relací mezi objekty kategorie:
+Pokud návrhové vzory formalizuji jako kategorie a reprezentuji je pomocí komutativních diagramů, lze v kódu vyhledávat nejen přesné strukturání shody, ale také identifikovat částečné shody o různé vzdálenosti vůči ideálnímu vzoru či definovaným protivzorům. Pro tento účel je potřeba zavést několik relací mezi kategoriemi\footnote{Je nutné poznamenat, že tyto relace se týkají i podkategorií. Není tak nutné porovnávat celou strukturu, respektive celý diagram, ale pouze jeho  vybranou část.}:
 \begin{itemize}
 	\item \textbf{Sémantická ekvivalence} ($A \approx B$) – Objekty jsou na sobě strukturálně nezávislé, ale sdílejí totožný koncepční záměr. V daném doménovém kontextu jsou logicky zaměnitelné. Platí $A \approx B: \mathcal{O}_A = \mathcal{O}_B \land \mathcal{H}_A \not= \mathcal{H}_B$
 	
 	\item \textbf{Izomorfismus} ($A \cong B$) – Objekty vykazují naprostou shodu v rozhraní i struktuře. Tato relace představuje ideální stav čistého návrhu, kdy jsou entity plně a bezpečně zaměnitelné bez vedlejších účinků na okolní systém. Platí $A \cong B: \mathcal{O}_A = \mathcal{O}_B \land \mathcal{H}_A = \mathcal{H}_B$
 	
-	\item \textbf{Kongruence} ($A \equiv B$) – Objekty sdílejí shodu v konkrétní podmnožině metod či vlastností, ale nejsou jimi plně vázány. Typicky se jedná o projev \textit{duck typingu}; objekt sice disponuje očekávaným rozhraním, ale jeho vnitřní implementace či dodatečný balast  narušují čistotu vzoru\footnote{Přítomnost kongruence nám nedovoluje objekty triválně zaměnit. Záměna takového objektu sebou totiž nese riziko chybějích morfismů.}. $A \equiv B: \mathcal{O}_A \subseteq \mathcal{O}_B \land \mathcal{H}_A \subseteq \mathcal{H}_B$
+	\item \textbf{Kongruence} ($A \equiv B$) – Objekty sdílejí shodu v konkrétní části morfismů. Typicky se jedná o projev \textit{duck typingu}; objekt sice disponuje očekávaným rozhraním, ale jeho vnitřní implementace či dodatečný balast  narušují čistotu vzoru $A \equiv B: \mathcal{O}_A \subseteq \mathcal{O}_B \land \mathcal{H}_A \subseteq \mathcal{H}_B$. \footnote{Kongruence je nekomutativní operací. Pokud je $A\equiv B$, pak musí platit $B \equiv A: \mathcal{O}_A \supseteq \mathcal{O}_B \land \mathcal{H}_A \supseteq \mathcal{H}_B$. V takovém případě ale vzniká riziko, že při záměně objektů narazíme na morfismus z $\mathcal{H}_A$, který není součástí množiny $\mathcal{H}_B$. Tím by se narušila integrita celé struktury.}
 	
 	\item \textbf{Strukturální podobnost} ($A \sim B$) – Objekty vykazují částečně shodné strukturní rysy (např. podobné grafové topologie), přestože mezi nimi neexistuje přímá vazba či společný předek. Platí $A \sim B \iff \exists U: Kategorie \to Graf \mid U(A) \cong U(B)$
 \end{itemize}
@@ -459,6 +459,7 @@ Pokud návrhové vzory formalizuji jako kategorie a reprezentuji je pomocí komu
 Ačkoliv jsem u samotných definic relací ukázal platné vztahy, formálnější definici upozadím ve prospěch jejich širší aplikace. Důležité rozlišení mezi těmito relacemi je, že sémantická ekvivalence spojuje shodný záměr; izomorfismus shodné kategorie; kongruence shodu v rozhraní a strukturální podobnost shodu v topologické struktuře.
 
 \subsection{Popis vybraných návrhových vzorů}
+S teoretickým základem z předchozí podkapitoly je nyní možné aplikovat tyto koncepty na popis samotných návrhových vzorů. Není v možnostech této práce formalizovat všechny, proto jsem se rozhodl pro konkrétní vzory, se kterými jsem dobře obeznámen a které jsou hojně využity v praktické části.
 
 \clearpage
 \subsubsection{Factory}
