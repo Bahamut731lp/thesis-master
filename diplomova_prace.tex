@@ -659,18 +659,37 @@ V této kapitole jsem nastínil problematiku návrhových vzorů a snažil jsem 
 
 Je totiž dost možné, že při hlubším zkoumání mého postupu budou mé myšlenky o teorii kategorií jakožto formálním základu návrhových vyvráceny, či vehementně opraveny. V současné době je to ale pro mě dostatečně silný analytický nástroj, kterým mohu alespoň kvazifomálně popsat strukturu kódu a porovnávat ho s návrhovými vzory pomocí relací.
 
+\clearpage
 \section{Architektonické vzory}
 \label{chapter:architectural_patterns}
 Jestliže návrhové vzory představují osvědčené strategie pro uspořádání vnitřních struktur jednotlivých komponent, architektonické vzory posouvají tuto abstrakci na další úroveň. Zatímco v předchozí kapitole jsme se soustředili na vztahy mezi objekty, zde se zaměřujeme na systém jako celek. Architektonické vzory definují globální organizační schéma a určují základní pravidla pro rozdělení odpovědností mezi rozsáhlé podsystémy, moduly či vrstvy \parencite{gfg-architectural-patterns}.
 
-V první řadě musím vymezit úroveň abstrakce, na které se v této kapitole pohybuji. Často se totiž lze setkat s pojmy jako \textit{architektura klient-server} nebo \textit{monolitická architektura}, přičemž jsou chybně stavěny na stejnou úroveň jen proto, že sdílejí společné označení. Je však zásadní rozlišovat architekturou zaměřenou na vnitřní uspořádání aplikace a architekturou řešící interakci mezi systémy. Zatímco monolitická architektura je vzor určující vnitřní strukturu programu, model klient-server zase definuje styl propojení v rámci distribuovaného systému. V této kapitole se tedy zaměřuji výhradně na vzory formující topologii a rozdělení odpovědností uvnitř hranic jednoho softwarového řešení, zatímco interakci mezi více programovými celky řeším v kapitole \ref{chapter:integration_patterns}.
+V první řadě musím vymezit úroveň abstrakce, na které se v této kapitole pohybuji. Často se totiž lze setkat s pojmy jako \textit{architektura klient-server} nebo \textit{monolitická architektura}, přičemž jsou chybně stavěny na stejnou úroveň jen proto, že sdílejí společné označení. Je však zásadní rozlišovat architekturou zaměřenou na vnitřní uspořádání aplikace a architekturou řešící interakci mezi systémy. Zatímco monolitická architektura je vzor určující vnitřní strukturu programu, model klient-server zase definuje styl propojení v rámci distribuovaného systému. V této kapitole se tedy zaměřuji výhradně na vzory uvnitř hranic jednoho softwarového řešení, zatímco interakci mezi více programovými celky řeším v kapitole \ref{chapter:integration_patterns}.
 
 \subsection{Koncept softwarové architektury}
 Každé programové řešení, bez ohledu na jeho rozsah, je podrobeno určité architektuře, která se formuje jako úhrn návrhových rozhodnutí v čase. Architekturu v tomto smyslu nelze vnímat jako statický plán, nýbrž jako dynamický proces neustálého přidávání, odebírání a modifikací prvků systému \parencite{jansen2005software}. Každé takové rozhodnutí představuje cílený zásah do struktury řešení a je definováno svým specifickým kontextem.
 
-Tento kontext tvoří především architektonické zdůvodnění (rationale), které osvětluje příčiny volby daného postupu. Rozhodovací proces je dále determinován návrhovými pravidly (design rules) a omezeními (design constraints), jež vymezují prostor přípustných řešení a zajišťují vnitřní integritu systému. V neposlední řadě jsou tato rozhodnutí přímou odpovědí na stanovené požadavky (requirements). Architektura tedy není pouze výsledným stavem komponent, ale je tvořena celou historií těchto rozhodnutí, z nichž každé nese informaci o své motivaci, pravidlech a limitech, za kterých vzniklo \parencite{jansen2005software}.
+Tento kontext tvoří především architektonické zdůvodnění, které osvětluje příčiny volby daného postupu. Rozhodovací proces je dále vázán návrhovými pravidly a omezeními, jež vymezují prostor přípustných řešení a zajišťují vnitřní integritu systému. V neposlední řadě jsou tato rozhodnutí přímou odpovědí na stanovené požadavky. Architektura tedy není pouze výsledným stavem komponent, ale je tvořena celou historií těchto rozhodnutí, z nichž každé nese informaci o své motivaci, pravidlech a limitech, za kterých dané rozhodnutí vzniklo \parencite{jansen2005software}.
+
+Opakující se povaha architektonických rozhodnutí vede k pozorování, že mnohé problémy v rozdělení odpovědnosti a v uspořádání komponent vykazují strukturní podobnost. Podobně jako se na úrovni implementace jednotlivých komponent vyvinuly návrhové vzory pro řešení lokálních problémů, v širším kontextu uspořádání celého systému postupem času vykrystalizovaly architektonické vzory. Ty nepředstavují pouze hotové šablony, ale spíše formalizované sady architektonických rozhodnutí, které v minulosti úspěšně vyřešily specifické kombinace požadavků a omezení.
+
+\subsection{Popis vybraných architektonických vzorů}
+
+\subsubsection{Vrstvená architektura}
+
+\subsubsection{Událostmi řízená architektura}
+
+\subsubsection{Hexagonální architektura}
 
 \section{Integrační vzory}
+
+\subsection{Popis vybraných integračních vzorů}
+\subsubsection{Monolitická architektura}
+
+\subsubsection{Mikroslužbová architektura}
+
+\subsubsection{Klient-Server architektura}
+
 \label{chapter:integration_patterns}
 
 \section{title}
@@ -763,7 +782,7 @@ Pokud přiblížíme pohled na celkový systém, získáme úroveň kontejnerů.
 	\caption{Diagram komponent}
 \end{figure}
 
-V případě AITechDetect ani nelze tak mluvit o úrovni kontejnerů, když není řešení kontejnerizované, jako o úrovni procesů. Ve standardní distribuci nalezneme dva běžící procesy - hlavní aplikační jádro, které nese název \textit{ccm-uni}, a podpůrnou aplikaci \textit{autoeval}, která vznikla v rámci mé bakalářské práce. Hlavní jádro obstarává vyřizování webových požadavků, práci s databází, manipulaci se strukturovanými daty na disku, a obecně i vstupně výstupní operace. S druhým procesem, Autoevalem, komunikují pomocí socketů, respektive websocketů.
+V případě AITechDetect ani nelze tak mluvit o úrovni kontejnerů, když není řešení kontejnerizované, jako o úrovni procesů. Ve standardní distribuci nalezneme dva běžící procesy - hlavní monolitické aplikační jádro, které nese název \textit{ccm-uni}, a podpůrnou aplikaci \textit{autoeval}, která vznikla v rámci mé bakalářské práce. Jádro obstarává vyřizování webových požadavků, práci s databází, manipulaci se strukturovanými daty na disku, a obecně i vstupně výstupní operace. S druhým procesem, Autoevalem, komunikují pomocí socketů, respektive websocketů.
 
 Z hlediska uživatelského užití již můžeme z diagramu pozorovat první rozkol. Zaměstnanci výrobní linky využívají výhradně rozhraní poskytované hlavním aplikačním jádrem, zatímco zaměstanci CLOUDCODE musí při správě a údržbě zasahovat i do procesu Autoeval, které žádné rozhraní neposkytuje. Tato část údržby bude souviset s nečekanými pády či výjimkami, které neodhalil vnitřní testovací proces.
 
