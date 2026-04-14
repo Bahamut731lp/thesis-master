@@ -451,7 +451,7 @@ Pokud návrhové vzory formalizuji jako kategorie a reprezentuji je pomocí komu
 	
 	\item \textbf{Izomorfismus} ($A \cong B$) – Objekty vykazují naprostou shodu v rozhraní i struktuře. Tato relace představuje ideální stav čistého návrhu, kdy jsou entity plně a bezpečně zaměnitelné bez vedlejších účinků na okolní systém. Platí $A \cong B: \mathcal{O}_A = \mathcal{O}_B \land \mathcal{H}_A = \mathcal{H}_B$
 	
-	\item \textbf{Kongruence} ($A \equiv B$) – Objekty sdílejí shodu v konkrétní části morfismů. Typicky se jedná o projev \textit{duck typingu}; objekt sice disponuje očekávaným rozhraním, ale jeho vnitřní implementace či dodatečný balast  narušují čistotu vzoru $A \equiv B: \mathcal{O}_A \subseteq \mathcal{O}_B \land \mathcal{H}_A \subseteq \mathcal{H}_B$. \footnote{Kongruence je nekomutativní operací. Pokud je $A\equiv B$, pak musí platit $B \equiv A: \mathcal{O}_A \supseteq \mathcal{O}_B \land \mathcal{H}_A \supseteq \mathcal{H}_B$. V takovém případě ale vzniká riziko, že při záměně objektů narazíme na morfismus z $\mathcal{H}_A$, který není součástí množiny $\mathcal{H}_B$. Tím by se narušila integrita celé struktury.}
+	\item \textbf{Kongruence} ($A \equiv B$) – Objekty sdílejí shodu v konkrétní části morfismů. Typicky se jedná o projev \textit{duck typingu}; objekt sice disponuje očekávaným rozhraním, ale jeho vnitřní implementace či dodatečný balast narušují čistotu vzoru. Platí $A \equiv B: \mathcal{O}_A \subseteq \mathcal{O}_B \land \mathcal{H}_A \subseteq \mathcal{H}_B$. \footnote{Kongruence je nekomutativní operací. Pokud je $A\equiv B$, pak musí platit $B \equiv A: \mathcal{O}_A \supseteq \mathcal{O}_B \land \mathcal{H}_A \supseteq \mathcal{H}_B$. V takovém případě ale vzniká riziko, že při záměně objektů narazíme na morfismus z $\mathcal{H}_A$, který není součástí množiny $\mathcal{H}_B$. Tím by se narušila integrita celé struktury.}
 	
 	\item \textbf{Strukturální podobnost} ($A \sim B$) – Objekty vykazují částečně shodné strukturní rysy (např. podobné grafové topologie), přestože mezi nimi neexistuje přímá vazba či společný předek. Platí $A \sim B \iff \exists U: Kategorie \to Graf \mid U(A) \cong U(B)$
 \end{itemize}
@@ -676,23 +676,27 @@ Opakující se povaha architektonických rozhodnutí vede k pozorování, že mn
 \subsection{Popis vybraných architektonických vzorů}
 
 \subsubsection{Vrstvená architektura}
+\label{arch:layered}
+Vrstvená architektura rozkládá programové řešení do sady úrovní (vrstev), které mají konkrétní odpovědnost. Každá vrstva komunikuje pouze s těmi vrstvami, které jsou v hiearchii nad nimi či pod nimi. \parencite{khan-software-architectures}
 
 \subsubsection{Událostmi řízená architektura}
 
 \subsubsection{Hexagonální architektura}
 
 \section{Integrační vzory}
+\label{chapter:integration_patterns}
 
 \subsection{Popis vybraných integračních vzorů}
+
 \subsubsection{Monolitická architektura}
+Monolitická architektura představuje tradiční model, kde je celé řešení sestaveno jako jeden nerozdělitelný celek. V rámci tohoto uspořádání spolu jednotlivé komponenty komunikují pomocí přímého volání funkcí či metod v operační paměti. K předávání dat a řízení mezi různými částmi systému se využívají přímé reference, ukazatele na funkce či sdílený stav \parencite{khan-software-architectures}.
 
 \subsubsection{Mikroslužbová architektura}
 
 \subsubsection{Klient-Server architektura}
 
-\label{chapter:integration_patterns}
 
-\section{title}
+\section{Závěry}
 
 \begin{table}[H]
 	\centering
@@ -724,6 +728,7 @@ Opakující se povaha architektonických rozhodnutí vede k pozorování, že mn
 \section{Postupné nasazení}
 
 \section{Monitoring}
+\label{chapter:monitoring}
 Kritickou součástí vývoje softwaru je jeho testování a ladění (debugging). Testy, například jednotkové nebo integrační, simulují chování systému za různých podmínek a následné ladění pomocí debuggerů odhaluje jeho vnitřní stav instrukce po instrukci. V praxi ovšem není možné odhalit všechny chyby a dojde na situace, kdy se v nasazeném řešení chyba objeví. Při lokálním vývoji by se program odkrokoval debuggerem a zjistili se okolnosti, které chybu způsobily.
 
 V produkčním nasazení ovšem luxus odkrokování programu zpravidla nemáme, ať už kvůli chybějícím pomocným strukturám (například \textit{symbol table}) a nebo kvůli optimalizacím kompilátoru, který program převede do jazyka symbolických adres či byte kódu. Když tedy nelze pozorovat stav programu zevnitř, nezbývá nám nic jiného, než ho pozorovat zvenčí - a konkrétně přes jeho výstupy. Schopnost pozorovat chování systému na základě jeho výstupů nazýváme \textbf{observabilitou}.
@@ -752,8 +757,6 @@ C4 byl navržen právě proto, aby se předešlo složité symbolice a velkému 
 
 \section{Modelování softwarové architektury}
 C4 diagramy dělí softwarovou architekturu na vrstvu systémového kontextu, kontejnerů, komponent a kódu \parencite{c4-introduction}. Diagram lze sestrojit pro každou úroveň zvlášť, přičemž diagram komponent a kódu se dají následně dělit podle jednotlivých kontejnerů a respektive komponent.
-
-
 
 \subsection{Úroveň systémového kontextu}
 Prvním krokem analýzy je zmapování systému v jeho přirozeném prostředí a přesné vymezení hranic mezi stávajícím řešením a okolními entitami. Tento systémový kontext slouží k vizualizaci obousměrných závislostí: od řešení směrem k externím službám i naopak. Takový pohled umožňuje posoudit kritičnost systému v širším technologickém ekosystému a identifikovat potenciální rizika plynoucí z vnějších vazeb \parencite{c4-system-context}.
@@ -784,27 +787,40 @@ Pokud přiblížíme pohled na celkový systém, získáme úroveň kontejnerů.
 
 V případě AITechDetect ani nelze tak mluvit o úrovni kontejnerů, když není řešení kontejnerizované, jako o úrovni procesů. Ve standardní distribuci nalezneme dva běžící procesy - hlavní monolitické aplikační jádro, které nese název \textit{ccm-uni}, a podpůrnou aplikaci \textit{autoeval}, která vznikla v rámci mé bakalářské práce. Jádro obstarává vyřizování webových požadavků, práci s databází, manipulaci se strukturovanými daty na disku, a obecně i vstupně výstupní operace. S druhým procesem, Autoevalem, komunikují pomocí socketů, respektive websocketů.
 
-Z hlediska uživatelského užití již můžeme z diagramu pozorovat první rozkol. Zaměstnanci výrobní linky využívají výhradně rozhraní poskytované hlavním aplikačním jádrem, zatímco zaměstanci CLOUDCODE musí při správě a údržbě zasahovat i do procesu Autoeval, které žádné rozhraní neposkytuje. Tato část údržby bude souviset s nečekanými pády či výjimkami, které neodhalil vnitřní testovací proces.
+Již při pohledu na diagram lze identifikovat první významný rozkol v přístupu k jednotlivým částem systému. Zatímco zaměstnanci zákazníka využívají primárně aplikační jádro, pracovníci společnosti CLOUDCODE jsou nuceni v rámci správy a údržby zasahovat přímo do procesu Autoeval. Tato nutnost manuálních zásahů typicky souvisí s neočekávanými pády či výjimkami, které nebyly včas zachyceny vnitřním testovacím procesem.
 
-Tím, že komunikace probíhá přes websockety, tak nelze garantovat spolehlivost přenosu.
+Absence systematického dohledu nad těmito stavy poukazuje na zásadní nedostatek v prostoru řešení: chybějící služby poskytující monitoring aplikačních procesů. Jak bylo řečeno v kapitole \ref{chapter:monitoring} platí, že transparentnost systému při trasování příčin poruch je přímo úměrná počtu implementovaných pilířů observability. V současné architektuře je však monitoring vnímán jako izolovaná vlastnost závislá na každé službě zvlášť, což znemožňuje získat ucelený přehled o zdraví celého ekosystému.
+\clearpage
+Tento nedostatek se projevuje i v konkrétní implementaci sběru diagnostických dat. Ačkoliv jsou v systému přítomny fragmenty pro moderní centralizované logování pomocí nástroje \textit{Loki} od Grafana Labs, jejich potenciál zůstává nevyužit, neboť jsou veškeré logy zapisovány lokálně do souborů v kořenových adresářích obou aplikací. Tím dochází k devalvaci přínosů observability; data zůstávají fragmentovaná a namísto jednotného analytického rozhraní vznikají izolovaná úložiště, která značně komplikují korelaci událostí a efektivní trasování příčin chyb v reálném čase.
 
 \subsection{Úroveň komponent}
 \label{chapter:c4_components}
- 
+Při dalším detailním pohledu se dostáváme na úroveň komponent. Tento diagram rozkládá vybrané kontejnery na jejich vnitřní stavební kameny, čímž odhaluje konkrétní logické celky, jejich rozhraní a vzájemné vazby uvnitř jednoho běžícího procesu. Tím se nám vykreslí obrázek o vnitřním uspořádání aplikace. \parencite{c4-component}
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-component.excalidraw.png
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-components.excalidraw.png
 	}
 	\centering
 	\caption{Diagram kontejnerů}
+	\label{img:c4-contejner}
 \end{figure}
+
+Ačkoliv by se mohlo zdát, že diagram je kvůli své spletitosti obtížně interpretovatelný, tak i přesto poskytuje důležitý nadhled pro architekturu aplikačního jádra. Na první pohled lze sice najít hrubé rysy vrstvené architektury (viz kapitola \ref{arch:layered}), ale nejsou dodrženy odpovědnosti vrstev.
+
+Při detailnějším pohledu na vazby mezi komponenty vyvstává zásadní strukturální problém: v nejvyšší vrstvě, určené pro směrování požadavků (routing), koexistují dvě nekonzistentní skupiny komponent. Zatímco jedna část respektuje hierarchii a využívá prostředníky v logické vrstvě, druhá skupina tyto mezistupně zcela obchází a přistupuje přímo k nejnižší technologické vrstvě. Důsledkem tohoto stavu je totální eroze hranic mezi vrstvami; není zřejmé, kde jedna končí a druhá začíná, neboť vazby nerespektují definovanou hierarchii.
+
+Tento rozkol vyvolává otázku, zda je zvolený model tří vrstev pro danou doménu vůbec dostatečný. V tomto uspořádání totiž fakticky chybí vrstva pro umístění business logiky. Ta musí být v důsledku parazit na nižší vrstvě s technickou implementací.
+
+Celkově systém na základě vysokého provazbení budí dojem, že systém nebyl budován podle jednotného návrhu, ale spíše ad hoc v závislosti na aktuálních požadavcích. Přítomnost těchto chaotických vazeb je jasným indikátorem úmyslného technického dluhu. Místo čisté dekompozice byly voleny nejkratší cesty k cíli, což v architektuře vytvořilo nepřehlednou síť závislostí, která nyní slouží spíše jako bariéra pro budoucí rozšiřitelnost než jako stabilní základ systému.
+
+\subsection{Úroveň kódu}
+Posledním a nejdetailnějším stupněm granularity v rámci použité metodiky je úroveň kódu. Cílem této kapitoly však není detailní analýza algoritmické implementace jednotlivých metod, ale zaměření na fyzickou organizaci programových artefaktů. Tato úroveň nám umožní identifikovat, zda je teoretické rozdělení odpovědností projektováno do hmatatelné struktury projektu, nebo zda dochází k degradaci architektury na úrovni souborového systému.
 
 \section{Modelování doménových procesů}
 
-\section{Modelování procesu nasazení}
-
 \section{Vyhodnocení rizik}
-Po dokončení modelování softwarové architektury a doménových procesů vyvstala potřeba efektivně ohodnotit oblasti zatížené technickým dluhem. Mým cílem bylo nalézt metriku, která by minimalizovala subjektivní posouzení a umožnila rizika vyplývající z technického dluhu kvantifikovat. Právě soustředění se na riziko mě přivedlo k metodě FMEA (Failure Mode and Effects Analysis), které se věnoval ve své kvalifikační práci můj dlouholetý kolega z Univerzity Jana Evangelisty Purkyně v Ustí nad Labem, Bc. Matěj Vokál.
+Po dokončení modelování softwarové architektury a doménových procesů vyvstala potřeba efektivně ohodnotit jednotlivé problémy nalezené v architektuře. Mým cílem bylo nalézt metriku, která by minimalizovala subjektivní posouzení a umožnila rizika vyplývající z technického dluhu kvantifikovat. Právě soustředění se na riziko mě přivedlo k metodě FMEA (Failure Mode and Effects Analysis), které se věnoval ve své kvalifikační práci můj dlouholetý kolega z Univerzity Jana Evangelisty Purkyně v Ustí nad Labem, Bc. Matěj Vokál.
 
 Metoda FMEA, etablovaná především v automobilovém průmyslu pro detekci vad při návrhu a produkci dílů, se nezaměřuje pouze na izolované nedostatky, ale na identifikaci kritických bodů selhání systému \parencite{vokal-thesis}. Tento analytický přístup jsem adaptoval pro potřeby zkoumaného softwarového řešení, neboť mi umožňuje hodnotit technický dluh prostřednictvím jasně definovaných kritérií.
 
