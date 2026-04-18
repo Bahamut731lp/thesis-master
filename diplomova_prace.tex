@@ -691,7 +691,7 @@ Vrstvená architektura rozkládá programové řešení do sady úrovní (vrstev
 
 Jak je zakresleno v diagramu \ref{diag:layered}, vrstvy jsou uspořádány ve vertikální hierarchii. Samotné rozdělení do vrstev se používá k řízení jednotlivých úrovní abstrakce celého programového řešení: každá vrstva definuje a poskytuje rozhraní vrstvě bezprostředně nadřazené. Tato struktura umožňuje na nejvyšší úrovni skládat komplexní doménové operace s využitím nízkoúrovňových nástrojů, které jsou zapouzdřeny v nižších vrstvách. Významným přínosem tohoto uspořádání je pak vysoká míra modularity, díky níž lze jednotlivé vrstvy vyvíjet, optimalizovat a testovat v izolaci. \parencite{khan-software-architectures}
 
-Z formálního hlediska klademe na vrstvenou architekturu $A = \{\mathcal{O}, \mathcal{H}\}$ několik striktních omezení a předpokladů. Jednotlivé vrstvy systému jsou reprezentovány jako monoidy, které v sobě zapouzdřují vnitřní logiku dané úrovně. Ke každému monoidu vrstvy náleží identický endomorfismus $g: V \to V$ a homomorfismus abstrakce $f_{i,j}: V_i \to V_j$, pro který platí podmínka návaznosti $j = i + 1$. Z těchto definic odvozujeme následující strukturální vlastnosti:
+Z formálního hlediska klademe na vrstvenou architekturu $A = (\mathcal{O}, \mathcal{H})$ několik striktních omezení a předpokladů. Jednotlivé vrstvy systému jsou reprezentovány jako monoidy, které v sobě zapouzdřují vnitřní logiku dané úrovně. Ke každému monoidu vrstvy náleží identický endomorfismus $g: V \to V$ a homomorfismus abstrakce $f_{i,j}: V_i \to V_j$, pro který platí podmínka návaznosti $j = i + 1$. Z těchto definic odvozujeme následující strukturální vlastnosti:
 
 \begin{itemize}
 	\item \textbf{Vnitřní integrita} - Každá vrstva zapouzdřuje své komponenty ve formě vnitřních endomorfismů. Využití komponent v rámci stejné vrstvy je výsledek skládání vnitřních morfismů, které nemění výsledný objekt (zůstáváme pořád ve stejné vrstvě).
@@ -701,10 +701,10 @@ Z formálního hlediska klademe na vrstvenou architekturu $A = \{\mathcal{O}, \m
 
 Vrstvená architektura primárně řeší problémy spojené s rozdělením úrovní abstrakce, což umožňuje členům vývojového týmu soustředit se na svou specifickou expertízu, aniž by museli detailně rozumět implementaci zbytku aplikace. Tyto pozitivní vlastnosti jsou však přímo podmíněny striktním dodržováním strukturálních pravidel, což s sebou přirozeně nese i určitá negativa. Při vyšším počtu vrstev totiž dochází k nárůstu režie, kdy je nutné i jednoduché operace propisovat skrze celou hierarchii, což může vést k nadbytečné tvorbě kódu, který data pouze pasivně předává. Navíc každá vrstva zůstává funkčně úzce spjata s vrstvou bezprostředně pod ní, takže i když jsou od sebe logicky izolovány, jakákoliv zásadní změna v základech systému se může kaskádovitě promítnout do všech nadřazených pater. \parencite{khan-software-architectures}
 
-\subsection{Hexagonální architektura}
+\subsubsection{Hexagonální architektura}
 Hexagonální architektura představuje alternativu k vrstvené architektuře. Zatímco vrstvy se soustředí na hierarchii, tento vzor se zaměřuje na izolaci doménové logiky od vnějších technologií. Cílem je, aby jádro aplikace bylo nezávislé na tom, zda komunikuje s uživatelem přes webový prohlížeč, mobilní aplikaci nebo zda ukládá data do SQL či NoSQL databáze. \parencite{cockburn-hexagonal-arch}
 
-Z hlediska formálního popisu definujeme hexagonální architekturu jako $A = \{\mathcal{O}, \mathcal{H}\}$, jejíž centrálním objektem je doménové jádro $D$. Toto jádro zapouzdřuje čistou byznys logiku, nezávislou na okolních technologiích. Na hranici domény definujeme porty $P$, které tvoří abstraktní rozhraní systému. K těmto portům přistupují adaptéry $A$, které jsou konkrétními implementacemi k rozhraní, které je portem definováno.
+Z hlediska formálního popisu definujeme hexagonální architekturu jako $A = (\mathcal{O}, \mathcal{H})$, jejíž centrálním objektem je doménové jádro $D$. Toto jádro zapouzdřuje čistou byznys logiku, nezávislou na okolních technologiích. Na hranici domény definujeme porty $P$, které tvoří abstraktní rozhraní systému. K těmto portům přistupují adaptéry $A$, které jsou konkrétními implementacemi k rozhraní, které je portem definováno.
 
 \begin{figure}[H]
 	\centering
@@ -723,13 +723,39 @@ Vzhledem k navrženému diagramu \ref{diag:hexagonal} lze na výsledný běžíc
 
 Hexagonální architektura přeměňuje rizika vrstvené architektury v konkureční výhodu. Ve vrstvené architektuře je totiž zcela možné, aby do vyšších pater prosákly i artefakty, které nejsou součástí kontraktu s další vrstvou. Hexagonální model však tento jev mění v řízenou strukturální konvergenci. Namísto vrstev používá porty jako striktní filtry, které nepřipouští vznik morfismů mimo kontrakt. Systém se tak úmyslně nechává zhroutit do jediného stabilního bodu, kde se adaptéry a porty vzájemně pohltí. Tím se celá architektura bezpečně uzamkne do vnitřně konzistentního monoidu domény.
 
-\subsection{Událostmi řízená architektura}
-Událostmi řízená architektura bere myšlenku návrhového vzoru observer \ref{chapter:observer} a aplikuje jí na celé programové řešení.
+\subsubsection{Událostmi řízená architektura}
+Událostmi řízená architektura přenáší principy návrhového vzoru Observer (kapitola \ref{chapter:observer}) na úroveň celého systémového řešení. Komunikace mezi komponentami v tomto modelu neprobíhá skrze přímé synchronní volání, ale prostřednictvím zpráv (událostí), které jsou distribuovány mezi zúčastněné celky skrze nezávislé prostředníky.
 
-\subsection{Architektura svislého řezu}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{obrazky/diplomka/category_arch_event.excalidraw.png}
+	\centering
+	\caption{Komutativní diagram událostmi řízené architektury}
+	\label{diag:event-driver-arch}
+\end{figure}
+
+Událostmi řízená architektura mění způsob komunikace mezi komponentami ze sychronní komunikace, ve které figuruje požadavek a odpověď, na asynchronní model zpracování událostí. Události jsou zde prvořadí nositelé stavu, na které může reagovat nespočetné množství na sobě nezávislých komponent \parencite{pallaprolu2025event}. V událostmi řízené architektuře v důsledku nízkého provázání vzniká několik problémů, na které je nutné si dávat pozor. Asynchronní podstata zpracování události vnáší následující problémy \parencite{pallaprolu2025event}:
+\begin{itemize}
+	\item \textbf{Nekonzistence systému} -- Při zpracování události několika komponentami nemůžeme zaručit, že všechny komponenty zpracují událost ve stejném čase, tudíž může být systém v čase nekonzistentní s nejasnou dobou ustálení.
+	\item \textbf{Pořadí zpracování událostí} -- Při zpracování události není jasné, v jakém pořadí budou komponenty událost zpracovávat. Pokud tak jedna komponenta závisí na druhé, vzniká logický rozpor.
+	\item \textbf{Problémy s bezpečností} -- Komponenty nemají tušení, kdo událost vyvolal. Je nutné navrhnout bezpečností model pro autentizaci a autorizaci uživatelů tak, aby nespoléhal na implicitní zabezpečení pomocí vazeb mezi komponentami. Každá komponenta si musí bezpečnost ověřit samostatně.
+\end{itemize}
+
+Událostmi řízená architektura představuje efektivní řešení problému úzkého provázání komponent, ovšem za cenu ztráty temporální konzistence systému. Toto pozorování v jádru odpovídá CAP teorému z oblasti distribuovaných systémů. V okamžiku, kdy rozbijeme synchronní komunikaci na události s asynchronním zpracováním, vědomě se vzdáváme okamžité konzistence ve prospěch odolnosti vůči rozdělení sítě a dostupnosti.
+\clearpage
+
+Dostupnost se v tomto modelu projevuje schopností systému přijímat vstupy bez ohledu na aktuální stav navazujících komponent, neboť prostředník fungující jako vyrovnávací paměť eliminuje kaskádová selhání a dovoluje producentovi úspěšně odeslat událost i při přetížení či dočasném odpojení cílové domény. Odolnost vůči rozdělení sítě pak v praxi zajišťuje, že přerušení komunikačního kanálu nezpůsobí kolaps systému; prostředník zprávu uchová a doručí ji až po obnovení integrity sítě.
+
+Tato provozní kontinuita je však vykoupena zánikem atomicity operací a přechodem k režimu konečné konzistence, což s sebou přináší i specifické riziko sémantické oscilace. K té dochází v momentě, kdy zřetězené události vytvoří v diagramu uzavřenou smyčku, v níž jedna doména zpětně vyvolává reakci v doméně předchozí, čímž systém namísto konvergence k rovnovážnému stavu generuje nekonečnou řadu divergentních operací.
+
+\subsection{Závěr}
+V této kapitole jsem představil tři architektonické vzory, které z nadhledu řeší problematiku provázání komponent napříč systémem. Tyto modely jsem nevybral náhodou -- ukazují totiž postupné rozvolňování vazeb: od vrstvené architektury, kde jsou vazby pevně definovány mezi horizontálními celky, přes hexagonální architekturu, která tyto interakce omezuje pouze na definovaná rozhraní portů, až po událostmi řízenou architekturu, v níž přímé vazby zanikají a jsou nahrazeny komunikací skrze nezávislé prostředníky.
+
+Podobně jako bylo možné skládat návrhové vzory do kompozitních vzorů, i s architektonickými celky lze do jisté míry provést složení do komplexnějších architektonických vzorů. Například do doménového jádra hexagonální architektury mohu vnořit klasické vrstvy pro vnitřní organizaci logiky, nebo naopak celou hexagonální doménu zapojit jako autonomní prvek do širší sítě událostmi řízené architektury.
 
 \section{Integrační vzory}
 \label{chapter:integration_patterns}
+Přesouváme se do poslední úrovně uspořádání programového řešení, kdy nyní již nebudeme řešit vnitřní strukturou jednotlivých komponent, ale zaměřuji se na uspořádání programových celků jako takových. Integrační vzory pro mě představují pravidla pro orchestraci a skládání autonomních služeb do uceleného systému. Zatímco v předchozích částech jsem řešil, jak kód izolovat uvnitř jednoho celku, zde analyzuji, jak tyto celky definovat navenek a jakými sémantickými kanály je propojit.
 
 \subsection{Popis vybraných integračních vzorů}
 
