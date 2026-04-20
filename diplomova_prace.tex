@@ -749,31 +749,46 @@ Dostupnost se v tomto modelu projevuje schopností systému přijímat vstupy be
 Tato provozní kontinuita je však vykoupena zánikem atomicity operací a přechodem k režimu konečné konzistence, což s sebou přináší i specifické riziko sémantické oscilace. K té dochází v momentě, kdy zřetězené události vytvoří v diagramu uzavřenou smyčku, v níž jedna doména zpětně vyvolává reakci v doméně předchozí, čímž systém namísto konvergence k rovnovážnému stavu generuje nekonečnou řadu divergentních operací.
 
 \subsection{Závěr}
-V této kapitole jsem představil tři architektonické vzory, které z nadhledu řeší problematiku provázání komponent napříč systémem. Tyto modely jsem nevybral náhodou -- ukazují totiž postupné rozvolňování vazeb: od vrstvené architektury, kde jsou vazby pevně definovány mezi horizontálními celky, přes hexagonální architekturu, která tyto interakce omezuje pouze na definovaná rozhraní portů, až po událostmi řízenou architekturu, v níž přímé vazby zanikají a jsou nahrazeny komunikací skrze nezávislé prostředníky.
+V této části jsem popsal tři vzory, které řeší provázání prvků v systému. Vybral jsem je záměrně, aby ukázaly jasný trend: postupné uvolňování vazeb mezi doménami. Začal jsem u vrstev, kde jsou spoje pevné a přímé. Pokračoval jsem k hexagonu, který vazby izoluje do portů a chrání tak jádro. Celý trend vrcholí v asynchronním modelu událostmi řízené architektury, kde se vazba zcela rozpadá. Zde již prvky o své existenci neví a všechnu komunikaci řeší prostředník. Každý krok sice zvyšuje svobodu a izolaci kódu, ale zároveň ztěžuje sledování toku dat a zvyšuje riziko časové nekonzistence. S rostoucí volností tedy roste i režie na správu celého systému.
 
-Podobně jako bylo možné skládat návrhové vzory do kompozitních vzorů, i s architektonickými celky lze do jisté míry provést složení do komplexnějších architektonických vzorů. Například do doménového jádra hexagonální architektury mohu vnořit klasické vrstvy pro vnitřní organizaci logiky, nebo naopak celou hexagonální doménu zapojit jako autonomní prvek do širší sítě událostmi řízené architektury.
-
+Podobně jako u návrhových vzorů, i zde lze provést složení do složitějších celků. Tyto vzory se totiž nevylučují. Do jádra hexagonu mohu vložit vrstvy pro vnitřní řád, nebo celou doménu zapojit jako jeden bod do sítě řízené událostmi. Tato kompozice mi dovoluje volit míru izolace přesně podle potřeb dané části systému.
 \section{Integrační vzory}
 \label{chapter:integration_patterns}
-Přesouváme se do poslední úrovně uspořádání programového řešení, kdy nyní již nebudeme řešit vnitřní strukturou jednotlivých komponent, ale zaměřuji se na uspořádání programových celků jako takových. Integrační vzory pro mě představují pravidla pro orchestraci a skládání autonomních služeb do uceleného systému. Zatímco v předchozích částech jsem řešil, jak kód izolovat uvnitř jednoho celku, zde analyzuji, jak tyto celky definovat navenek a jakými sémantickými kanály je propojit.
+Přesouváme se do poslední úrovně uspořádání programového řešení, kdy nyní již nebudeme řešit vnitřní strukturou jednotlivých komponent, ale zaměřuji se na uspořádání programových celků jako takových. Integrační vzory představují pravidla pro orchestraci a skládání autonomních služeb do uceleného systému. Zatímco v předchozích částech bylo řešeno, jak kód izolovat uvnitř jednoho celku, zde je zaměření na systém, jakým tyto celky definovat navenek a jakými sémantickými kanály je propojit.
 
 \subsection{Popis vybraných integračních vzorů}
+Podobně jako v případě návrhových a architektonických vzorů jsem i zde vybral zástupce, kteří stojí při volbě vzoru za úvahu. Na rozdíl od předchozích kapitol se však v této části zdržím formálního popisu pomocí teorie kategorií. K tomuto kroku jsem přistoupil proto, že v matematické formalizaci integračních vzorů neshledávám takový přínos pro analýzu technického dluhu jako u nižších úrovní abstrakce. Zatímco u vnitřní struktury komponent je přesné vymezení morfismů zásadní pro detekci nelegitimních vazeb, u integračních vzorů je podstata problému spíše v sémantickém nastavení hranic a v distribuované povaze systému. 
 
 \subsubsection{Monolitická architektura}
-Monolitická architektura představuje tradiční model, kde je celé řešení sestaveno jako jeden nerozdělitelný celek. V rámci tohoto uspořádání spolu jednotlivé komponenty komunikují pomocí přímého volání funkcí či metod v operační paměti. K předávání dat a řízení mezi různými částmi systému se využívají přímé reference, ukazatele na funkce či sdílený stav \parencite{khan-software-architectures}.
+Monolitická architektura představuje pravděpodobně nejčastější model integrace. Celé řešení je sestaveno jako jeden nerozdělitelný celek. V rámci tohoto uspořádání spolu jednotlivé komponenty komunikují pomocí přímého volání funkcí či metod v operační paměti. K předávání dat a řízení mezi různými částmi systému se využívají přímé reference, ukazatele na funkce či sdílený stav \parencite{khan-software-architectures}.
+
+Hlavní předností monolitu je soustředění kódu do jednoho celku. Tato blízkost dovoluje přímý kontakt s daty či úložištěm bez nutnosti "hopsat" přes řetězec dalších služeb. Díky tomu klesá latence, kterou v distribuované síti vyvolává režie spojení a komunikace mezi uzly. Monolit tak nabízí nejnižší možné zpoždění, neboť se na externí zdroje napojuje přímo.
+
+Nevýhodou monolitu je však horší možnosti škálování. Pokud je nápor vyvíjen pouze na jeden modul, musíme navýšit výkon pro celý systém. Z pohledu technického dluhu jde o rizikové prostředí, protože fyzická blízkost prvků totiž svádí k tvorbě vazeb, které nedávají smysl. Absence jasných hranic klade nároky na kázeň vývojářů. Každý chybný krok či špatné vytvoření vazby se v monolitu šíří snáze než tam, kde existují pevné hranice.
 
 \subsubsection{Mikroslužbová architektura}
+Právě omezená škálovatelnost vedla ke vzniku mikroslužeb. Tento přístup dělí systém do sady malých, nezávislých prvků. Každá služba běží ve vlastním procesu a s okolím komunikuje přes jasné rozhraní, čímž izoluje svou vnitřní implementaci \parencite{fowler-microservices}. Hlavní výhodou je pro mě možnost škálovat pouze ty části systému, které jsou pod tlakem.
+
+Tato výhoda je ale podmíněna tím, že je systém rozdělen na mikroslužby správně. Pokud hranice služeb neodpovídají logickým doménám, mohou vznikat megaslužby – tedy monolitické celky, které pouze využívají distribuované prostředí, ale vnitřně zůstávají neúměrně složité. V takovém stavu jsou služby sice fyzicky oddělené, ale sémanticky natolik provázané, že jakákoliv změna v jedné části vynucuje úpravy a nasazení všech ostatních uzlů najednou.
 
 \subsubsection{Klient-Server architektura}
+Architektura klient-server nahlíží na dělení systému skrze sémantiku rolí. Programové celky dělí na klienty, kteří tvoří požadavky, a servery, které na ně odpovídají \parencite{oluwatosin2014client}. Velkou výhodou je, že k jedné sadě zdrojů na serveru může přistupovat více různých klientů najednou. To dovoluje sdílet data i logiku napříč různými rozhraními.
+
+Toto jasné rozdělení rolí sice zjednodušuje správu dat a řízení přístupu, ale zároveň vytváří silnou závislost klienta na dostupnosti serveru. Z pohledu vazeb jde o vertikální vztah, kde je stabilita celku přímo úměrná stavu centrálního uzlu. Pokud není dostupný žádný server, klienti se stávají nepoužitelnými.
 
 \section{Závěry}
+V této kapitole jsem rozebral technický dluh a jeho projevy na různých úrovních abstrakce. Mým cílem bylo ukázat, že dluh není homogenní entita, ale nabývá specifických forem podle toho, na jaké úrovni abstrakce se nacházíme. Pro každou z těchto vrstev jsem zvolil takové zástupce a vzory, které nejlépe řeší rizika vzniku technického dluhu.
+
+Tam, kde to bylo z pohledu analýzy přínosné, jsem tyto vzory formalizoval pomocí teorie kategorií. To mi dovolilo vytvořit formální popisy vzorů, které lze následně porovnávat s reálnými ukázkami v produkčním kódu. U vyšších úrovní integrace jsem se naopak soustředil na slovní a logický rozbor, neboť zde podstata problému leží spíše v distribuci odpovědnosti než v samotné vnitřní struktuře.
+
+Je důležité podotknout, že pro každou úroveň existuje celá řada dalších vzorů a způsobů, jak technický dluh řešit. Můj výčet tedy není taxativní. Představuje však dostatečný základ pro pochopení dané problematiky v kontextu této práce a jak s těmito vzory budu pracovat dále. Tabulka níže porovnává jednotlivé úrovně abstrakce s principy pro řízení technického dluhu, respektive kvality kódu.
 
 \begin{table}[H]
 	\centering
 	\renewcommand{\arraystretch}{2}
 	\begin{tabular}{| r | l | l | l |}
 		\hline
-		\textbf{Úroveň C4} & \textbf{Název úrovně} & \textbf{Princip řízení kvality} & \textbf{Kapitola} \\
+		\textbf{Úroveň C4} & \textbf{Název úrovně} & \textbf{Princip řízení kvality kódu} & \textbf{Kapitola} \\
 		\hline
 		Úroveň 4 & Systémový kontext & Integrační vzory & \ref{chapter:integration_patterns}\\
 		\hline
