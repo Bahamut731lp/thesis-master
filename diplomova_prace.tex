@@ -762,7 +762,7 @@ Podobně jako v případě návrhových a architektonických vzorů jsem i zde v
 \subsubsection{Monolitická architektura}
 Monolitická architektura představuje pravděpodobně nejčastější model integrace. Celé řešení je sestaveno jako jeden nerozdělitelný celek. V rámci tohoto uspořádání spolu jednotlivé komponenty komunikují pomocí přímého volání funkcí či metod v operační paměti. K předávání dat a řízení mezi různými částmi systému se využívají přímé reference, ukazatele na funkce či sdílený stav \parencite{khan-software-architectures}.
 
-Hlavní předností monolitu je soustředění kódu do jednoho celku. Tato blízkost dovoluje přímý kontakt s daty či úložištěm bez nutnosti "hopsat" přes řetězec dalších služeb. Díky tomu klesá latence, kterou v distribuované síti vyvolává režie spojení a komunikace mezi uzly. Monolit tak nabízí nejnižší možné zpoždění, neboť se na externí zdroje napojuje přímo.
+Hlavní předností monolitu je soustředění kódu do jednoho celku. Tato blízkost dovoluje přímý kontakt s daty či úložištěm bez nutnosti "hopsat" přes řetězec dalších služeb. Díky tomu klesá latence, kterou v síti vyvolává režie spojení a komunikace mezi uzly. Monolit tak nabízí nejnižší možné zpoždění, neboť se na externí zdroje napojuje přímo.
 
 Nevýhodou monolitu je však horší možnosti škálování. Pokud je nápor vyvíjen pouze na jeden modul, musíme navýšit výkon pro celý systém. Z pohledu technického dluhu jde o rizikové prostředí, protože fyzická blízkost prvků totiž svádí k tvorbě vazeb, které nedávají smysl. Absence jasných hranic klade nároky na kázeň vývojářů. Každý chybný krok či špatné vytvoření vazby se v monolitu šíří snáze než tam, kde existují pevné hranice.
 
@@ -803,27 +803,44 @@ Je důležité podotknout, že pro každou úroveň existuje celá řada další
 \end{table}
 
 \chapter{Udržitelnost produkčního kódu}
+Předchozí kapitola se věnovala principům softwarového inženýrství, které brání vzniku technického dluhu skrze vnitřní uspořádání systému. Tyto principy vycházely především z intrinsivních charakteristik kódu – tedy z toho, jak je kód strukturován, jak jsou v něm definovány vazby a jakým způsobem jsou domény izolovanány uvnitř vývojového prostředí. Stejně důležitou součástí životního cyklu je však zkoumání a dokumentování extrinsivního chování, tedy toho, jak se systém projevuje navenek v reálném provozu.
+
+V této kapitole obracím pozornost k fázi, která nastává poté, co se dopíše poslední řádek kódu. Začíná tedy  uvolněním kandidátní verze a pokračuje až po ostré nasazení do produkce. Jako čistý kód či návrhové vzory komunikují záměr na úrovni úrovní abstrakce kódu, nyní se soustředíme na ověřování těchto záměrů a zda jim chování systému odpovídá.
 
 \section{Testování}
+První fází analýzy vnějšího chování je testování. To neslouží k prostému ověření, že systém funguje, ale k nalezení co největšího počtu chyb. Testy se dělí na dvě základní strategie podle přístupu k informacím o kódu. Black-box testování nahlíží na program jako na uzavřený celek a zkoumá pouze odezvu na různé kombinace vstupů. Naproti tomu White-box testování využívá znalost vnitřní logiky jednotky, na jejímž základě pak cíleně vytváří testovací případy \parencite{myers2004art}.
 
-\section{Verzování}
+Pokud chceme testováním efektivně bránit vzniku technického dluhu, musíme prověřovat stejné úrovně, na kterých se tento dluh vyskytuje. Jelikož úrovně abstrakce definované v kapitole \ref{chapter:technical_debt} tvoří soustavu vrstev, lze zde aplikovat myšlenky z vrstvené architektury. Každá nižší vrstva poskytuje rozhraní vrstvě vyšší, která její zdroje využívá k syntéze nové funkcionality. Testování by mělo tento princip napodobovat, aby věrně simulovalo chování systému i budoucích vývojářů. Konkrétní úroveň abstrakce je proto ideální testovat z pohledu té vyšší, která k ní přistupuje jako ke službě. Tímto způsobem nekontrolujeme pouze izolovanou logiku, ale především integritu a stabilitu kontraktů mezi celky.
 
-\section{Postupná integrace}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/testing_c4_layers.excalidraw.png}
+	\centering
+	\caption{Úrovně abstrakce a typy testů}
+\end{figure}
 
-\section{Postupné nasazení}
+Je však nutné rozlišit mezi dluhem samotným a jeho projevy. Testování zřídka odhalí technický dluh přímo v jeho vnitřní formě; málokdy nám test řekne, že kód je špatně strukturovaný nebo že porušuje principy Clean Code. Od toho je statická analýza kódu a diskuze. Testování však odhaluje dopady tohoto dluhu na vnější chování systému. Pokud se v důsledku vnitřní degradace začne rozpadat konzistence dat nebo selhávají dříve funkční rozhraní, jsou to právě testy, které na tyto symptomy upozorní. Testování tak slouží jako indikátor zdraví celku. Ačkoliv neodhalí špatný návrh v momentě jeho vzniku, okamžitě zachytí jeho následky.
 
-\section{Monitoring}
-\label{chapter:monitoring}
-Kritickou součástí vývoje softwaru je jeho testování a ladění (debugging). Testy, například jednotkové nebo integrační, simulují chování systému za různých podmínek a následné ladění pomocí debuggerů odhaluje jeho vnitřní stav instrukce po instrukci. V praxi ovšem není možné odhalit všechny chyby a dojde na situace, kdy se v nasazeném řešení chyba objeví. Při lokálním vývoji by se program odkrokoval debuggerem a zjistili se okolnosti, které chybu způsobily.
+Přínosy testování jsou však přímo závislé na kvalitě zvolených testovacích případů. Již z principu nelze otestovat všechny možné vstupní hodnoty, například celý rozsah celých čísel, protože by takový proces byl časově i výpočetně neúnosný. Proto se využívá metoda rozdělení na třídy ekvivalence. Tato technika spočívá v rozčlenění vstupních dat do skupin, u nichž se předpokládá, že je systém zpracuje sémanticky stejným způsobem. Z každé takové třídy se následně vybere reprezentativní vzorek, jehož výsledek zastupuje chování celého bloku hodnot \parencite{copeland2004practitioner}. Pokud test uspěje pro jednoho zástupce, považujeme celou třídu za bezchybnou, čímž radikálně snižujeme počet nutných testů při zachování vysoké míry důvěry v systém.
 
-V produkčním nasazení ovšem luxus odkrokování programu zpravidla nemáme, ať už kvůli chybějícím pomocným strukturám (například \textit{symbol table}) a nebo kvůli optimalizacím kompilátoru, který program převede do jazyka symbolických adres či byte kódu. Když tedy nelze pozorovat stav programu zevnitř, nezbývá nám nic jiného, než ho pozorovat zvenčí - a konkrétně přes jeho výstupy. Schopnost pozorovat chování systému na základě jeho výstupů nazýváme \textbf{observabilitou}.
+U ordinálních proměnných, tedy hodnot, které mají definované pořadí, je však nutné tento přístup doplnit o metodu okrajových hodnot. Statistické zkušenosti ukazují, že technický dluh se nejčastěji projevuje právě na hranicích definovaných tříd ekvivalence – v místech, kde se mění logika zpracování nebo kde dochází k přetečení datových typů. Místo náhodného vzorku z vnitřku třídy se proto zaměřujeme na její samotné okraje a hodnoty těsně za nimi. Pokud tyto hodnoty vyvolají správnou reakci, získáváme jistotu, že vnitřní implementace věrně odpovídá navrženému modelu.
 
-Mnoho autorů a spolků, kteří se observabilitou zabývají, jí rozdělují na pilíře. Cílem těchto pilířů je zodpovědět na otázky: \textit{Co se to děje?}, \textit{Proč se to děje?} a \textit{Kde se to děje?}. Každý pilíř tak doplňuje informace k těm dalším, a dohromady tvoří kompletní vhled do chování systému. \parencite{elastic-observability} Tato práce ovšem bude na observabilitu nahlížet trochu jinak. Paradigma pilířů indikuje, že každý pilíř je disjunktním článkem, které, když se spojí dohromady, tvoří observabilitu. 
+Problematika testování je rozsáhlá disciplína, kterou nemá tato práce šance ani zdaleka pokrýt. Pro účely této práce je však klíčové především pochopení vazby mezi druhy testů a jednotlivými úrovněmi abstrakce. Protože nelze testovat všechny možné kombinace, musí být zvolena vhodná strategie pro výběr testovacích dat. K tomuto účelu plně postačuje dříve popsané rozdělení vstupů do tříd ekvivalence a následné zacílení na jejich reprezentativní vzorky a okrajové hodnoty.
 
-%% TODO: Obrázek, že v nasazeném řešení můžeme pozorovat pouze výstupy,
+\section{Observabilita}
+\label{chapter:observability}
+Ačkoliv je primárním cílem testování odhalení chyb v programovém řešení, z principu nelze zaručit zachycení všech defektů před samotným nasazením. Pokud se chyba projeví během vývoje nebo v testování, má vývojář k dispozici luxus v podobě debuggeru. Ten mu dovoluje odkrokovat program a sledovat vnitřní stav systému v reálném čase.
+
+V produkčním nasazení však debugger zpravidla k dispozici nemáme. Další překážkou jsou chybějící pomocné struktury, jako jsou tabulky symbolů, nebo agresivní optimalizace kompilátoru. V momentě, kdy není možné sledovat stav aplikace zevnitř, nezbývá než chování sledovat zvenčí. Schopnost pozorovat chování systému na základě jeho výstupů nazývám observabilitou.
+
+Mnoho autorů a spolků, kteří se observabilitou zabývají, jí rozdělují na pilíře. Cílem těchto pilířů je zodpovědět na otázky: \textit{Co se to děje?}, \textit{Proč se to děje?} a \textit{Kde se to děje?}. Každý pilíř tak doplňuje informace k těm dalším, a dohromady tvoří kompletní vhled do chování systému. Mezi tyto pilíře patří logy, metriky a trasy \parencite{elastic-observability}. Tato práce však na observabilitu nahlíží jinak. Tradiční paradigma pilířů totiž evokuje představu, že se jedná o disjunktní články, jejichž spojením vzniká observabilita.
+
+Vzhledem k tomu, že každá z dříve zmíněných otázek odpovídá jednomu pilíři observability, je jejich pořadí pro pochopení stavu systému zcela určující. Považuji za bezpředmětné ptát se „proč se to děje“, pokud nemáme jasnou odpověď na otázku „co se děje“. Stejně tak postrádá smysl lokalizovat chybu (ptát se „kde“), pokud přesně nevíme, jaký konkrétní děj v systému hledáme. Observabilita by proto měla být, dle mého názoru, vnímána jako diagnostický postup, který přibližuje okolnosti incidentu.
 
 \subsection{Logy}
-Jedním z nejčastějších výstupů programu, který se používá pro ladění nasazeného řešení, jsou logy. Jedná se o textové záznamy, které nesou informaci o událostech v programu. Logování má své zásady a doporučení, jejichž dodržení či nedodržení ovlivňuje míru, kterou nám logy pomohou s diagnostikou problému. Ačkoliv je logování velmi užitečné, nedává nám komplexní obraz o chování systému, protože se jedná jenom o jeden z možných výstupů programu. Program může vytvářet další telemetrická data, která mohou být následně dále zpracována.
+Základním a nejčastějším výstupem, který slouží k diagnostice nasazeného řešení, jsou logy. Jedná se o textové či datové záznamy událostí, které mapují průchod programu jednotlivými stavy. Ačkoliv jsou tradiční logy často pouze nestrukturovaným textem, pro efektivní strojové zpracování a rychlou navigaci v datech je nezbytné využívat strukturované logování s dodatečnými metadaty. Mezi ně patří zpravidla časové razítko, úroveň závažnosti nebo názvy konkrétních entit a modulů. Strukturovaná podstata umožňuje vývojářům logy efektivně filtrovat a agregovat, což zkracuje čas potřebný k nalezení konkrétních událostí.
+
+... \parencite{gu2022logging}
 
 \subsection{Metriky}
 Metriky jsou kvantitativní veličiny, které měří konkrétní vlastnosti běžícího programu. Můžeme tak měřit například počet požadavků na konkrétní instanci či počet I/O operací. Metriky máme přímo měřené a odvozené, přičemž odvozené metriky můžeme zjišťovat z logů (například počet chyb v čase)
