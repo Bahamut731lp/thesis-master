@@ -689,7 +689,7 @@ Vrstvená architektura rozkládá programové řešení do sady úrovní (vrstev
 	\label{diag:layered}
 \end{figure}
 
-Jak je zakresleno v diagramu \ref{diag:layered}, vrstvy jsou uspořádány ve vertikální hierarchii. Samotné rozdělení do vrstev se používá k řízení jednotlivých úrovní abstrakce celého programového řešení: každá vrstva definuje a poskytuje rozhraní vrstvě bezprostředně nadřazené. Tato struktura umožňuje na nejvyšší úrovni skládat komplexní doménové operace s využitím nízkoúrovňových nástrojů, které jsou zapouzdřeny v nižších vrstvách. Významným přínosem tohoto uspořádání je pak vysoká míra modularity, díky níž lze jednotlivé vrstvy vyvíjet, optimalizovat a testovat v izolaci. \parencite{khan-software-architectures}
+Jak je zakresleno v diagramu \ref{diag:layered}, vrstvy jsou uspořádány ve vertikální hierarchii. Samotné rozdělení do vrstev se používá k definici úrovní abstrakce: každá vrstva poskytuje rozhraní vrstvě bezprostředně nadřazené. Tato struktura umožňuje na nejvyšší úrovni skládat komplexní doménové operace s využitím nízkoúrovňových nástrojů, které jsou zapouzdřeny v nižších vrstvách. Významným přínosem tohoto uspořádání je pak vysoká míra modularity, díky níž lze jednotlivé vrstvy vyvíjet, optimalizovat a testovat v izolaci. \parencite{khan-software-architectures}
 
 Z formálního hlediska klademe na vrstvenou architekturu $A = (\mathcal{O}, \mathcal{H})$ několik striktních omezení a předpokladů. Jednotlivé vrstvy systému jsou reprezentovány jako monoidy, které v sobě zapouzdřují vnitřní logiku dané úrovně. Ke každému monoidu vrstvy náleží identický endomorfismus $g: V \to V$ a homomorfismus abstrakce $f_{i,j}: V_i \to V_j$, pro který platí podmínka návaznosti $j = i + 1$. Z těchto definic odvozujeme následující strukturální vlastnosti:
 
@@ -833,19 +833,24 @@ Ačkoliv je primárním cílem testování odhalení chyb v programovém řešen
 
 V produkčním nasazení však debugger zpravidla k dispozici nemáme. Další překážkou jsou chybějící pomocné struktury, jako jsou tabulky symbolů, nebo agresivní optimalizace kompilátoru. V momentě, kdy není možné sledovat stav aplikace zevnitř, nezbývá než chování sledovat zvenčí. Schopnost pozorovat chování systému na základě jeho výstupů nazývám observabilitou.
 
-Mnoho autorů a spolků, kteří se observabilitou zabývají, jí rozdělují na pilíře. Cílem těchto pilířů je zodpovědět na otázky: \textit{Co se to děje?}, \textit{Proč se to děje?} a \textit{Kde se to děje?}. Každý pilíř tak doplňuje informace k těm dalším, a dohromady tvoří kompletní vhled do chování systému. Mezi tyto pilíře patří logy, metriky a trasy \parencite{elastic-observability}. Tato práce však na observabilitu nahlíží jinak. Tradiční paradigma pilířů totiž evokuje představu, že se jedná o disjunktní články, jejichž spojením vzniká observabilita.
+Mnoho autorů a spolků, kteří se observabilitou zabývají, jí rozdělují na pilíře. Každý z těchto pílířů odpovídá na jednu z následujících otázek: \textit{Co se to děje?}, \textit{Proč se to děje?} a \textit{Kde se to děje?}. Každý pilíř tak popisuje chování systému z jiného pohledu a dohromady tvoří kompletní informaci. Mezi tyto pilíře patří logy, metriky a trasy \parencite{elastic-observability}. Tato práce však na observabilitu nahlíží jinak. Tradiční paradigma pilířů totiž přirozeně evokuje představu, že se jedná o samostatné články, jejichž spojením vzniká celková observabilita.
 
-Vzhledem k tomu, že každá z dříve zmíněných otázek odpovídá jednomu pilíři observability, je jejich pořadí pro pochopení stavu systému zcela určující. Považuji za bezpředmětné ptát se „proč se to děje“, pokud nemáme jasnou odpověď na otázku „co se děje“. Stejně tak postrádá smysl lokalizovat chybu (ptát se „kde“), pokud přesně nevíme, jaký konkrétní děj v systému hledáme. Observabilita by proto měla být, dle mého názoru, vnímána jako diagnostický postup, který přibližuje okolnosti incidentu.
+Vzhledem k tomu, že každá z dříve zmíněných otázek odpovídá jednomu pilíři observability, je jejich pořadí pro pochopení stavu systému zcela určující. Považuji za bezpředmětné ptát se" „proč se to děje“, pokud nemáme jasnou odpověď na otázku: „co se děje“. Stejně tak postrádá smysl lokalizovat chybu (ptát se „kde se to děje“), pokud přesně nevíme, jaký konkrétní děj v systému hledáme. Observabilita by proto měla být, dle mého názoru, vnímána jako diagnostický postup, který postupně přibližuje okolnosti incidentu.
 
 \subsection{Logy}
 Základním a nejčastějším výstupem, který slouží k diagnostice nasazeného řešení, jsou logy. Jedná se o textové či datové záznamy událostí, které mapují průchod programu jednotlivými stavy. Ačkoliv jsou tradiční logy často pouze nestrukturovaným textem, pro efektivní strojové zpracování a rychlou navigaci v datech je nezbytné využívat strukturované logování s dodatečnými metadaty. Mezi ně patří zpravidla časové razítko, úroveň závažnosti nebo názvy konkrétních entit a modulů. Strukturovaná podstata umožňuje vývojářům logy efektivně filtrovat a agregovat, což zkracuje čas potřebný k nalezení konkrétních událostí.
 
-... \parencite{gu2022logging}
+Aby logy věrně popisovaly dění v systému, vyžadují disciplinované využití. Zásadním cílem je záznam každého selhání. Pokud systém chyby tiše potlačuje, vytváří falešnou iluzi stability. Opačným extrémem je však nadměrné logování. V záplavě nepodstatných zpráv se pak obtížně hledají podstatné informace. S rozvojem systému navíc roste různorodost záznamů, která odráží odlišné návyky vývojářů. Je proto nutné, aby logy byly pravdivé, jednotné a striktně se vyhýbaly úniku citlivých dat, jako jsou hesla či klíče k externím službám. \parencite{gu2022logging}
 
 \subsection{Metriky}
-Metriky jsou kvantitativní veličiny, které měří konkrétní vlastnosti běžícího programu. Můžeme tak měřit například počet požadavků na konkrétní instanci či počet I/O operací. Metriky máme přímo měřené a odvozené, přičemž odvozené metriky můžeme zjišťovat z logů (například počet chyb v čase)
+Metriky představují kvantitativní ukazatele, které měří vlastnosti běžícího systému a v diagnostické vertikále odpovídají na otázku, proč se události dějí v širším kontextu. Zatímco logy jsou popisem konkrétních událostí, metriky nabízejí numerický pohled na výkon, jako je počet požadavků za sekundu či vytížení systémových prostředků. Rozlišujeme metriky přímo měřené a metriky odvozené, které lze získat například agregací logů v čase. Klíčovou vlastností metrik je jejich schopnost úsporně uchovávat data ve formě časových řad. Díky tomu můžeme sledovat trendy, identifikovat anomálie a definovat prahové hodnoty pro automatizované varování (alerting), což je pro udržení stability produkčního prostředí zásadní.
 
-Je nutné podotknout, že metriky má smysl zaznamenávat dlouhodobě jakožto časové řady, abychom určili chování systému v čase. Je nutné tak metriky zaznamenávat na základě události, nebo pravidelného měření. Naopak zaznamenávat metriky vycházející ze statické analýzy smysl nedává, protože pokud bychom chtěli například analyzovat složitost programu pomocí Halsteadových vzorců, tak se tato metrika nemůže měnit v čase běhu programu. Naopak zatížení konkrétní instance programu nebo využití hardwarových prostředků proměnlivé čase běhu programu je.
+Zaznamenávání metrik má smysl pouze u veličin, které se mění v čase běhu programu, ať už na základě konkrétních událostí, nebo v pravidelných intervalech. Z tohoto důvodu do observability neřadíme výsledky statické analýzy. Například složitost kódu měřená pomocí Halsteadových vzorců se během běhu programu nemění a už vůbec neposkytuje informaci o aktuálním stavu procesu. Naopak dynamické veličiny, jako je zaplnění operační paměti nebo latence síťových operací, jsou proměnlivé a jejich sledování odhaluje chování systému v delším časovém horizontu.
+
+\subsection{Trasy}
+Trasy jsou komplexním popisem události, který zachycuje kontext vzniku a související události. Trasa, narozdíl od logu, nabízí ucelený pohled na celou cestu a interakce v rámci jednoho děje. Vizualizuje tak kauzální vazby mezi komponentami, které by jinak zůstaly skryty, a umožňuje identifikovat přesná místa vzniku prodlev či selhání. Trasy zároveň slouží k vyčíslení času, který jednotlivé části systému vyžadují k vyřízení úlohy, a odhalují třecí plochy v komunikaci mezi moduly. \parencite{madupati2023observability}
+
+Specifickou variantou trasování je profilování, které se zaměřuje na vnitřní výkonnostní charakteristiky programu. Zatímco standardní trasy sledují cestu události mezi moduly, profily měří přesný čas provádění instrukcí, využití procesoru či alokaci paměti.
 
 \chapter{Audit architektury systému}
 Tato kapitola se zabývá analýzou existujícího řešení. Cílem je stávající řešení zmapovat, modelovat pomocí diagramů, a popisovat ho na dostatečně detailních úrovní abstrakce, která mi dovolí poukázat na přítomný technický dluh. K zmapování a rozdělení na úrovně abstrakce jsem využil C4 diagramy, které navrhnul Simon Brown k popisu architektury na celkem čtyřech úrovních abstrakce \parencite{c4-introduction}.
@@ -887,13 +892,9 @@ Pokud přiblížíme pohled na celkový systém, získáme úroveň kontejnerů.
 	\caption{Diagram komponent}
 \end{figure}
 
-V případě AITechDetect ani nelze tak mluvit o úrovni kontejnerů, když není řešení kontejnerizované, jako o úrovni procesů. Ve standardní distribuci nalezneme dva běžící procesy - hlavní monolitické aplikační jádro, které nese název \textit{ccm-uni}, a podpůrnou aplikaci \textit{autoeval}, která vznikla v rámci mé bakalářské práce. Jádro obstarává vyřizování webových požadavků, práci s databází, manipulaci se strukturovanými daty na disku, a obecně i vstupně výstupní operace. S druhým procesem, Autoevalem, komunikují pomocí socketů, respektive websocketů.
+V případě AITechDetect nelze hovořit o úrovni kontejnerů, ale o úrovni procesů. Standardní distribuce zahrnuje dva běžící procesy: monolitické aplikační jádro \textit{ccm-uni} a podpůrnou aplikaci \textit{autoeval}. Zatímco jádro obstarává webové požadavky, práci s databází a souborové operace, \textit{autoeval} slouží k práci s neuronovými sítěmi \parencite{danek-bp}. Komunikace mezi nimi probíhá prostřednictvím socketů. Již tato architektura odhaluje rozkol v přístupu k údržbě systému. Zaměstnanci zákazníka využívají primárně jádro, avšak pracovníci společnosti CLOUDCODE musí při správě často zasahovat přímo do procesu \textit{autoeval}. Tyto manuální zásahy jsou typicky vynuceny neočekávanými pády či výjimkami, které nebyly zachyceny vnitřním testováním.
 
-Již při pohledu na diagram lze identifikovat první významný rozkol v přístupu k jednotlivým částem systému. Zatímco zaměstnanci zákazníka využívají primárně aplikační jádro, pracovníci společnosti CLOUDCODE jsou nuceni v rámci správy a údržby zasahovat přímo do procesu Autoeval. Tato nutnost manuálních zásahů typicky souvisí s neočekávanými pády či výjimkami, které nebyly včas zachyceny vnitřním testovacím procesem.
-
-Absence systematického dohledu nad těmito stavy poukazuje na zásadní nedostatek v prostoru řešení: chybějící služby poskytující monitoring aplikačních procesů. Jak bylo řečeno v kapitole \ref{chapter:monitoring} platí, že transparentnost systému při trasování příčin poruch je přímo úměrná počtu implementovaných pilířů observability. V současné architektuře je však monitoring vnímán jako izolovaná vlastnost závislá na každé službě zvlášť, což znemožňuje získat ucelený přehled o zdraví celého ekosystému.
-\clearpage
-Tento nedostatek se projevuje i v konkrétní implementaci sběru diagnostických dat. Ačkoliv jsou v systému přítomny fragmenty pro moderní centralizované logování pomocí nástroje \textit{Loki} od Grafana Labs, jejich potenciál zůstává nevyužit, neboť jsou veškeré logy zapisovány lokálně do souborů v kořenových adresářích obou aplikací. Tím dochází k devalvaci přínosů observability; data zůstávají fragmentovaná a namísto jednotného analytického rozhraní vznikají izolovaná úložiště, která značně komplikují korelaci událostí a efektivní trasování příčin chyb v reálném čase.
+Absence systematického dohledu nad těmito stavy poukazuje na zásadní nedostatek: chybějící monitoring aplikačních procesů. Jak bylo uvedeno v kapitole \ref{chapter:observability}, čím víc prvků observability máme k dispozici, tím více je pro nás systém transparentní při diagnostice. V současné architektuře si však observabilitu řeší každá služba zvlášť, což znemožňuje získat ucelený přehled o zdraví celého ekosystému. Tento deficit se projevuje i v samotném sběru diagnostických dat. Veškeré logy se zapisují lokálně do souborů, čímž dochází k devalvaci přínosů observability. Data zůstávají fragmentovaná v izolovaných úložištích, což značně komplikuje korelaci událostí a efektivní trasování příčin chyb v reálném čase.
 
 \subsection{Úroveň komponent}
 \label{chapter:c4_components}
@@ -904,38 +905,100 @@ Při dalším detailním pohledu se dostáváme na úroveň komponent. Tento dia
 	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-components.excalidraw.png
 	}
 	\centering
-	\caption{Diagram kontejnerů}
+	\caption{Diagram komponent kontejneru CCM UNI}
 	\label{img:c4-contejner}
 \end{figure}
 
-Ačkoliv by se mohlo zdát, že diagram je kvůli své spletitosti obtížně interpretovatelný, tak i přesto poskytuje důležitý nadhled pro architekturu aplikačního jádra. Na první pohled lze sice najít hrubé rysy vrstvené architektury (viz kapitola \ref{arch:layered}), ale nejsou dodrženy odpovědnosti vrstev.
+Ačkoliv se diagram může zdát kvůli obtížně interpretovatelný, poskytuje nezbytný nadhled nad architekturou aplikačního jádra. Na první pohled lze sice identifikovat rysy vrstvené architektury (viz kapitola \ref{arch:layered}), avšak odpovědnosti jednotlivých úrovní nejsou dodrženy. Detailní pohled na vazby mezi komponentami odhaluje zásadní strukturální deficit: v nejvyšší vrstvě určené pro směrování požadavků (routing) koexistují dvě nekonzistentní skupiny prvků. Zatímco jedna část respektuje hierarchii, druhá vrstvy zcela obchází a přistupuje přímo k nejnižší technologické úrovni. Důsledkem je totální eroze hranic; není zřejmé, kde jedna vrstva končí a druhá začíná.
 
-Při detailnějším pohledu na vazby mezi komponenty vyvstává zásadní strukturální problém: v nejvyšší vrstvě, určené pro směrování požadavků (routing), koexistují dvě nekonzistentní skupiny komponent. Zatímco jedna část respektuje hierarchii a využívá prostředníky v logické vrstvě, druhá skupina tyto mezistupně zcela obchází a přistupuje přímo k nejnižší technologické vrstvě. Důsledkem tohoto stavu je totální eroze hranic mezi vrstvami; není zřejmé, kde jedna končí a druhá začíná, neboť vazby nerespektují definovanou hierarchii.
+Rozdělení do tří vrstev ovšem vyvolává zásadní otázku: kde se v celém modelu vlastně nachází business logika? Při analýze stávajícího třívrstvého uspořádání totiž zjišťujeme, že pro doménovou logiku zde fakticky chybí vyhrazený prostor. V důsledku této absence je nucena parazitovat na technologických vrstvách, čímž dochází k nechtěnému promíchání čistého návrhu s technickou implementací.
 
-Tento rozkol vyvolává otázku, zda je zvolený model tří vrstev pro danou doménu vůbec dostatečný. V tomto uspořádání totiž fakticky chybí vrstva pro umístění business logiky. Ta musí být v důsledku parazit na nižší vrstvě s technickou implementací.
-
-Celkově systém na základě vysokého provazbení budí dojem, že systém nebyl budován podle jednotného návrhu, ale spíše ad hoc v závislosti na aktuálních požadavcích. Přítomnost těchto chaotických vazeb je jasným indikátorem úmyslného technického dluhu. Místo čisté dekompozice byly voleny nejkratší cesty k cíli, což v architektuře vytvořilo nepřehlednou síť závislostí, která nyní slouží spíše jako bariéra pro budoucí rozšiřitelnost než jako stabilní základ systému.
-
-\subsection{Úroveň kódu}
-Posledním a nejdetailnějším stupněm granularity v rámci použité metodiky je úroveň kódu. Cílem této kapitoly však není detailní analýza algoritmické implementace jednotlivých metod, ale zaměření na fyzickou organizaci programových artefaktů. Tato úroveň nám umožní identifikovat, zda je teoretické rozdělení odpovědností projektováno do hmatatelné struktury projektu, nebo zda dochází k degradaci architektury na úrovni souborového systému.
-
-\section{Modelování doménových procesů}
+Celkově systém kvůli vysokému provázání působí dojmem, že nebyl budován podle jednotného plánu, ale spíše ad hoc podle aktuálních potřeb. Přítomnost těchto chaotických vazeb je jasným indikátorem úmyslného technického dluhu. Namísto čisté dekompozice byly voleny nejkratší cesty k cíli, což v architektuře vytvořilo nepřehlednou síť závislostí. Ta ve výsledku neslouží jako stabilní základ, nýbrž jako bariéra, která výrazně omezuje budoucí rozšiřitelnost a udržitelnost celého systému.
 
 \section{Vyhodnocení rizik}
-Po dokončení modelování softwarové architektury a doménových procesů vyvstala potřeba efektivně ohodnotit jednotlivé problémy nalezené v architektuře. Mým cílem bylo nalézt metriku, která by minimalizovala subjektivní posouzení a umožnila rizika vyplývající z technického dluhu kvantifikovat. Právě soustředění se na riziko mě přivedlo k metodě FMEA (Failure Mode and Effects Analysis), které se věnoval ve své kvalifikační práci můj dlouholetý kolega z Univerzity Jana Evangelisty Purkyně v Ustí nad Labem, Bc. Matěj Vokál.
+Jednou věcí je systém popsat a vypíchnout jeho nedostatky. Úplně jinou disciplínou je však tyto problémy vzít a tento kategorický výčet rizik převést do porovnávatelné metriky. Právě k této ordinalizaci jsem se rozhodl využít metodu FMEA (Failure Mode and Effects Analysis), které se ve své kvalifikační práci věnoval můj dlouholetý kolega Matěj \textcite{vokal-thesis}.
 
-Metoda FMEA, etablovaná především v automobilovém průmyslu pro detekci vad při návrhu a produkci dílů, se nezaměřuje pouze na izolované nedostatky, ale na identifikaci kritických bodů selhání systému \parencite{vokal-thesis}. Tento analytický přístup jsem adaptoval pro potřeby zkoumaného softwarového řešení, neboť mi umožňuje hodnotit technický dluh prostřednictvím jasně definovaných kritérií.
+FMEA je metoda původně vyvinutá pro vojenský průmysl, kterou si automobilový průmysl převzal a začal dále rozvíjet. V dnešní době je užívána druhá verze této metodiky, tzv. harmonizovaná FMEA. Ta analýzu možných selhání a rizik rozlišuje pro proces návrhu, logistiky, konstrukce či fungování systému \parencite{vokal-thesis}. Právě tato invariance vůči zkoumané oblasti nám dovoluje vzít principy metodiky FMEA a vytvořit defacto vlastní verzi pro zkoumání možných selhání a vad programového řešení.
 
-Výstupem analýzy FMEA je matice, v níž každý řádek reprezentuje konkrétní systémovou položku a její potenciální způsob selhání (Failure Mode). Pro každý identifikovaný bod selhání je následně zpracována analýza vlivů, která postihuje jak bezprostřední lokální dopady v rámci dané komponenty, tak šíření poruchy do vyšších úrovní architektury a její celkový vliv na systém. Samotná kvantifikace rizik probíhá prostřednictvím definovaných hodnotících parametrů, mezi které patří pravděpodobnost výskytu, míra závažnosti, obtížnost detekce a průměrná doba do odhalení selhání. Z těchto faktorů je následně kalkulováno výsledné riziko, které slouží jako objektivní podklad pro prioritizaci a plánování následných nápravných opatření \parencite{vokal-thesis}.
+Výstupem analýzy je matice, v níž každý řádek reprezentuje konkrétní systémovou položku a její potenciální způsob selhání. Pro každý bod je následně zpracována analýza vlivů, která postihuje jak lokální dopady v rámci komponenty, tak šíření poruchy do vyšších úrovní architektury. Kvantifikace rizik probíhá skrze definované parametry: závažnost dopadu, pravděpodobnost výskytu a obtížnost detekce. Z těchto faktorů je kalkulováno výsledné rizikové číslo, které slouží jako objektivní podklad pro prioritizaci nápravných opatření.
 
-Právě komplexní popis šíření selhání systémem a možnost objektivní kvantifikace rizik byly hlavními důvody, proč jsem si metodu FMEA vybral pro analýzu stávajícího řešení společnosti CLOUDCODE. Aby bylo hodnocení technického dluhu v rámci systému CLOUDCODE objektivní, adaptoval jsem standardní desetistupňové škály FMEA na specifické podmínky vývoje softwaru. Každý identifikovaný nedostatek (např. porušení návrhového vzoru nebo vysoký počet parametrů funkce) je posuzován z hlediska následujících faktorů:
-\begin{itemize}
-	\item \textbf{Vážnost selhání} ($S$ - Severity)
-	\item \textbf{Výskyt selhání} ($O$ - Occurrence)
-	\item \textbf{Detekce selhání} ($D$ - Detekce)
-\end{itemize}
+Standardní hodnotící škály metodiky FMEA zde ovšem nepostačí. Automobilový průmysl si je nastavil tak, aby zohlednil kvalitu provedení, fyzikální vlastnosti a vlivu na bezpečnost dílu a výsledného celku \parencite{vokal-thesis}. Tyto hodnotící škály jsem tudíž adaptoval pro potřeby zkoumání vad a příčin v rámci vývoje programového řešení a dopadu na vývojáře, nasazeného systému a koncového uživatele. 
 
 
+\clearpage
+\subsection{Závažnost vady}
+Závažnost vady popisuje dopad na stabilitu a provozuschopnost systému. Adaptovaná škála v tabulce \ref{table:severity} pokrývá několik milníků v životním cyklu programového řešení. Nejnižší stupně závažnosti (1–4) se zaměřují primárně na vnitřní kvalitu kódu a degradaci procesu údržby. V těchto případech vada sice neovlivňuje koncového uživatele, ale zvyšuje náročnost budoucího vývoje. Prostřední část stupnice závažnosti (5–8) modeluje situaci, kdy se projevy vady začnou šířit do uživatelské vrstvy: od zhoršení vedlejších funkcí až po úplnou ztrátu primární funkcionality systému. Vrchol škály závažnosti (9–10) je pak vyhrazen pro kritické stavy, kdy selhání přesahuje rámec aplikace a způsobuje externí škody. Jedná se tak zejména o porušení právních předpisů, nebo vznik bezpečnostního rizika pro společnost či uživatele.
+
+\begin{table}[H]
+	\centering
+	\caption{Adaptovaná hodnotící škála závažnosti vady}
+	\renewcommand{\arraystretch}{1.5}
+	\label{table:severity}
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		$S$ & \textbf{Definice} \\ \hline
+	1 & \textbf{Bez následků}: Vada nemá žádný znatelný vliv na systém. \\ \hline
+	2 & \textbf{Tolerovatelná údržba}: Změny v kódu jsou triviální. \\ \hline
+	3 & \textbf{Nepříjemná údržba}: Změny v kódu jsou netriviální. \\ \hline
+	4 & \textbf{Nepřijatelná údržba}: Změny v kódu jsou kaskádovitě netriviální. \\ \hline
+	5 & \textbf{Zhoršení vedlejší funkce}: Částečná nefunkčnost neklíčové logiky. \\ \hline
+	6 & \textbf{Ztráta vedlejší funkce}: Úplná nefunkčnost neklíčové logiky. \\ \hline
+	7 & \textbf{Zhoršení primární funkce}: Částečná nefunkčnost klíčové logiky. \\ \hline
+	8 & \textbf{Ztráta primární funkce}: Úplná nefunkčnost klíčové logiky. \\ \hline
+	9 & \textbf{Právní riziko}: Porušení legislativních předpisů. \\ \hline
+	10 & \textbf{Bezpečnostní riziko}: Ohrožení bezpečnosti jakékoliv strany. \\ \hline
+	\end{tabularx}
+\end{table}
+
+\subsection{Výskyt vady}
+Výskyt vady slouží k odhadu pravděpodobnosti, s jakou se identifikovaný nedostatek projeví jako chyba v produkci. V běžné metodologii FMEA je tento parametr úzce spjat se stávajícími preventivními opatřeními, která mají vzniku vady předcházet \parencite{vokal-thesis}. To zde zůstává a výskyt tak kvantifikuje, jak moc se s danou chybou setkáme při používání programu. Pokud je statickou analýzou zabráněno výskytu, pak je výskyt ohodnocen nízce.
+
+Výsledná hodnota je tedy kombinací účinnosti preventivních mechanismů a frekvence výskytu při běhu programu. Nejnižší stupně (1–2) označují vady, jejichž průniku do systému brání účinné bariéry, nebo chyby v kódu spouštěném za zcela výjimečných podmínek. Střední pásmo (3–6) reflektuje nedostatky v běžně využívaných částech systému, kde preventivní opatření vykazují mezery. Nejvyšší hodnoty (7–10) jsou pak vyhrazeny pro kritické architektonické nedostatky, u nichž je selhání při běžném provozu prakticky nevyhnutelné.
+
+\begin{table}[H]
+	\centering
+	\caption{Adaptovaná hodnotící škála výskytu vady}
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		$O$ & \textbf{Definice} \\ \hline
+			1 & \textbf{Bez vlivu}: Prevence zcela eliminuje projev vady. \\ \hline
+			2 & \textbf{Teoretický}: Výskyt pouze při souběhu vzácných podmínek. \\ \hline
+			3 & \textbf{Sporadický}: Ojedinělá chyba v málo využívaném modulu. \\ \hline
+			4 & \textbf{Občasný}: Náhodný projev při běžné interakci s aplikací. \\ \hline
+			5 & \textbf{Střední}: Periodický výskyt závislý na běžném zatížení. \\ \hline
+			6 & \textbf{Častý}: Pravidelný projev; absence preventivních mechanismů. \\ \hline
+			7 & \textbf{Vysoký}: Opakované selhání klíčové funkce. \\ \hline
+			8 & \textbf{Deterministický}: Vada se projeví při každém průchodu větví kódu. \\ \hline
+			9 & \textbf{Kritický}: Téměř jisté selhání procesu ihned po inicializaci. \\ \hline
+			10 & \textbf{Bariéra}: Vada znemožňuje start nebo základní exekuci systému. \\ \hline
+	\end{tabularx}
+\end{table}
+
+\subsection{Detekce vady}
+Detekce vady hodnotí schopnost systému nebo vývojového týmu najít vadu dříve, než způsobí kritické selhání v produkčním prostředí. Škála reflektuje úroveň automatizace kontrolních mechanismů. Nejnižší stupně (1–4) reprezentují reaktivní systémy, kde je chyba okamžitě zachycena lintery, kompilátorem nebo automatizovaným monitoringem ihned po startu. Střední pásmo (5–8) se opírá o lidský faktor a poloautomatické nástroje, kde existuje riziko přehlédnutí. Nejvyšší hodnoty (9–10) pak označují vady, které se projevují nekontrolovaně a pro jejichž odhalení neexistují žádné relevantní metriky ani diagnostické nástroje.
+
+\begin{table}[H]
+	\centering
+	\caption{Adaptovaná hodnotící škála detekce vady}
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		$D$ & \textbf{Definice} \\ \hline
+			1 & \textbf{Okamžitá}: Vada znemožňuje kompilaci nebo exekuci kódu. \\ \hline
+			2 & \textbf{Automatická (statická)}: Vada odhalena při vzniku. \\ \hline
+			3 & \textbf{Automatická (start)}: Vada odhalena při inicializaci. \\ \hline
+			4 & \textbf{Automatická (běh)}: Vada odhalena po výskytu. \\ \hline
+			5 & \textbf{Poloautomatická}: Vada odhalena při cíleném testování. \\ \hline
+			6 & \textbf{Manuální}: Vada je odhalena člověkem.\\ \hline
+			7 & \textbf{Nespolehlivá (nástroj)}: Nástroje existují, ale detekce je nestálá. \\ \hline
+			8 & \textbf{Nespolehlivá (člověk)}: Detekce závisí na náhodném nálezu při manuálním užití. \\ \hline
+			9 & \textbf{Nahodilá}: Velmi malá pravděpodobnost zachycení.\\ \hline
+			10 & \textbf{Nemožná}: Vada je v rámci stávající architektury nezjistitelná. \\ \hline
+	\end{tabularx}
+\end{table}
+
+\section{Modelování doménových procesů}
 
 \begin{table}[H]
 	\centering
@@ -954,22 +1017,6 @@ Právě komplexní popis šíření selhání systémem a možnost objektivní k
 	\end{tabularx}
 \end{table}
 
-\begin{table}[H]
-	\centering
-	\renewcommand{\arraystretch}{1.5}
-	\begin{tabularx}{\textwidth}{|l|X|X|X|X|X|X|}
-		\hline
-		\textbf{Stup.} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} \\ \hline
-		1 & \textbf{Jistá}.&&&&&\\ \hline
-		2 & \textbf{Skoro jistá}.&&&&&\\ \hline
-		3 & \textbf{Vysoká}.&&&&&\\ \hline
-		4 & \textbf{Průměrná}.&&&&&\\ \hline
-		5 & \textbf{Nízká}.&&&&&\\ \hline
-		6 & \textbf{Nedetekovatelná} &&&&&\\\hline
-	\end{tabularx}
-	\caption{Matice rizik}
-\end{table}
-
 \chapter{Architektura nového řešení}
 
 \section{Postupné nasazení}
@@ -981,45 +1028,32 @@ Právě komplexní popis šíření selhání systémem a možnost objektivní k
 
 \clearpage
 \begin{appendices}
-	\chapter{Adaptovaná hodnotící škála vážnosti selhání}
-	\label{appendix:severity}
-	\begin{table}[H]
-		\centering
-		\renewcommand{\arraystretch}{1.5}
-		\begin{tabularx}{\textwidth}{|l|X|}
-			\hline
-			\textbf{Stup.} & \textbf{Význam} \\ \hline
-			1 & \textbf{Bez dopadu}. Žádný vliv na spolehlivost a rozšířitelnost systému.\\ \hline
-			2 & \textbf{Velmi nízká}. Produkt Zpozoruje pouze diskriminující zákazník.\\ \hline
-			3 & \textbf{Nízká}. Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
-			4 & \textbf{Střední}. Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
-			5 & \textbf{Vysoká}. Produkt je lehce poškozen. Zpozoruje běžný zákazník.\\ \hline
-			6 & \textbf{Kritická}. Systém se umí ze selhání zotavit, ale výskyt selhání negativně ovliní jeho běh. \\\hline
-			7 & \textbf{Katastrofální}. Systém se stává nefunkčním a je obtížné dotrasovat příčinu selhání.\\ \hline
-		\end{tabularx}
-	\end{table}
 	
-	\chapter{Adaptovaná hodnotící škála výskytu selhání}
-	\label{appendix:occurence}
-	\begin{table}[H]
-		\centering
-		\renewcommand{\arraystretch}{1.5}
-		\begin{tabularx}{\textwidth}{|l|X|}
-			\hline
-			\textbf{Stup.} & \textbf{Definice} \\ \hline
-		\end{tabularx}
-	\end{table}
+	\chapter{Test}
+\centering
+\tiny % Extrémně malé písmo pro zachování čitelnosti na výšku
+\setlength{\tabcolsep}{2pt} % Zmenšení mezer mezi sloupci
+\setlength{\extrarowheight}{2pt}
+
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{1.5cm}|X|X|X|c|c|c|X|X|}
+	\hline
+	\textbf{Identifikace} & \textbf{Scope} & \textbf{Popis} & \textbf{Vada (FM)} & \textbf{Dopad (FE)} & \textbf{S} & \textbf{O} & \textbf{D} & \textbf{Příčina (FC)} & \textbf{Opatření} \\ \hline
 	
-	\chapter{Adaptovaná hodnotící škála detekce selhání}
-	\label{appendix:detection}
-	\begin{table}[H]
-		\centering
-		\renewcommand{\arraystretch}{1.5}
-		\begin{tabularx}{\textwidth}{|l|X|}
-			\hline
-			\textbf{Stup.} & \textbf{Definice} \\ \hline
-		\end{tabularx}
-	\end{table}
+	% Příklad 1: ccm-uni
+	\multirow{4}{*}{\textit{ccm-uni}} & 
+	Routing & 
+	Flask handlery v \texttt{views.py} & 
+	\textbf{God Object}: logika přímo v handlerech & 
+	Vysoká regresní chybovost při změnách & 
+	8 & 4 & 6 & Snaha o rychlé nasazení (ad-hoc) & Separace logiky do servisní vrstvy \\ \cline{2-10}
+	
+	& Databáze & Přímé SQL dotazy v UI vrstvě & Absence abstrakce (DAO/ORM) & Ztížená migrace a údržba schématu & 6 & 2 & 8 & Historický vývoj jádra & Implementace Repository patternu \\ \hline
+	
+	% Příklad 2: autoeval
+	\multirow{2}{*}{\textit{autoeval}} & 
+	Socket comm & Komunikace přes websockety & Absence timeoutů a error handlingu & Zablokování vlákna při pádu protistrany & 9 & 3 & 5 & Chybějící specifikace stavů & Implementace heartbeat a retry logiky \\ \hline
+	
+\end{tabularx}
 \end{appendices}
 
 \end{document}
