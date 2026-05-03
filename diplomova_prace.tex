@@ -90,34 +90,34 @@
 	% Výpočet přesné čisté šířky pro sloupce (odečtení mezer a čar)
 	\begin{tabularx}{\textwidth}{|*{6}{>{\RaggedRight\arraybackslash}X|}}
 		\hline
-		\multicolumn{3}{|>{\RaggedRight\arraybackslash}p{\dimexpr 0.5\textwidth - 2\tabcolsep - 1.5\arrayrulewidth}|}{\textbf{ID}} & 
-		\multicolumn{3}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.5\textwidth - 2\tabcolsep - 1.5\arrayrulewidth}|}{\textbf{Scope}} \\ \hline
+		\multicolumn{3}{|>{\RaggedRight\arraybackslash}p{\dimexpr 0.5\textwidth - 2\tabcolsep - 1.5\arrayrulewidth}|}{\textbf{ID:}} & 
+		\multicolumn{3}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.5\textwidth - 2\tabcolsep - 1.5\arrayrulewidth}|}{\textbf{Scope:}} \\
 		\multicolumn{3}{|>{\RaggedRight\arraybackslash}p{\dimexpr 0.5\textwidth - 2\tabcolsep - 1.5\arrayrulewidth}|}{\textit{\l_fmea_id_tl}} & 
 		\multicolumn{3}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.5\textwidth - 2\tabcolsep - 1.5\arrayrulewidth}|}{\textit{\l_fmea_scope_tl}} \\ \hline
 		
-		\multicolumn{6}{|l|}{\textbf{Popis~vady~(Failure~Mode)}} \\ \hline
+		\multicolumn{6}{|l|}{\textbf{Popis~vady~(Failure~Mode):}} \\
 		\multicolumn{6}{|>{\RaggedRight\arraybackslash}p{\dimexpr \textwidth - 2\tabcolsep - 2\arrayrulewidth}|}{\textit{\l_fmea_fm_tl}} \\ \hline
 		
-		\multicolumn{6}{|l|}{\textbf{Příčina~vady~(Failure~Cause)}} \\ \hline
+		\multicolumn{6}{|l|}{\textbf{Příčina~vady~(Failure~Cause):}} \\
 		\multicolumn{6}{|>{\RaggedRight\arraybackslash}p{\dimexpr \textwidth - 2\tabcolsep - 2\arrayrulewidth}|}{\textit{\l_fmea_fc_tl}} \\ \hline
 		
-		\multicolumn{6}{|l|}{\textbf{Následek~vady~(Failure~Effect)}} \\ \hline
+		\multicolumn{6}{|l|}{\textbf{Následek~vady~(Failure~Effect):}} \\
 		\multicolumn{6}{|>{\RaggedRight\arraybackslash}p{\dimexpr \textwidth - 2\tabcolsep - 2\arrayrulewidth}|}{\textit{\l_fmea_fe_tl}} \\ \hline
 		
-		\multicolumn{2}{|>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textbf{Lokální~dopad}} & 
-		\multicolumn{2}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textbf{Dopad~na~vyšší~úroveň}} & 
-		\multicolumn{2}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textbf{Systémový~dopad}} \\ \hline
+		\multicolumn{2}{|>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textbf{Lokální~dopad:}} & 
+		\multicolumn{2}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textbf{Dopad~na~vyšší~úroveň:}} & 
+		\multicolumn{2}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textbf{Systémový~dopad:}} \\
 		\multicolumn{2}{|>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textit{\l_fmea_lokalni_tl}} & 
 		\multicolumn{2}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textit{\l_fmea_vyssi_tl}} & 
 		\multicolumn{2}{>{\RaggedRight\arraybackslash}p{\dimexpr 0.333\textwidth - 2\tabcolsep - 1.33\arrayrulewidth}|}{\textit{\l_fmea_system_tl}} \\ \hline
 		
-		\multicolumn{6}{|l|}{\textbf{Současná~preventivní~a~detekční~opatření}} \\ \hline
+		\multicolumn{6}{|l|}{\textbf{Současná~preventivní~a~detekční~opatření:}} \\
 		\multicolumn{6}{|>{\RaggedRight\arraybackslash}p{\dimexpr \textwidth - 2\tabcolsep - 2\arrayrulewidth}|}{\textit{\l_fmea_opatreni_tl}} \\ \hline
 		
-		\multicolumn{2}{|l|}{\textbf{Závažnost~(S)}} & \multicolumn{2}{l|}{\textbf{Výskyt~(O)}} & \multicolumn{2}{l|}{\textbf{Detekce~(D)}} \\ \hline
+		\multicolumn{2}{|l|}{\textbf{Závažnost~(S):}} & \multicolumn{2}{l|}{\textbf{Výskyt~(O):}} & \multicolumn{2}{l|}{\textbf{Detekce~(D):}} \\
 		\multicolumn{2}{|l|}{\l_fmea_s_tl} & \multicolumn{2}{l|}{\l_fmea_o_tl} & \multicolumn{2}{l|}{\l_fmea_d_tl} \\ \hline
 		
-		\multicolumn{6}{|r|}{\textbf{Kritičnost~(RPN):} \quad \textbf{\fpeval{\l_fmea_s_tl * \l_fmea_o_tl * \l_fmea_d_tl}} \quad} \\ \hline
+		\multicolumn{6}{|r|}{\textbf{Kritičnost~(Risk Priority Number):} \quad \textbf{\fpeval{\l_fmea_s_tl * \l_fmea_o_tl * \l_fmea_d_tl}} \quad} \\ \hline
 	\end{tabularx}
 	\vspace{2em}
 	\group_end:
@@ -1061,7 +1061,13 @@ Detekce hodnotí schopnost identifikovat vadu před jejím kritickým selháním
 	\end{tabularx}
 \end{table}
 
-\subsection{title}
+\subsection{Zpracování analýzy}
+Adaptací hodnoticích škál FMEA jsou zkompletovány všechny nástroje nezbytné pro analýzu zdrojového kódu. Samotný proces analýzy připomíná princip kompilace: zdrojový kód je nejprve reprezentován diagramem objektů a morfismů, který plní obdobnou roli jako abstraktní syntaktický strom. Z této reprezentace se následně odvozují analýzy pro příslušnou úroveň abstrakce. Na úrovni kódu se hledá porušení pravidel clean code, zatímco na úrovni komponent se hledají architektonické protivzory vhodné k refaktorování. Konkrétní vady jsou pak přiřazeny jednotlivým nedostatkům a formalizovány formou záznamu do analýzy FMEA.
+
+\subsubsection{Serverový modul}
+
+
+\subsubsection{Archivní modul}
 
 \section{Modelování doménových procesů}
 
