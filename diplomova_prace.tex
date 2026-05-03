@@ -181,7 +181,11 @@
 	\textbf{CD} & Continuous Deployment (Postupné nasazení)\\
 	\textbf{CI} & Continuous Integration (Postupná integrace)\\
 	\textbf{MES} & Manufacturing Execution System \\
-	\textbf{IDE} & Integrated Development Environment (Integrované vývojové prostředí)\\
+	\textbf{IDE} & Integrované vývojové prostředí\\
+	\textbf{LAN adresa} & Adresa zařízení v lokální síťi. \\
+	\textbf{MAC adresa} & Adresa fyzického síťového rozhraní.\\
+	\textbf{VLAN} & Virtuální lokální síť.\\
+	\textbf{MACVLAN} & Virtuální síť, která vytváří více virtuálních síťových rozhraní s vlastními MAC adresami.
 \end{abbrList}
 
 \chapter{Úvod}
@@ -289,6 +293,7 @@ O konkrétním postupu pak rozhoduje osa technického rizika, která posuzuje pr
 	\includegraphics[width=0.66\textwidth]{obrazky/diplomka/tech_debt_matrix_solution.png}
 	\centering
 	\caption{Kvadranty řešení technického dluhu \parencite{forest-technical-debt}}
+	\label{img:tech_debt_matrix_solution}
 \end{figure}
 
 \section{Clean Code}
@@ -757,6 +762,7 @@ Z formálního hlediska klademe na vrstvenou architekturu $A = (\mathcal{O}, \ma
 Vrstvená architektura primárně řeší problémy spojené s rozdělením úrovní abstrakce, což umožňuje členům vývojového týmu soustředit se na svou specifickou expertízu, aniž by museli detailně rozumět implementaci zbytku aplikace. Tyto pozitivní vlastnosti jsou však přímo podmíněny striktním dodržováním strukturálních pravidel, což s sebou přirozeně nese i určitá negativa. Při vyšším počtu vrstev totiž dochází k nárůstu režie, kdy je nutné i jednoduché operace propisovat skrze celou hierarchii, což může vést k nadbytečné tvorbě kódu, který data pouze pasivně předává. Navíc každá vrstva zůstává funkčně úzce spjata s vrstvou bezprostředně pod ní, takže i když jsou od sebe logicky izolovány, jakákoliv zásadní změna v základech systému se může kaskádovitě promítnout do všech nadřazených pater. \parencite{khan-software-architectures}
 
 \subsubsection{Hexagonální architektura}
+\label{arch:hexagonal}
 Hexagonální architektura představuje alternativu k vrstvené architektuře. Zatímco vrstvy se soustředí na hierarchii, tento vzor se zaměřuje na izolaci doménové logiky od vnějších technologií. Cílem je, aby jádro aplikace bylo nezávislé na tom, zda komunikuje s uživatelem přes webový prohlížeč, mobilní aplikaci nebo zda ukládá data do SQL či NoSQL databáze. \parencite{cockburn-hexagonal-arch}
 
 Z hlediska formálního popisu definujeme hexagonální architekturu jako $A = (\mathcal{O}, \mathcal{H})$, jejíž centrálním objektem je doménové jádro $D$. Toto jádro zapouzdřuje čistou byznys logiku, nezávislou na okolních technologiích. Na hranici domény definujeme porty $P$, které tvoří abstraktní rozhraní systému. K těmto portům přistupují adaptéry $A$, které jsou konkrétními implementacemi k rozhraní, které je portem definováno.
@@ -779,6 +785,7 @@ Vzhledem k navrženému diagramu \ref{diag:hexagonal} lze na výsledný běžíc
 Hexagonální architektura přeměňuje rizika vrstvené architektury v konkureční výhodu. Ve vrstvené architektuře je totiž zcela možné, aby do vyšších pater prosákly i artefakty, které nejsou součástí kontraktu s další vrstvou. Hexagonální model však tento jev mění v řízenou strukturální konvergenci. Namísto vrstev používá porty jako striktní filtry, které nepřipouští vznik morfismů mimo kontrakt. Systém se tak úmyslně nechává zhroutit do jediného stabilního bodu, kde se adaptéry a porty vzájemně pohltí. Tím se celá architektura bezpečně uzamkne do vnitřně konzistentního monoidu domény.
 
 \subsubsection{Událostmi řízená architektura}
+\label{arch:event}
 Událostmi řízená architektura přenáší principy návrhového vzoru Observer (kapitola \ref{chapter:observer}) na úroveň celého systémového řešení. Komunikace mezi komponentami v tomto modelu neprobíhá skrze přímé synchronní volání, ale prostřednictvím zpráv (událostí), které jsou distribuovány mezi zúčastněné celky skrze nezávislé prostředníky.
 
 \begin{figure}[H]
@@ -1147,9 +1154,107 @@ Ačkoliv bych rád pokračoval v detailní analýze zbývajících částí syst
 
 \section{Modelování doménových procesů}
 
-\chapter{Architektura nového řešení}
 
-\section{Postupné nasazení}
+\begin{itemize}
+	\item Vytvoření a nastavení projektu
+	\item Vytvoření datasetu
+	\item Nafocení 
+\end{itemize}
+
+\chapter{Architektura nového řešení}
+Na základě výsledků analýzy FMEA a modelování doménových procesů v notaci BPMN bylo nutné z mojí strany stanovit další postup, který nalezené vady napraví. Po důkladném zvážení všech technických aspektů a s přihlédnutím k podnětům budoucích partnerů společnosti CLOUDCODE jsem se rozhodl pro kompletní přepis aplikace. Při zpětném pohledu na metodiku řešení technického dluhu (viz obrázek \ref{img:tech_debt_matrix_solution}) a v souvislosti s předchozími zjištěními je zřejmé, že stávající moduly jsou nejen vysoce hodnotné pro business, ale také vysoce technicky rizikové. V takovém případě prosté refaktorování nepřichází v úvahu, protože je možné ještě větší zanesení chyb a čas strávený na přepisu se může vyšplhat na několikanásobek času stráveného na vytvoření funkcionality od znova.
+
+\section{Změny na úrovni systémového kontextu}
+Místo detailního popisu chronologického postupu tvorby celého programového řešení považuji za přínosnější zaměřit se na komparaci změn oproti stávající verzi a odůvodnit volbu konkrétních přístupů. Namísto postupu zdola nahoru budu postupovat opaačně, tedy shora dolů.
+
+\subsection{Standardizace běhového prostředí}
+Původní programové řešení bylo provozováno přímo na hostitelském operačním systému, což vyžadovalo přímý přístup ke všem systémovým prostředkům a vedlo k silné závislosti na konkrétní konfiguraci prostředí. S ohledem na požadavky partnerů a integrátorů jsem v nové verzi zvolil kontejnerizaci pomocí platformy Docker. Tento přístup umožňuje izolaci aplikace a sjednocuje přístup k souborovému systému, který je nyní definován deklarativně prostřednictvím souborů Dockerfile. Tím je zajištěna konzistence prostředí napříč vývojovými, testovacími i produkčními fázemi.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-system-context-2.excalidraw.png
+	}
+	\centering
+	\caption{C4 po standardizaci běhového prostředí}
+\end{figure}
+
+
+\subsection{Sjednocená práce s externími periferiemi}
+Přechod na kontejnerizované prostředí si vyžádal také revizi přístupu k hardwarovým periferiím. Systém AITechDetect nejčastěji integruje kamery společnosti Basler připojované přes rozhraní USB či LAN, přičemž v pokročilých nasazeních spolupracuje také s PLC od společnosti Siemens či robotickými rameny FANUC. V rámci této práce jsem se soustředil primárně na konektivitu kamer a zajištění plné funkčnosti oficiálního SDK výrobce uvnitř kontejneru.
+
+Pro kamery s rozhraním USB, a potažmo i pro další zařízení na sériové sběrnici, bylo řešení realizováno pomocí mapování adresářů (bind mount), konkrétně provázáním hostitelského adresáře \texttt{/dev/bus/usb} s prostředím kontejneru. Náročnější výzvu představovaly LAN kamery, které v síťové architektuře vystupují jako samostatná rozhraní. Docker standardně izoluje kontejnery do vlastních virtuálních sítí, což komplikuje přímou viditelnost zařízení.
+
+Zvažoval jsem možnost provozu kontejnerů v režimu \texttt{host}, kdy aplikace sdílí síťovou vrstvu přímo s hostitelským operačním systémem. Tuto variantu jsem však zamítl z důvodu bezpečnostních rizik. Provoz v izolované síti totiž umožňuje striktně řídit přístup ke službám pomocí reverzní proxy, zatímco v hostitelském režimu by byly nekontrolovaně exponovány všechny naslouchající porty kontejneru. 
+
+Řešením se stalo nasazení síťového ovladače \texttt{macvlan}, který každému kontejneru přiděluje unikátní MAC adresu, čímž mu umožňuje vystupovat v síti jako fyzické zařízení, a naopak přistupovat ke skutečným rozhraním (v tomto případě kamerám) v rámci VLAN. Ačkoliv je tento princip funkční, v budoucnu je na stole hledání alternativních metod. Limitujícím faktorem \texttt{macvlan} je především závislost na hostitelském systému s jádrem Linux verze 3.9 nebo novějším. Dalším kritickým aspektem je vyžadovaný přístup k \textit{root} oprávněním pro správu síťového rozhraní, což z bezpečnostního hlediska tvoří nežádoucí vektory wpro útok \parencite{docker-macvlan}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-system-context-3.excalidraw.png
+	}
+	\centering
+	\caption{C4 po změně přístupu k periferiím}
+\end{figure}
+
+\subsection{Konfigurace výhradně pomocí proměnných prostředí}
+Změna běhového prostředí si vyžádala také změnu konfigurace. Namísto pevných konfiguračních souborů nyní systém využívá jen a pouze proměnné prostředí (\textit{environment variables}), což je v kontejnerizované infrastruktuře standardem. Veškeré parametry jsou centralizovány v souboru \texttt{.env}. Toto řešení zajišťuje, že všechny moduly přebírají konfiguraci z jednoho místa, což eliminuje riziko nekonzistence mezi jednotlivými službami.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-system-context-4.excalidraw.png
+	}
+	\centering
+	\caption{C4 po změně extrakci konfigurace do proměnných prostředí}
+\end{figure}
+
+\clearpage
+\subsection{Vývojový cyklus pomocí Dev Containers}
+S přechodem na kontejnerizované prostředí vznikla také otázka, zda-li do něj nepřesunout také vývojový cyklus. Z mojí vlastní zkušenosti je totiž docela časté, že něco \textit{"funguje na mém stroji"}, ale v kontejnerizovaném prostředí může funkcionalita selhat.
+
+Rozhodl jsem se využít technologii Dev Containers s integrací ve Visual Studio Code, která umožňuje vytvářet plně kontejnerizovaná vývojová prostředí. Na základě analýzy jejich chování jsem vypozoroval klíčový princip, na kterém jsou tato prostředí postavena. Adresář se zdrojovým kódem je obousměrně namapován z hostitelského zařízení do kontejneru, čímž je umožněno měnit obsah souborů jak na hostitelském stroji, tak i v kontejneru. \texttt{Dockerfile} pak definuje systémové závislosti a proces sestavení, samotný kontejner je následně udržován v aktivním stavu pomocí příkazu \texttt{sleep infinity}. To v praxi umožňuje kdykoliv přichytit interaktivní shell a spustit vývojovou verzi programu přímo uvnitř izolovaného prostředí.
+
+Každý Dev Container je navíc definován s vlastním souborem \texttt{docker-compose.yml}, který vznikajícímu kontejneru přiřazuje specifický \texttt{.env} soubor ze společného konfiguračního adresáře, definuje jeho síťovou identitu a jmenný prostor. Tímto způsobem je zajištěn prakticky dokonalý izomorfismus mezi vývojovým a produkčním kontejnerem v rámci celého nasazení. Vývojář tak pracuje v prostředí, které je svými parametry a chováním identické s finálním provozním stavem, což eliminuje chyby vznikající rozdílností systémových knihoven či konfigurací.
+
+Nevýhodou tohoto přístupu je vyšší pracnost při spouštění kompletního vývojového prostředí. Konfigurační soubor \texttt{docker-compose.yml} ve vývojové verzi totiž obsahuje pouze podpůrné služby a databáze, zatímco každou službu s aplikační logikou musí vývojář iniciovat samostatně. Na druhou stranu tento model umožňuje velmi efektivně simulovat a testovat chování systému při výpadku konkrétní kombinace služeb. Tuto specifickou vlastnost je nicméně nutné reflektovat při budoucím rozšiřování systému o další komponenty.
+
+Oproti vývojovému režimu si produkční verze jednotlivé obrazy (images) sestavuje automatizovaně, přičemž je k dispozici i verze využívající lokální obrazy. Primárním cílem této strategie je zamezit přítomnosti zdrojového kódu na cílové stanici. Již sestavené obrazy jsou proto přenášeny v exportovaném formátu archivu \texttt{.tar} (tarball) a následně importovány do cílového prostředí a spouštěny na základě jejich identifikátoru a tagu.
+\clearpage
+
+\section{Změny na úrovni kontejnerů}
+V této kapitole se zaměřím na detailnější úroveň návrhu, která přímo navazuje na implementaci vývojového prostředí popsanou v předchozí kapitole. Analýzy stávajícího řešení jednoznačně ukázaly, že dva monolitické procesy s nevyhovujícím rozdělením odpovědností jsou pro moderní provoz systému nedostačující. Následující kapitola proto popisuje můj postup při návrhu architektury jednotlivých kontejnerů a definování jejich specifických rolí. Klíčovým cílem bylo dosažení správného rozdělení odpovědností, která umožní lepší škálovatelnost a údržbu celého programového řešení.
+
+\subsection{Rozbití monolitu na mikroslužby}
+Rozdělení monolitu na mikroslužby přichází zejména kvůli škálovatelnoti a paralelizaci. V současném řešení je příliš snadné zablokovat celé řešení náročnou operací se souborovým systémem. Při analýze funkcí, které původní dva procesy zajišťovaly, lze identifikovat několik oblastí, ze kterých lze vytvořit samostatné mikroslužby. Proces \textit{Autoeval} zodpovídal za trénování, inferenci a validaci metrik neuronových sítí. Proces \textit{ccm\_uni} pak sdružoval grafické uživatelské rozhraní, REST API, správu souborového systému a databázovou vrstvu. Na základě této analýzy jsem navrhl dekompozici systému do následujících mikroslužeb:
+
+\begin{itemize}
+	\item \textbf{Backend} – Služba poskytující REST API pro orchestraci systému AITechDetect a správu komunikace mezi ostatními službami.
+	\item \textbf{Frontend} – Uživatelské rozhraní postavené nad REST API.
+	\item \textbf{Machine Learning} – Služba zajišťující veškeré operace spojené s životním cyklem a během neuronových sítí.
+	\item \textbf{Peripherals} – Služba pro nízkoúrovňovou komunikaci s připojenými hardwarovými periferiemi a správu jejich stavu.
+\end{itemize}
+
+Tato dekompozice umožňuje aplikovat odlišné architektonické přístupy pro každou službu individuálně a efektivně tak využít jejich specifických předností v relevantních oblastech. Pro služby \textit{Machine Learning} a \textit{Peripherals} se jeví jako vhodnější přístup využití architektury řízené událostmi (viz kapitola \ref{arch:event}). Tato volba reflektuje samotnou podstatu jejich návrhu, neboť obě služby musí asynchronně zpracovávat požadavky delegované službou \textit{Backend}. Tento model umožňuje efektivní odbavování výpočetně náročných úloh a nízkoúrovňových operací s hardwarem, aniž by docházelo k blokování hlavního komunikačního toku systému skrz službu \textit{Backend}.
+
+% Přidání odstavce o arch backendu a frontendu.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{obrazky/diplomka/c4-containers-2.excalidraw.png
+	}
+	\centering
+	\caption{C3 po rozdělení na mikroslužby}
+\end{figure}
+
+\subsection{Přidání autentizační a autorizační služby}
+
+\subsection{Přidání služeb pro správu uložiště}
+
+\subsection{Přidání dokumentové databáze}
+
+\section{Změny na úrovni komponent}
+
+\section{Změny na úrovni kódu}
+
 \chapter{Závěr}
 
 \clearpage
